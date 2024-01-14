@@ -6,6 +6,7 @@
  */
 package frc.lib.swerve;
 
+import java.util.ArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -75,7 +76,7 @@ public class SwerveDrivetrain {
 
     protected final ReadWriteLock m_stateLock = new ReentrantReadWriteLock();
 
-    //protected final SimSwerveDrivetrain m_simDrive;
+    // protected final SimSwerveDrivetrain m_simDrive;
     protected final boolean IsOnCANFD;
 
     private final Field2d m_field = new Field2d();
@@ -98,12 +99,14 @@ public class SwerveDrivetrain {
 
     /* Perform swerve module updates in a separate thread to minimize latency */
     public class OdometryThread extends Thread {
-        private static final int START_THREAD_PRIORITY = 1; // Testing shows 1 (minimum realtime) is sufficient for tighter
+        private static final int START_THREAD_PRIORITY = 1; // Testing shows 1 (minimum realtime) is sufficient for
+                                                            // tighter
                                                             // odometry loops.
-                                                            // If the odometry period is far away from the desired frequency,
+                                                            // If the odometry period is far away from the desired
+                                                            // frequency,
                                                             // increasing this may help
 
-        private BaseStatusSignal[] m_allSignals;
+        private ArrayList<BaseStatusSignal[]> m_allSignals;
         public int SuccessfulDaqs = 0;
         public int FailedDaqs = 0;
         MedianFilter peakRemover = new MedianFilter(3);
@@ -117,27 +120,27 @@ public class SwerveDrivetrain {
 
         public OdometryThread() {
             super();
-            /* Mark this thread as a "daemon" (background) thread
-             * so it doesn't hold up program shutdown */
+            /*
+             * Mark this thread as a "daemon" (background) thread
+             * so it doesn't hold up program shutdown
+             */
             setDaemon(true);
 
             /* 4 signals for each module + 2 for Pigeon2 */
-            m_allSignals = new BaseStatusSignal[(ModuleCount * 4) /*+ 2*/];
+            m_allSignals = new ArrayList<BaseStatusSignal[]>();
             for (int i = 0; i < ModuleCount; ++i) {
-                var signals = Modules[i].getSignals();
-                m_allSignals[(i * 4) + 0] = signals[0];
-                m_allSignals[(i * 4) + 1] = signals[1];
-                m_allSignals[(i * 4) + 2] = signals[2];
-                m_allSignals[(i * 4) + 3] = signals[3];
+                m_allSignals.add(Modules[i].getSignals());
             }
-            //m_allSignals[m_allSignals.length - 2] = m_yawGetter;
-            //m_allSignals[m_allSignals.length - 1] = m_angularZGetter;
+            BaseStatusSignal[] imuSignals = {m_yawGetter, m_angularZGetter};
+            m_allSignals.add(imuSignals);
         }
 
         @Override
         public void run() {
             /* Make sure all signals update at around 250hz */
-            BaseStatusSignal.setUpdateFrequencyForAll(UpdateFrequency, m_allSignals);
+            for (int i = 0; i < m_allSignals.size(); i++) {
+                BaseStatusSignal.setUpdateFrequencyForAll(UpdateFrequency, m_allSignals.get(i));
+            }
             Threads.setCurrentThreadPriority(true, START_THREAD_PRIORITY);
 
             /* Run as fast as possible, our signals will control the timing */
@@ -145,28 +148,33 @@ public class SwerveDrivetrain {
                 /* Synchronously wait for all signals in drivetrain */
                 /* Wait up to twice the period of the update frequency */
                 StatusCode status;
-                if (IsOnCANFD) {
-                    status = BaseStatusSignal.waitForAll(2.0 / UpdateFrequency, m_allSignals);
-                } else {
-                    try {
-                        /* Wait for the signals to update */
-                        Thread.sleep((long)((1.0 / UpdateFrequency) * 1000.0));
-                    } catch (InterruptedException ex) {}
-                    status = BaseStatusSignal.refreshAll(m_allSignals);
+                for (int i = 0; i < m_allSignals.size(); i++) {
+                    if (IsOnCANFD) {
+                        status = BaseStatusSignal.waitForAll(2.0 / UpdateFrequency, m_allSignals.get(i));
+                    } else {
+                        try {
+                            /* Wait for the signals to update */
+                            Thread.sleep((long) ((1.0 / UpdateFrequency) * 1000.0));
+                        } catch (InterruptedException ex) {
+                        }
+                        status = BaseStatusSignal.refreshAll(m_allSignals.get(i));
+                    }
+                    /* Get status of first element */
+                    if (status.isOK()) {
+                        SuccessfulDaqs++;
+                    } else {
+                        FailedDaqs++;
+                    }
                 }
                 m_stateLock.writeLock().lock();
 
                 lastTime = currentTime;
                 currentTime = Utils.getCurrentTimeSeconds();
-                /* We don't care about the peaks, as they correspond to GC events, and we want the period generally low passed */
+                /*
+                 * We don't care about the peaks, as they correspond to GC events, and we want
+                 * the period generally low passed
+                 */
                 averageLoopTime = lowPass.calculate(peakRemover.calculate(currentTime - lastTime));
-
-                /* Get status of first element */
-                if (status.isOK()) {
-                    SuccessfulDaqs++;
-                } else {
-                    FailedDaqs++;
-                }
 
                 /* Now update odometry */
                 /* Keep track of the change in azimuth rotations */
@@ -174,8 +182,8 @@ public class SwerveDrivetrain {
                     m_modulePositions[i] = Modules[i].getPosition(false);
                 }
                 // Assume Pigeon2 is flat-and-level so latency compensation can be performed
-                double yawDegrees = m_yawGetter.getValue(); //BaseStatusSignal.getLatencyCompensatedValue(
-                        //m_yawGetter, m_angularZGetter);  //latency comp broke for now RJS
+                double yawDegrees = m_yawGetter.getValue(); // BaseStatusSignal.getLatencyCompensatedValue(
+                // m_yawGetter, m_angularZGetter); //latency comp broke for now RJS
                 SmartDashboard.putNumber("Yaw", yawDegrees);
 
                 /* Keep track of previous and current pose to account for the carpet vector */
@@ -223,10 +231,12 @@ public class SwerveDrivetrain {
         }
 
         /**
-         * Sets the DAQ thread priority to a real time priority under the specified priority level
+         * Sets the DAQ thread priority to a real time priority under the specified
+         * priority level
          *
          * @param priority Priority level to set the DAQ thread to.
-         *                 This is a value between 0 and 99, with 99 indicating higher priority and 0 indicating lower priority.
+         *                 This is a value between 0 and 99, with 99 indicating higher
+         *                 priority and 0 indicating lower priority.
          */
         public void setThreadPriority(int priority) {
             threadPriorityToSet = priority;
@@ -235,7 +245,7 @@ public class SwerveDrivetrain {
 
     protected boolean checkIsOnCanFD(String canbusName) {
         return false;
-        //return Unmanaged.isNetworkFD(canbusName);
+        // return Unmanaged.isNetworkFD(canbusName);
     }
 
     /**
@@ -250,7 +260,7 @@ public class SwerveDrivetrain {
      * @param modules             Constants for each specific module
      */
     public SwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
-        this(driveTrainConstants, 250, modules); 
+        this(driveTrainConstants, 250, modules);
     }
 
     /**
@@ -272,9 +282,9 @@ public class SwerveDrivetrain {
         UpdateFrequency = OdometryUpdateFrequency;
         ModuleCount = modules.length;
 
-        IsOnCANFD = checkIsOnCanFD(driveTrainConstants.CANbusName);
+        IsOnCANFD = checkIsOnCanFD(driveTrainConstants.CANbusName[0]);
 
-        m_pigeon2 = new Pigeon2(driveTrainConstants.Pigeon2Id, driveTrainConstants.CANbusName);
+        m_pigeon2 = new Pigeon2(driveTrainConstants.Pigeon2Id, driveTrainConstants.CANbusName[0]);
         m_yawGetter = m_pigeon2.getYaw().clone();
         m_angularZGetter = m_pigeon2.getAngularVelocityZDevice().clone();
 
@@ -284,7 +294,7 @@ public class SwerveDrivetrain {
 
         int iteration = 0;
         for (SwerveModuleConstants module : modules) {
-            Modules[iteration] = new SwerveModule(module, driveTrainConstants.CANbusName,
+            Modules[iteration] = new SwerveModule(module, driveTrainConstants.CANbusName[iteration],
                     driveTrainConstants.SupportsPro);
             m_moduleLocations[iteration] = new Translation2d(module.LocationX, module.LocationY);
             m_modulePositions[iteration] = Modules[iteration].getPosition(true);
@@ -296,7 +306,8 @@ public class SwerveDrivetrain {
 
         m_fieldRelativeOffset = new Rotation2d();
 
-        //m_simDrive = new SimSwerveDrivetrain(m_moduleLocations, m_pigeon2, driveTrainConstants, modules);
+        // m_simDrive = new SimSwerveDrivetrain(m_moduleLocations, m_pigeon2,
+        // driveTrainConstants, modules);
 
         m_odometryThread = new OdometryThread();
         m_odometryThread.start();
@@ -348,7 +359,7 @@ public class SwerveDrivetrain {
     }
 
     // public Command zeroCommand() {
-    //     return runOnce(() -> this.tareEverything()).ignoringDisable(true);
+    // return runOnce(() -> this.tareEverything()).ignoringDisable(true);
     // }
 
     /**
@@ -552,27 +563,29 @@ public class SwerveDrivetrain {
      * Updates all the simulation state variables for this
      * drivetrain class. User provides the update variables for the simulation.
      *
-     * @param dtSeconds time since last update call
+     * @param dtSeconds     time since last update call
      * @param supplyVoltage voltage as seen at the motor controllers
      */
-    //public void updateSimState(double dtSeconds, double supplyVoltage) {
-    //    m_simDrive.update(dtSeconds, supplyVoltage, Modules);
-    //}
+    // public void updateSimState(double dtSeconds, double supplyVoltage) {
+    // m_simDrive.update(dtSeconds, supplyVoltage, Modules);
+    // }
 
     public void updateField() {
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
     }
 
-
     /**
-     * Register the specified lambda to be executed whenever our SwerveDriveState function
+     * Register the specified lambda to be executed whenever our SwerveDriveState
+     * function
      * is updated in our odometry thread.
      * <p>
-     * It is imperative that this function is cheap, as it will be executed along with
+     * It is imperative that this function is cheap, as it will be executed along
+     * with
      * the odometry call, and if this takes a long time, it may negatively impact
      * the odometry of this stack.
      * <p>
-     * This can also be used for logging data if the function performs logging instead of telemetry
+     * This can also be used for logging data if the function performs logging
+     * instead of telemetry
      *
      * @param telemetryFunction Function to call for telemetry or logging
      */

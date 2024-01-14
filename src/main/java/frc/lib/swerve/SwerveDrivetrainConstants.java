@@ -21,7 +21,7 @@ public class SwerveDrivetrainConstants {
      *   <li>"*" for any CANivore seen by the program
      * </ul>
      */
-    public String CANbusName = "";
+    public String[] CANbusName = {"CANivore", "CANivore", "CANivore2", "CANivore2"};
 
     /** If using Pro, specify this as true to make use of all the Pro features. */
     public boolean SupportsPro = false;
@@ -49,10 +49,10 @@ public class SwerveDrivetrainConstants {
      * @param name Name of the CAN bus the swerve drive is on
      * @return this object
      */
-    public SwerveDrivetrainConstants withCANbusName(String name) {
-        this.CANbusName = name;
-        return this;
-    }
+    // public SwerveDrivetrainConstants withCANbusName(String name) {
+    //     this.CANbusName = name;
+    //     return this;
+    // }
 
     /**
      * If using Pro, specify this as true to make use of all the Pro features.
