@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.lib.swerve.utility.Telemetry;
@@ -79,6 +80,18 @@ public class RobotContainer {
     ArrayList<LogData> logs = new ArrayList<>();
     logs.add(example.getLogger());
     reflectingLogger = new ReflectingLogger<>(logs);
+
+    SmartDashboard.putNumber("Robot/X", 0);
+    SmartDashboard.putNumber("Robot/Y", 0);
+    SmartDashboard.putNumber("Robot/Heading", 0);
+
+
+    SmartDashboard.putData("Reset robot pose", Commands.runOnce(() -> {
+      double robotX = SmartDashboard.getNumber("Robot/X", 0);
+      double robotY = SmartDashboard.getNumber("Robot/Y", 0);
+      Rotation2d robotHeading = new Rotation2d(SmartDashboard.getNumber("Robot/Heading", 0));
+      drivetrain.resetPose(new Pose2d(robotX, robotY, robotHeading));
+    }, drivetrain).ignoringDisable(true));
 
   }
 
