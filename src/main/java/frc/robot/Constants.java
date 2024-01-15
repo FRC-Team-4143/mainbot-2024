@@ -13,6 +13,14 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static class DriveConstants {
+    // Can bus names for each of the swerve modules
+    public String[] CANbusName = {"CANivore", "CANivore", "CANivore2", "CANivore2"};
+
+    // Can bus ID for the pigeon
+    public int Pigeon2Id = 0;
+  }
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }

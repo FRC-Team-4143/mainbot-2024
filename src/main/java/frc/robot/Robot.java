@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import edu.wpi.first.cameraserver.CameraServer;
 
@@ -42,6 +43,8 @@ public class Robot extends TimedRobot {
       if (lastResult.valid) {
         m_robotContainer.drivetrain.addVisionMeasurement(llPose, Timer.getFPGATimestamp());
       }
+
+      m_robotContainer.runLog(Timer.getFPGATimestamp());
     }
   }
 

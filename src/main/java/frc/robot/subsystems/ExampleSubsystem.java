@@ -4,35 +4,34 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.logger.Logable;
 
-public class ExampleSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {}
+public class ExampleSubsystem extends SubsystemBase implements Logable {
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
+  // Singleton pattern
+  private static ExampleSubsystem exampleInstance = null;
+  public static ExampleSubsystem getInstance() {
+    if(exampleInstance == null){
+      exampleInstance = new ExampleSubsystem();
+    }
+    return exampleInstance;
   }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
+  public class PeriodicIo extends LogData {
+
+    public double x = 0;
+    public double y = 1;
+
+    public Pose2d something = new Pose2d();
+  }
+
+  PeriodicIo io;
+
+  /** Creates a new ExampleSubsystem. */
+  private ExampleSubsystem() {
+    io = new PeriodicIo();
   }
 
   @Override
@@ -43,5 +42,10 @@ public class ExampleSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+  }
+
+  @Override
+  public LogData getLogger() {
+    return io;
   }
 }
