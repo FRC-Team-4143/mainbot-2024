@@ -9,21 +9,22 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.lib.swerve.utility.Telemetry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-
 public class RobotContainer {
   final double MaxSpeed = 6; // 6 meters per second desired top speed
-  final double MaxAngularRate = Math.PI*2; // Half a rotation per second max angular velocity
+  final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   CommandXboxController joystick = new CommandXboxController(0); // My joystick
   CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric().withIsOpenLoop(true).withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1); // I want field-centric
+  SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric().withIsOpenLoop(true).withDeadband(MaxSpeed * 0.1)
+      .withRotationalDeadband(MaxAngularRate * 0.1); // I want field-centric
   SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withIsOpenLoop(true);
   SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -49,10 +50,12 @@ public class RobotContainer {
 
     // reset the field-centric heading on left bumper press
     joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()).ignoringDisable(true));
-    SmartDashboard.putData("Set wheel offsets", drivetrain.runOnce(() -> drivetrain.tareEverything()).ignoringDisable(true));
+    SmartDashboard.putData("Set wheel offsets",
+        drivetrain.runOnce(() -> drivetrain.tareEverything()).ignoringDisable(true));
 
     // if (Utils.isSimulation()) {
-    //   drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+    // drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
+    // Rotation2d.fromDegrees(90)));
     // }
     drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -60,6 +63,18 @@ public class RobotContainer {
     joystick.pov(90).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5)));
     joystick.pov(180).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
     joystick.pov(270).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.5)));
+
+    SmartDashboard.putNumber("Robot/X", 0);
+    SmartDashboard.putNumber("Robot/Y", 0);
+    SmartDashboard.putNumber("Robot/Heading", 0);
+
+
+    SmartDashboard.putData("Reset robot pose", Commands.runOnce(() -> {
+      double robotX = SmartDashboard.getNumber("Robot/X", 0);
+      double robotY = SmartDashboard.getNumber("Robot/Y", 0);
+      Rotation2d robotHeading = new Rotation2d(SmartDashboard.getNumber("Robot/Heading", 0));
+      drivetrain.resetPose(new Pose2d(robotX, robotY, robotHeading));
+    }, drivetrain).ignoringDisable(true));
 
   }
 

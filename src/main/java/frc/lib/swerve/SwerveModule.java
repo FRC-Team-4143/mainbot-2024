@@ -29,6 +29,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 
 
 /**
@@ -45,7 +46,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class SwerveModule {
     private final TalonFX m_driveMotor;
     private final TalonFX m_steerMotor;
-    //private final CANcoder m_cancoder;
+    private final AnalogEncoder m_encoder;
 
     private final StatusSignal<Double> m_drivePosition;
     private final StatusSignal<Double> m_driveVelocity;
@@ -79,7 +80,7 @@ public class SwerveModule {
         m_driveMotor = new TalonFX(constants.DriveMotorId, canbusName);
         m_steerMotor = new TalonFX(constants.SteerMotorId, canbusName);
         m_steerMotorID = constants.SteerMotorId;
-        //m_cancoder = new CANcoder(constants.CANcoderId, canbusName);
+        m_encoder = new AnalogEncoder(constants.encoderId);
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
@@ -112,19 +113,20 @@ public class SwerveModule {
         switch(constants.FeedbackSource) {
             case RemoteCANcoder:
                 talonConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-                talonConfigs.Feedback.FeedbackRemoteSensorID = constants.CANcoderId;
+                talonConfigs.Feedback.FeedbackRemoteSensorID = constants.encoderId;
                 talonConfigs.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
                 break;
             case FusedCANcoder:
                 talonConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-                talonConfigs.Feedback.FeedbackRemoteSensorID = constants.CANcoderId;
+                talonConfigs.Feedback.FeedbackRemoteSensorID = constants.encoderId;
                 talonConfigs.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
                 break;
             case SyncCANcoder:
                 talonConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
-                talonConfigs.Feedback.FeedbackRemoteSensorID = constants.CANcoderId;
+                talonConfigs.Feedback.FeedbackRemoteSensorID = constants.encoderId;
                 talonConfigs.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
                 break;
+            case AnalogEncoder:
             case None:
                 talonConfigs.Feedback.SensorToMechanismRatio = constants.SteerMotorGearRatio;
                 break;
@@ -320,7 +322,7 @@ public class SwerveModule {
     }
 
     public void setWheelOffsets() {
-        m_steerMotor.setPosition(0);
+        m_steerMotor.setPosition(m_encoder.getAbsolutePosition()*360);
     }
 
     /**

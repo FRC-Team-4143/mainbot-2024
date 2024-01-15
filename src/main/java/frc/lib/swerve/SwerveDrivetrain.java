@@ -358,6 +358,21 @@ public class SwerveDrivetrain {
         }
     }
 
+
+    public void resetPose(Pose2d currentPose2d) {
+        try {
+            m_stateLock.writeLock().lock();
+
+            for (int i = 0; i < ModuleCount; ++i) {
+                Modules[i].resetPosition();
+                m_modulePositions[i] = Modules[i].getPosition(true);
+            }
+            m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, currentPose2d);
+        } finally {
+            m_stateLock.writeLock().unlock();
+        }
+    }
+
     // public Command zeroCommand() {
     // return runOnce(() -> this.tareEverything()).ignoringDisable(true);
     // }

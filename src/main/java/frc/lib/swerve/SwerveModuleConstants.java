@@ -16,6 +16,7 @@ public class SwerveModuleConstants {
         RemoteCANcoder,
         FusedCANcoder,
         SyncCANcoder,
+        AnalogEncoder,
 	None,
     }
 
@@ -24,7 +25,7 @@ public class SwerveModuleConstants {
     /** CAN ID of the steer motor. */
     public int SteerMotorId = 0;
     /** CAN ID of the CANcoder used for azimuth. */
-    public int CANcoderId = 0;
+    public int encoderId = 0;
     /** Offset of the CANcoder in rotations. */
     public double CANcoderOffset = 0;
 
@@ -122,7 +123,7 @@ public class SwerveModuleConstants {
      * @return this object
      */
     public SwerveModuleConstants withCANcoderId(int id) {
-        this.CANcoderId = id;
+        this.encoderId = id;
         return this;
     }
 
