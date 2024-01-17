@@ -92,7 +92,7 @@ public class SwerveModuleConstants {
      * Otherwise, users have the option to use either FusedCANcoder or SyncCANcoder depending
      * on if there is a risk that the CANcoder can fail in a way to provide "good" data.
      */
-    public SwerveModuleSteerFeedbackType FeedbackSource = SwerveModuleSteerFeedbackType.RemoteCANcoder;
+    public SwerveModuleSteerFeedbackType FeedbackSource = SwerveModuleSteerFeedbackType.AnalogEncoder;
 
     /**
      * Sets the CAN ID of the drive motor.

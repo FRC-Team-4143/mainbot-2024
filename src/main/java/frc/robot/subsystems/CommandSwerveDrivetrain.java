@@ -8,6 +8,8 @@ import frc.lib.swerve.SwerveModuleConstants;
 import frc.lib.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPoint;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -67,8 +69,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return run(() -> this.setControl(requestSupplier.get()));
     }
 
-    public Command getAutoPath(String pathName) {
-        return new PathPlannerAuto(pathName);
+    public Command getAutoPath(String autoName, String pathName) {
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        PathPoint firstPoint = path.getPoint(0);
+        Pose2d firstPose = new Pose2d(firstPoint.position, path.getGoalEndState().getRotation());
+        resetPose(firstPose);
+        return new PathPlannerAuto(autoName);
     }
 
     @Override
