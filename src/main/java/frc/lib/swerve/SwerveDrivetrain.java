@@ -361,7 +361,7 @@ public class SwerveDrivetrain {
 
     public void resetPose(Pose2d currentPose2d) {
         try {
-            m_stateLock.writeLock().lock();
+            //m_stateLock.writeLock().lock();
 
             for (int i = 0; i < ModuleCount; ++i) {
                 Modules[i].resetPosition();
@@ -369,7 +369,7 @@ public class SwerveDrivetrain {
             }
             m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, currentPose2d);
         } finally {
-            m_stateLock.writeLock().unlock();
+            //m_stateLock.writeLock().unlock();
         }
     }
 

@@ -42,7 +42,7 @@ public class RobotContainer {
   SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
   /* Path follower */
-  Command runAuto = drivetrain.getAutoPath("Tests", "SimplePath");
+
 
   Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -86,12 +86,13 @@ public class RobotContainer {
     SmartDashboard.putNumber("Robot/Heading", 0);
 
 
-    SmartDashboard.putData("Reset robot pose", Commands.runOnce(() -> {
-      double robotX = SmartDashboard.getNumber("Robot/X", 0);
-      double robotY = SmartDashboard.getNumber("Robot/Y", 0);
-      Rotation2d robotHeading = new Rotation2d(SmartDashboard.getNumber("Robot/Heading", 0));
-      drivetrain.resetPose(new Pose2d(robotX, robotY, robotHeading));
-    }, drivetrain).ignoringDisable(true));
+    SmartDashboard.putData("Reset robot pose", drivetrain.setInitPose("SimplePath"));
+    // Commands.runOnce(() -> {
+    //   double robotX = SmartDashboard.getNumber("Robot/X", 0);
+    //   double robotY = SmartDashboard.getNumber("Robot/Y", 0);
+    //   Rotation2d robotHeading = new Rotation2d(SmartDashboard.getNumber("Robot/Heading", 0));
+    //   drivetrain.resetPose(new Pose2d(robotX, robotY, robotHeading));
+    // }, drivetrain).ignoringDisable(true));
 
   }
 
@@ -106,6 +107,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
+      Command runAuto = drivetrain.getAutoPath("Tests", "SimplePath");
     return runAuto;
   }
 }
