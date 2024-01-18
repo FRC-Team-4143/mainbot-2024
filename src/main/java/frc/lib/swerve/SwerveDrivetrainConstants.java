@@ -21,7 +21,7 @@ public class SwerveDrivetrainConstants {
      *   <li>"*" for any CANivore seen by the program
      * </ul>
      */
-    public String[] CANbusName = {"CANivore", "CANivore", "CANivore2", "CANivore2"};
+    public String[] CANbusName = {"CANivore", "CANivore", "CANivore", "CANivore"};
 
     /** If using Pro, specify this as true to make use of all the Pro features. */
     public boolean SupportsPro = false;
