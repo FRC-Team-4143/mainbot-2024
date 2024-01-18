@@ -1,6 +1,12 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 1.2320437764983934,
+      "y": 4.836575493407763
+    },
+    "rotation": 156.19
+  },
   "command": {
     "type": "sequential",
     "data": {
@@ -8,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SimplePath"
+            "pathName": "Test2"
           }
         }
       ]

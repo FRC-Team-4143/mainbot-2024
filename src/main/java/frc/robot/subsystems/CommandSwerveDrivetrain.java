@@ -6,22 +6,15 @@ import frc.lib.swerve.SwerveDrivetrain;
 import frc.lib.swerve.SwerveDrivetrainConstants;
 import frc.lib.swerve.SwerveModuleConstants;
 import frc.lib.swerve.SwerveRequest;
+
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPoint;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -44,6 +37,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     private void configurePathPlanner() {
+        double driveBaseRadius = 0;
+        for(var moduleLocation : m_moduleLocations) {
+            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
+        }
+
         AutoBuilder.configureHolonomic(
                 () -> this.getState().Pose, // Supplier of current robot pose
                 this::seedFieldRelative, // Consumer for seeding pose against auto
@@ -53,7 +51,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
                         new PIDConstants(10, 0, 0),
                         5,
-                        .228,
+                        driveBaseRadius,
                         new ReplanningConfig(false, false),
                         0.004), // faster period than default
 
@@ -76,19 +74,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return run(() -> this.setControl(requestSupplier.get()));
     }
 
-    public Command getAutoPath(String autoName, String pathName) {
-        return new PathPlannerAuto(autoName);
-    }
-
-    public Command setInitPose(String pathName) {
-        return Commands.runOnce(
-                () -> {
-                    PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-                    PathPoint firstPoint = path.getPoint(0);
-                    Pose2d firstPose = new Pose2d(firstPoint.position, firstPoint.rotationTarget.getTarget());
-                    this.resetPose(firstPose);
-                }).ignoringDisable(true);
-    }
 
     @Override
     public void simulationPeriodic() {

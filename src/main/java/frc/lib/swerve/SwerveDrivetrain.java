@@ -16,7 +16,6 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.unmanaged.Unmanaged;
 
 import static frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 
@@ -33,7 +32,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Threads;
-import edu.wpi.first.wpilibj.SerialPort;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -359,19 +357,6 @@ public class SwerveDrivetrain {
     }
 
 
-    public void resetPose(Pose2d currentPose2d) {
-        try {
-            //m_stateLock.writeLock().lock();
-
-            for (int i = 0; i < ModuleCount; ++i) {
-                Modules[i].resetPosition();
-                m_modulePositions[i] = Modules[i].getPosition(true);
-            }
-            m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, currentPose2d);
-        } finally {
-            //m_stateLock.writeLock().unlock();
-        }
-    }
 
     // public Command zeroCommand() {
     // return runOnce(() -> this.tareEverything()).ignoringDisable(true);
@@ -403,6 +388,7 @@ public class SwerveDrivetrain {
             m_stateLock.writeLock().lock();
 
             m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, location);
+            m_cachedState.Pose = location;
         } finally {
             m_stateLock.writeLock().unlock();
         }

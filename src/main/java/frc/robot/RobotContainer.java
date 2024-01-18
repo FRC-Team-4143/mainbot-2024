@@ -12,6 +12,8 @@ import frc.robot.subsystems.ExampleSubsystem;
 
 import java.util.ArrayList;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.lib.swerve.utility.Telemetry;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotContainer {
@@ -43,10 +46,11 @@ public class RobotContainer {
 
   /* Path follower */
 
-
   Telemetry logger = new Telemetry(MaxSpeed);
 
   Pose2d odomStart = new Pose2d(0, 0, new Rotation2d(0, 0));
+
+  private final SendableChooser<Command> autoChooser;
 
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
@@ -81,33 +85,22 @@ public class RobotContainer {
     logs.add(example.getLogger());
     reflectingLogger = new ReflectingLogger<>(logs);
 
-    SmartDashboard.putNumber("Robot/X", 0);
-    SmartDashboard.putNumber("Robot/Y", 0);
-    SmartDashboard.putNumber("Robot/Heading", 0);
-
-
-    SmartDashboard.putData("Reset robot pose", drivetrain.setInitPose("SimplePath"));
-    // Commands.runOnce(() -> {
-    //   double robotX = SmartDashboard.getNumber("Robot/X", 0);
-    //   double robotY = SmartDashboard.getNumber("Robot/Y", 0);
-    //   Rotation2d robotHeading = new Rotation2d(SmartDashboard.getNumber("Robot/Heading", 0));
-    //   drivetrain.resetPose(new Pose2d(robotX, robotY, robotHeading));
-    // }, drivetrain).ignoringDisable(true));
 
   }
 
   public RobotContainer() {
     configureBindings();
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto mode", autoChooser);
   }
 
   public void runLog(double timestamp) {
-  ArrayList<LogData> logs = new ArrayList<>();
+    ArrayList<LogData> logs = new ArrayList<>();
     logs.add(example.getLogger());
     reflectingLogger.update(logs, timestamp);
   }
 
   public Command getAutonomousCommand() {
-      Command runAuto = drivetrain.getAutoPath("Tests", "SimplePath");
-    return runAuto;
+    return autoChooser.getSelected();
   }
 }
