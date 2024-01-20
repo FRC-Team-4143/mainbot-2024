@@ -93,10 +93,6 @@ public class ExampleSubsystem extends Subsystem {
   }
 
   public class PeriodicIo extends LogData {
-
-    public double x = 0;
-    public double y = 1;
-
-    public Pose2d something = new Pose2d();
+    public double test = 0;
   }
 }
