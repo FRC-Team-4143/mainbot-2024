@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-
 import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,42 +25,49 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
-    //CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
 
-    m_robotContainer.drivetrain.getDaqThread().setThreadPriority(99);
+    // m_robotContainer.drivetrain.getDaqThread().setThreadPriority(99);
 
     SignalLogger.start();
   }
+
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
-    if(UseLimelight) {    
-      var lastResult = LimelightHelpers.getLatestResults("limelight").targetingResults;
+    // Call the scheduler so that commands work for buttons
+    CommandScheduler.getInstance().run();
 
-      Pose2d llPose = lastResult.getBotPose2d_wpiBlue();
+    // tell the subsystems to output telemetry to smartdashboard
+    m_robotContainer.outputTelemetry();
 
-      if (lastResult.valid) {
-        m_robotContainer.drivetrain.addVisionMeasurement(llPose, Timer.getFPGATimestamp());
-      }
+    // Integrate limelight pose data
+    if (UseLimelight) {
+      // var lastResult =
+      // LimelightHelpers.getLatestResults("limelight").targetingResults;
 
-      m_robotContainer.runLog(Timer.getFPGATimestamp());
+      // Pose2d llPose = lastResult.getBotPose2d_wpiBlue();
+
+      // if (lastResult.valid) {
+      // m_robotContainer.drivetrain.addVisionMeasurement(llPose,
+      // Timer.getFPGATimestamp());
+      // }
+
     }
   }
 
   @Override
-    public void disabledInit() {
-    }
-
-
-  @Override
-  public void disabledPeriodic() {}
+  public void disabledInit() {
+    m_robotContainer.stopLog();
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.initLogfile();
+    m_autonomousCommand = AutoManager.getInstance().getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -69,23 +75,22 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {Unmanaged.feedEnable(100);}
+  public void autonomousPeriodic() {
 
-  @Override
-  public void autonomousExit() {}
+  }
 
   @Override
   public void teleopInit() {
+    m_robotContainer.initLogfile();
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
   }
 
   @Override
-  public void teleopPeriodic() {Unmanaged.feedEnable(100);}
+  public void teleopPeriodic() {
 
-  @Override
-  public void teleopExit() {
   }
 
   @Override
@@ -94,11 +99,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {Unmanaged.feedEnable(100);}
+  public void testPeriodic() {
 
-  @Override
-  public void testExit() {}
-
-  @Override
-  public void simulationPeriodic() {}
+  }
 }

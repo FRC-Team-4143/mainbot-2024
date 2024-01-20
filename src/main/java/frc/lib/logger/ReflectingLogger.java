@@ -124,6 +124,34 @@ public class ReflectingLogger<T> {
         logMap(fpgaTimestamp);
     }
 
+    protected void createLogEntry(Map.Entry<Field, T> entry, String full_name) throws IllegalAccessException, NoSuchFieldException {
+        // Get the data
+        Object log_data = entry.getKey().get(entry.getValue());
+
+        // Handle null
+        if (log_data == null) {
+            DataLogManager.log("Attempted to log item with null value " + full_name);
+            return; // For now do nothing
+
+            // Handle serializable types
+        } else if (StructSerializable.class.isAssignableFrom(entry.getKey().getType())) {
+            ((StructLogEntry) fieldLogEntryMap.get(full_name)).append(
+                    (Struct<T>) entry.getKey().getType().getDeclaredField("struct").get(entry.getValue()));
+
+            // Handle floating point types
+        } else if (log_data instanceof Number) {
+            ((DoubleLogEntry) fieldLogEntryMap.get(full_name)).append((double) log_data);
+
+            // Handle boolean types
+        } else if (log_data instanceof Boolean) {
+            ((BooleanLogEntry) fieldLogEntryMap.get(full_name)).append((boolean) log_data);
+
+        } else {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
     /**
      * Internal function for taking the class field map and writing it to the opened
      * file
@@ -138,33 +166,22 @@ public class ReflectingLogger<T> {
 
             // Attempt to append subsystem IO value
             try {
-                // Get the data
-                Object log_data = entry.getKey().get(entry.getValue());
-
-                // Handle null
-                if (log_data == null) {
-                    DataLogManager.log("Attempted to log item with null value " + full_name);
-                    continue; // For now do nothing
-
-                    // Handle serializable types
-                } else if (StructSerializable.class.isAssignableFrom(entry.getKey().getType())) {
-                    ((StructLogEntry) fieldLogEntryMap.get(full_name)).append(
-                            (Struct<T>) entry.getKey().getType().getDeclaredField("struct").get(entry.getValue()));
-
-                    // Handle floating point types
-                } else if (log_data instanceof Number) {
-                    ((DoubleLogEntry) fieldLogEntryMap.get(full_name)).append((double) log_data);
-
-                    // Handle boolean types
-                } else if (log_data instanceof Boolean) {
-                    ((BooleanLogEntry) fieldLogEntryMap.get(full_name)).append((boolean) log_data);
-
+                // check if this is a fixed size array type
+                if (entry.getKey().getType().isArray()) {
+                    final int array_len = Array.getLength(entry.getKey().get(entry.getValue()));
+                    for (int i = 0; i < array_len; i++) {
+                        String field_name = full_name + i;
+                        createLogEntry(entry, full_name);
+                    }
                 } else {
-                    throw new UnsupportedOperationException();
+                    // otherwise create the single entry
+                    createLogEntry(entry, full_name);
                 }
+
             } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
                 e.printStackTrace();
             }
+
         }
 
     }
