@@ -7,7 +7,7 @@ package frc.robot;
 import frc.lib.logger.ReflectingLogger;
 import frc.lib.logger.Logable.LogData;
 import frc.lib.swerve.SwerveRequest;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 
 import java.util.ArrayList;
@@ -17,7 +17,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.lib.swerve.utility.Telemetry;
@@ -35,7 +34,7 @@ public class RobotContainer {
   ReflectingLogger<LogData> reflectingLogger;
 
   // Subsystems
-  CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+  SwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
   ExampleSubsystem example = ExampleSubsystem.getInstance();
 
   SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric().withIsOpenLoop(true).withDeadband(MaxSpeed * 0.1)

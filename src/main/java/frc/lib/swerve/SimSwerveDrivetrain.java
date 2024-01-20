@@ -7,7 +7,6 @@
 package frc.lib.swerve;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;

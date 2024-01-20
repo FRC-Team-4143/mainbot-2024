@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logger.Logable;
 
@@ -20,11 +19,7 @@ public class ExampleSubsystem extends SubsystemBase implements Logable {
   }
 
   public class PeriodicIo extends LogData {
-
-    public double x = 0;
-    public double y = 1;
-
-    public Pose2d something = new Pose2d();
+    public double test = 0;
   }
 
   PeriodicIo io;

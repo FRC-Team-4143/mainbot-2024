@@ -335,7 +335,7 @@ public class SwerveModule {
      *         2 - Steer Position
      *         3 - Steer Velocity
      */
-    BaseStatusSignal[] getSignals() {
+    public BaseStatusSignal[] getSignals() {
         return m_signals;
     }
 

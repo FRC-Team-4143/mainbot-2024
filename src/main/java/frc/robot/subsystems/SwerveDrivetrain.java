@@ -4,18 +4,23 @@
  * For support and suggestions contact support@ctr-electronics.com or file
  * an issue tracker at https://github.com/CrossTheRoadElec/Phoenix-Releases
  */
-package frc.lib.swerve;
+package frc.robot.subsystems;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import static frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 
@@ -26,13 +31,26 @@ import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 
+import frc.lib.logger.Logable;
+import frc.lib.swerve.SwerveDrivetrainConstants;
+import frc.lib.swerve.SwerveModule;
+import frc.lib.swerve.SwerveModuleConstants;
+import frc.lib.swerve.SwerveRequest;
+import frc.lib.swerve.SwerveRequest.ApplyChassisSpeeds;
+import frc.lib.swerve.SwerveRequest.Idle;
+import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -53,7 +71,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
  * the Back Left module, call {@code getModule(2);} to get the 3rd index
  * (0-indexed) module, corresponding to the Back Left module.
  */
-public class SwerveDrivetrain {
+public class SwerveDrivetrain extends SubsystemBase implements Logable {
     protected final int ModuleCount;
     protected final double UpdateFrequency;
     protected final SwerveModule[] Modules;
@@ -68,13 +86,13 @@ public class SwerveDrivetrain {
     protected Translation2d[] m_moduleLocations;
     protected OdometryThread m_odometryThread;
     protected Rotation2d m_fieldRelativeOffset;
+    private final SwerveRequest.ApplyChassisSpeeds autoRequest = new SwerveRequest.ApplyChassisSpeeds();
 
     protected SwerveRequest m_requestToApply = new SwerveRequest.Idle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();
 
     protected final ReadWriteLock m_stateLock = new ReentrantReadWriteLock();
 
-    // protected final SimSwerveDrivetrain m_simDrive;
     protected final boolean IsOnCANFD;
 
     private final Field2d m_field = new Field2d();
@@ -84,7 +102,7 @@ public class SwerveDrivetrain {
      * This encapsulates most data that is relevant for telemetry or
      * decision-making from the Swerve Drive.
      */
-    public class SwerveDriveState {
+    public class SwerveDriveState extends LogData {
         public int SuccessfulDaqs;
         public int FailedDaqs;
         public Pose2d Pose;
@@ -129,7 +147,7 @@ public class SwerveDrivetrain {
             for (int i = 0; i < ModuleCount; ++i) {
                 m_allSignals.add(Modules[i].getSignals());
             }
-            BaseStatusSignal[] imuSignals = {m_yawGetter, m_angularZGetter};
+            BaseStatusSignal[] imuSignals = { m_yawGetter, m_angularZGetter };
             m_allSignals.add(imuSignals);
         }
 
@@ -304,12 +322,58 @@ public class SwerveDrivetrain {
 
         m_fieldRelativeOffset = new Rotation2d();
 
-        // m_simDrive = new SimSwerveDrivetrain(m_moduleLocations, m_pigeon2,
-        // driveTrainConstants, modules);
-
         m_odometryThread = new OdometryThread();
         m_odometryThread.start();
         SmartDashboard.putData("Field", m_field);
+        configurePathPlanner();
+    }
+
+    public void periodic() {
+        updateField();
+    }
+
+    /**
+     * Configures the PathPlanner AutoBuilder
+     */
+    private void configurePathPlanner() {
+        double driveBaseRadius = 0;
+        for (var moduleLocation : m_moduleLocations) {
+            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
+        }
+
+        AutoBuilder.configureHolonomic(
+                () -> this.getState().Pose, // Supplier of current robot pose
+                this::seedFieldRelative, // Consumer for seeding pose against auto
+                this::getCurrentRobotChassisSpeeds,
+                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the
+                                                                             // robot
+                new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
+                        new PIDConstants(10, 0, 0),
+                        5,
+                        driveBaseRadius,
+                        new ReplanningConfig(false, false),
+                        0.004), // faster period than default
+
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this); // Subsystem for requirements
+    }
+
+    public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
+        return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    public ChassisSpeeds getCurrentRobotChassisSpeeds() {
+        return m_kinematics.toChassisSpeeds(getState().ModuleStates);
     }
 
     /**
@@ -355,12 +419,6 @@ public class SwerveDrivetrain {
             m_stateLock.writeLock().unlock();
         }
     }
-
-
-
-    // public Command zeroCommand() {
-    // return runOnce(() -> this.tareEverything()).ignoringDisable(true);
-    // }
 
     /**
      * Takes the current orientation of the robot and makes it X forward for
@@ -592,5 +650,10 @@ public class SwerveDrivetrain {
      */
     public void registerTelemetry(Consumer<SwerveDriveState> telemetryFunction) {
         m_telemetryFunction = telemetryFunction;
+    }
+
+    @Override
+    public LogData getLogger() {
+        return m_cachedState;
     }
 }
