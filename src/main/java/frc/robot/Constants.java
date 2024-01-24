@@ -34,6 +34,8 @@ public final class Constants {
     public static final int frontRightEncoder = 1;
     public static final int backLeftEncoder = 2;
     public static final int backRightEncoder = 3;
+    public static final double MaxSpeed = 6; // 6 meters per second desired top speed
+    public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   }
 }

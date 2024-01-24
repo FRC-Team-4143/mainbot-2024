@@ -24,7 +24,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = RobotContainer.getInstance();
     // CameraServer.startAutomaticCapture();
 
     // m_robotContainer.drivetrain.getDaqThread().setThreadPriority(99);

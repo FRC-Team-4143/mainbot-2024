@@ -50,6 +50,8 @@ import frc.lib.swerve.SwerveModuleConstants;
 import frc.lib.swerve.SwerveRequest;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.lib.swerve.generated.TunerConstants;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -80,6 +82,17 @@ public class SwerveDrivetrain extends Subsystem {
         }
         return instance;
     }
+
+    private enum DriveMode {
+        ROBOT_CENTRIC,
+        FIELD_CENTERIC,
+        TARGET
+    }
+    DriveMode drive_mode;
+    SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true).withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+        .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1); // I want field-centric
+    SwerveRequest.RobotCentric robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true).withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+        .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
 
     // Robot Hardware
     protected final Pigeon2 pigeon_imu;
@@ -243,6 +256,17 @@ public class SwerveDrivetrain extends Subsystem {
         return io.module_positions;
     }
 
+    /**
+     * 
+     */
+    public SwerveModuleState[] getModuleStates(){
+        return io.module_states;
+    }
+
+    public void setDriveMode(DriveMode mode) {
+        drive_mode = mode;
+    }
+
     @Override
     public LogData getLogger() {
         return io;
@@ -259,6 +283,9 @@ public class SwerveDrivetrain extends Subsystem {
         public SwerveModuleState[] module_states;
         public Rotation2d field_relative_offset = new Rotation2d();
         public SwerveModulePosition[] module_positions;
+        public double driver_joystick_leftX = 0.0;
+        public double driver_joystick_leftY = 0.0;
+        public double driver_joystick_rightX = 0.0;
     }
 
     @Override
@@ -266,6 +293,9 @@ public class SwerveDrivetrain extends Subsystem {
         for (int i = 0; i < swerve_modules.length; ++i) {
             io.module_positions[i] = swerve_modules[i].getPosition(false);
         }
+        io.driver_joystick_leftX = RobotContainer.getInstance().getDriverJoystickLeftX();
+        io.driver_joystick_leftY = RobotContainer.getInstance().getDriverJoystickLeftY();
+        io.driver_joystick_rightX = RobotContainer.getInstance().getDriverJoystickRightX();
     }
 
     @Override
@@ -279,6 +309,22 @@ public class SwerveDrivetrain extends Subsystem {
         request_parameters.timestamp = timestamp;
 
         request_to_apply.apply(request_parameters, swerve_modules);
+
+        switch (drive_mode) {
+        case ROBOT_CENTRIC:
+            applyRequest(() -> robot_centric
+            .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive forward with negative Y (forward)
+            .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left with negative X (left)
+            .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive counterclockwise with negative X (left)
+            break;
+        case FIELD_CENTERIC:
+        default:
+            applyRequest(() -> field_centric
+            .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive forward with negative Y (forward)
+            .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left with negative X (left)
+            .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive counterclockwise with negative X (left)  
+            break;
+        }
     }
 
     @Override
