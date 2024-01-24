@@ -83,6 +83,7 @@ public class SwerveDrivetrain extends Subsystem {
         return instance;
     }
 
+    // Drive Mode Selections
     private enum DriveMode {
         ROBOT_CENTRIC,
         FIELD_CENTERIC,
@@ -90,7 +91,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
     DriveMode drive_mode;
     SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true).withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-        .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1); // I want field-centric
+        .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
     SwerveRequest.RobotCentric robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true).withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
         .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
 
@@ -257,12 +258,17 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     /**
-     * 
+     * Returns the module states of the swerve drive as an array
+     * [FrontLeft, FrontRight, BackLeft, BackRight]
      */
     public SwerveModuleState[] getModuleStates(){
         return io.module_states;
     }
 
+    /**
+     * updates the mode flag thats changes what request is applied to the drive train
+     * @param mode drive to switch to [ROBOT_CENTRIC, FIELD_CENTRIC]
+     */
     public void setDriveMode(DriveMode mode) {
         drive_mode = mode;
     }
