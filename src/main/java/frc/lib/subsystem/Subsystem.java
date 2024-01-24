@@ -7,22 +7,22 @@ public abstract class Subsystem implements Logable {
     /**
      * Reads all sensors and stores periodic data
      */
-    public abstract void readPeriodicInputs();
+    public abstract void readPeriodicInputs(double timestamp);
 
     /**
      * Computes updated outputs for the actuators
      */
-    public abstract void updateLogic();
+    public abstract void updateLogic(double timestamp);
 
     /**
      * Writes the periodic outputs to actuators (motors and etc...)
      */
-    public abstract void writePeriodicOutputs();
+    public abstract void writePeriodicOutputs(double timestamp);
 
     /**
      * Outputs all logging information to the SmartDashboard
      */
-    public abstract void outputTelemetry();
+    public abstract void outputTelemetry(double timestamp);
 
     /**
      * Called to reset and configure the subsystem
