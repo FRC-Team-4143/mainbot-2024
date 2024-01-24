@@ -33,17 +33,17 @@ public abstract class SubsystemManager {
         while (true) {
             // For each subsystem get incoming data
             for (Subsystem subsystem : subsystems) {
-                subsystem.readPeriodicInputs();
+                subsystem.readPeriodicInputs(Timer.getFPGATimestamp());
             }
 
             // Now update the logic for each subsystem to allow I/O to relax
             for (Subsystem subsystem : subsystems) {
-                subsystem.updateLogic();
+                subsystem.updateLogic(Timer.getFPGATimestamp());
             }
 
             // Finally write the outputs to the actuators
             for (Subsystem subsystem : subsystems) {
-                subsystem.writePeriodicOutputs();
+                subsystem.writePeriodicOutputs(Timer.getFPGATimestamp());
             }
 
             // Run the logger!
@@ -106,7 +106,7 @@ public abstract class SubsystemManager {
      */
     public void outputTelemetry() {
         for (Subsystem subsystem : subsystems) {
-            subsystem.outputTelemetry();
+            subsystem.outputTelemetry(Timer.getFPGATimestamp());
         }
     }
 

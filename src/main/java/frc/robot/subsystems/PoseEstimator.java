@@ -31,22 +31,22 @@ public class PoseEstimator extends Subsystem {
     }
 
     @Override
-    public void readPeriodicInputs() {
+    public void readPeriodicInputs(double timestamp) {
     
     }
 
     @Override
-    public void updateLogic() {
+    public void updateLogic(double timestamp) {
         var drive = SwerveDrivetrain.getInstance();
         io.pose = odometry.update(drive.getImuYaw(), drive.getModulePositions());
     }
 
     @Override
-    public void writePeriodicOutputs() {
+    public void writePeriodicOutputs(double timestamp) {
     }
 
     @Override
-    public void outputTelemetry() {
+    public void outputTelemetry(double timestamp) {
         field.setRobotPose(io.pose);
         SmartDashboard.putData("Field", field);
     }

@@ -52,7 +52,7 @@ public class ExampleSubsystem extends Subsystem {
    * in the PeriodicIO class defined below. There should be no calls to output to
    * actuators, or any logic within this function.
    */
-  public void readPeriodicInputs() {
+  public void readPeriodicInputs(double timestamp) {
 
   }
 
@@ -62,7 +62,7 @@ public class ExampleSubsystem extends Subsystem {
    * variables in the PeriodicIO class defined below. There should be no calls to
    * read from sensors or write to actuators in this function.
    */
-  public void updateLogic() {
+  public void updateLogic(double timestamp) {
 
   }
 
@@ -72,7 +72,7 @@ public class ExampleSubsystem extends Subsystem {
    * the PeriodicIO class defined below. There should be little to no logic
    * contained within this function, and no sensors should be read.
    */
-  public void writePeriodicOutputs() {
+  public void writePeriodicOutputs(double timestamp) {
 
   }
 
@@ -83,7 +83,7 @@ public class ExampleSubsystem extends Subsystem {
    * should be no sensor information read in this function nor any outputs made to
    * actuators within this function. Only publish to smartdashboard here.
    */
-  public void outputTelemetry() {
+  public void outputTelemetry(double timestamp) {
 
   }
 
