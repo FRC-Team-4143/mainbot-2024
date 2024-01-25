@@ -89,11 +89,14 @@ public class SwerveDrivetrain extends Subsystem {
         FIELD_CENTERIC,
         TARGET
     }
+
     DriveMode drive_mode;
-    SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true).withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-        .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
-    SwerveRequest.RobotCentric robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true).withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-        .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+    SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
+            .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+            .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+    SwerveRequest.RobotCentric robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
+            .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+            .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
 
     // Robot Hardware
     protected final Pigeon2 pigeon_imu;
@@ -142,6 +145,7 @@ public class SwerveDrivetrain extends Subsystem {
         io.module_positions = new SwerveModulePosition[modules.length];
         module_locations = new Translation2d[modules.length];
 
+        // Construct the swerve modules
         for (int i = 0; i < modules.length; i++) {
             SwerveModuleConstants module = modules[i];
             swerve_modules[i] = new SwerveModule(module, driveTrainConstants.CANbusName[i],
@@ -150,21 +154,6 @@ public class SwerveDrivetrain extends Subsystem {
             io.module_positions[i] = swerve_modules[i].getPosition(true);
         }
         kinematics = new SwerveDriveKinematics(module_locations);
-
-        // 4 signals for each module + 2 for Pigeon2
-        all_signals = new ArrayList<BaseStatusSignal[]>();
-        for (int i = 0; i < modules.length; ++i) {
-            all_signals.add(swerve_modules[i].getSignals());
-        }
-        BaseStatusSignal[] imuSignals = { yaw_getter, yawrate_getter };
-        all_signals.add(imuSignals);
-
-        // Make sure all signals update at around 200hz 
-        for (int i = 0; i < all_signals.size(); i++) {
-            BaseStatusSignal.setUpdateFrequencyForAll(200, all_signals.get(i));
-        }
-
-        configurePathPlanner();
     }
 
     /**
@@ -261,12 +250,14 @@ public class SwerveDrivetrain extends Subsystem {
      * Returns the module states of the swerve drive as an array
      * [FrontLeft, FrontRight, BackLeft, BackRight]
      */
-    public SwerveModuleState[] getModuleStates(){
+    public SwerveModuleState[] getModuleStates() {
         return io.module_states;
     }
 
     /**
-     * updates the mode flag thats changes what request is applied to the drive train
+     * updates the mode flag thats changes what request is applied to the drive
+     * train
+     * 
      * @param mode drive to switch to [ROBOT_CENTRIC, FIELD_CENTRIC]
      */
     public void setDriveMode(DriveMode mode) {
@@ -317,19 +308,43 @@ public class SwerveDrivetrain extends Subsystem {
         request_to_apply.apply(request_parameters, swerve_modules);
 
         switch (drive_mode) {
-        case ROBOT_CENTRIC:
-            applyRequest(() -> robot_centric
-            .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive forward with negative Y (forward)
-            .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive counterclockwise with negative X (left)
-            break;
-        case FIELD_CENTERIC:
-        default:
-            applyRequest(() -> field_centric
-            .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive forward with negative Y (forward)
-            .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive counterclockwise with negative X (left)  
-            break;
+            case ROBOT_CENTRIC:
+                applyRequest(() -> robot_centric
+                        .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive
+                                                                                                           // forward
+                                                                                                           // with
+                                                                                                           // negative Y
+                                                                                                           // (forward)
+                        .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left
+                                                                                                           // with
+                                                                                                           // negative X
+                                                                                                           // (left)
+                        .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive
+                                                                                                                         // counterclockwise
+                                                                                                                         // with
+                                                                                                                         // negative
+                                                                                                                         // X
+                                                                                                                         // (left)
+                break;
+            case FIELD_CENTERIC:
+            default:
+                applyRequest(() -> field_centric
+                        .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive
+                                                                                                           // forward
+                                                                                                           // with
+                                                                                                           // negative Y
+                                                                                                           // (forward)
+                        .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left
+                                                                                                           // with
+                                                                                                           // negative X
+                                                                                                           // (left)
+                        .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive
+                                                                                                                         // counterclockwise
+                                                                                                                         // with
+                                                                                                                         // negative
+                                                                                                                         // X
+                                                                                                                         // (left)
+                break;
         }
     }
 
@@ -345,6 +360,19 @@ public class SwerveDrivetrain extends Subsystem {
 
     @Override
     public void reset() {
+        // 4 signals for each module + 2 for Pigeon2
+        all_signals = new ArrayList<BaseStatusSignal[]>();
+        for (int i = 0; i < swerve_modules.length; ++i) {
+            all_signals.add(swerve_modules[i].getSignals());
+        }
+        BaseStatusSignal[] imuSignals = { yaw_getter, yawrate_getter };
+        all_signals.add(imuSignals);
 
+        // Make sure all signals update at around 200hz
+        for (int i = 0; i < all_signals.size(); i++) {
+            BaseStatusSignal.setUpdateFrequencyForAll(200, all_signals.get(i));
+        }
+
+        configurePathPlanner();
     }
 }
