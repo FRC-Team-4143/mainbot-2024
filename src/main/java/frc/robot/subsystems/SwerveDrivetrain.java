@@ -7,15 +7,10 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -23,10 +18,6 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -34,15 +25,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Threads;
 
-import frc.lib.logger.Logable;
 import frc.lib.subsystem.Subsystem;
 import frc.lib.swerve.SwerveDrivetrainConstants;
 import frc.lib.swerve.SwerveModule;
@@ -52,8 +39,7 @@ import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -189,7 +175,7 @@ public class SwerveDrivetrain extends Subsystem {
                     }
                     return false;
                 },
-                null); // Subsystem for requirements
+                new DumbSystem()); // Subsystem for requirements
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
