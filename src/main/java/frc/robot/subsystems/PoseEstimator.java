@@ -21,13 +21,13 @@ public class PoseEstimator extends Subsystem {
         return instance;
     }
 
-    private PeriodicIo io = new PeriodicIo();
-    private final Field2d field = new Field2d();
+    private PeriodicIo io;
+    private Field2d field;
     private SwerveDrivePoseEstimator odometry;
 
     PoseEstimator() {
-        odometry = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics, new Rotation2d(),
-                SwerveDrivetrain.getInstance().getModulePositions(), new Pose2d());
+        field = new Field2d();
+        io = new PeriodicIo();
     }
 
     @Override
@@ -53,7 +53,9 @@ public class PoseEstimator extends Subsystem {
 
     @Override
     public void reset() {
-        
+        odometry = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics, new Rotation2d(),
+                SwerveDrivetrain.getInstance().getModulePositions(), new Pose2d());
+        io = new PeriodicIo();
     }
 
     @Override
