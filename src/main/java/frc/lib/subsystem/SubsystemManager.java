@@ -87,7 +87,7 @@ public abstract class SubsystemManager {
         for (Subsystem subsystem : subsystems) {
             logs.add(subsystem.getLogger());
         }
-        reflectingLogger = new ReflectingLogger<>(logs);
+        // reflectingLogger = new ReflectingLogger<>(logs);
     }
 
     /**
