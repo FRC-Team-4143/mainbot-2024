@@ -19,7 +19,7 @@ package frc.robot;
 public final class Constants {
   public static class DriveConstants {
     // Can bus names for each of the swerve modules
-    public String[] CANbusName = {"CANivore", "CANivore", "CANivore2", "CANivore2"};
+    public String[] CANbusName = {"rio", "rio", "rio2", "rio"};
 
     // Can bus ID for the pigeon
     public int Pigeon2Id = 0;

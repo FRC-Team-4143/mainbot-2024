@@ -47,7 +47,7 @@ import edu.wpi.first.wpilibj.Preferences;
 public class SwerveModule {
     private final TalonFX m_driveMotor;
     private final TalonFX m_steerMotor;
-    private final AnalogEncoder m_encoder;
+    //private final AnalogEncoder m_encoder;
 
     private final StatusSignal<Double> m_drivePosition;
     private final StatusSignal<Double> m_driveVelocity;
@@ -61,7 +61,7 @@ public class SwerveModule {
     private final boolean m_supportsPro;
 
     private final int m_steerMotorID;
-    private final int m_encoderID;
+    //private final int m_encoderID;
 
     private final MotionMagicVoltage m_angleSetter = new MotionMagicVoltage(0);
     private final VelocityTorqueCurrentFOC m_velocityTorqueSetter = new VelocityTorqueCurrentFOC(0);
@@ -83,10 +83,10 @@ public class SwerveModule {
         m_driveMotor = new TalonFX(constants.DriveMotorId, canbusName);
         m_steerMotor = new TalonFX(constants.SteerMotorId, canbusName);
         m_steerMotorID = constants.SteerMotorId;
-        m_encoderID = constants.encoderId;
-        m_encoder = new AnalogEncoder(constants.encoderId);
+        //m_encoderID = constants.encoderId;
+        //m_encoder = new AnalogEncoder(constants.encoderId);
 
-        angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
+        //angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
@@ -251,7 +251,7 @@ public class SwerveModule {
         SmartDashboard.putNumber("Motor " + m_steerMotorID + " actual position", m_steerPosition.getValue());
         SmartDashboard.putNumber("Motor " + m_steerMotorID + " internalstate position",
                 m_internalState.angle.getRotations());
-        SmartDashboard.putNumber("Analog encoder " + m_encoderID + " position", m_encoder.getAbsolutePosition());
+        //SmartDashboard.putNumber("Analog encoder " + m_encoderID + " position", 0);
 
         double velocityToSet = optimized.speedMetersPerSecond * m_driveRotationsPerMeter;
 
@@ -350,15 +350,15 @@ public class SwerveModule {
     public void setWheelOffsets() {
         // m_steerMotor.setPosition(0);
 
-        angleOffset = m_encoder.getAbsolutePosition() * 360.0;
-        Preferences.setDouble("Module" + m_encoderID, angleOffset);
+        //angleOffset = m_encoder.getAbsolutePosition() * 360.0;
+        //yPreferences.setDouble("Module" + m_encoderID, angleOffset);
         resetToAbsolute();
 
     }
 
     public void resetToAbsolute() {
-        double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 - angleOffset;
-        m_steerMotor.setPosition(absolutePosition / 360.0);
+        //double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 - angleOffset;
+        //m_steerMotor.setPosition(absolutePosition / 360.0);
     }
 
     /**
