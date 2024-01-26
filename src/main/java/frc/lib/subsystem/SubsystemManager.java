@@ -75,7 +75,7 @@ public abstract class SubsystemManager {
      * subsystem in a loop
      */
     protected void completeRegistration() {
-        loopThread.startPeriodic(.1);
+        loopThread.startPeriodic(.01);
     }
 
     /**
