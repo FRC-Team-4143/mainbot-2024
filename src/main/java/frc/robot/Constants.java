@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -37,5 +40,22 @@ public final class Constants {
     public static final double MaxSpeed = 6; // 6 meters per second desired top speed
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
+  }
+  
+  public static class ShooterConstatnts {
+    public static final int topFlyWheelID = 10;
+    public static final int bottomFlyWheelID = 11;
+    public static final int shooterPivotID = 12;
+    public static final int shooterPivotEncoder = 0;
+    public static final int rollerID = 13;
+    public static final double flyWheelIdleSpeed = 0;
+    public static final double rollerSpeed = 0;
+    public static final double maxShootAngle = 0;
+    public static final double minShootAngle = 0;
+    public static final double kAngleControlerP = 0.0;
+    public static final double kAngleControlerI = 0.0;
+    public static final double kAngleControlerD = 0.0;
+    public static final TrapezoidProfile.Constraints angleControlerConstraint 
+      = new TrapezoidProfile.Constraints(0, 0);
   }
 }
