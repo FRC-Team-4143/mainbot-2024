@@ -6,7 +6,6 @@
  */
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -32,10 +31,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.lib.subsystem.Subsystem;
-import frc.lib.swerve.SwerveDrivetrainConstants;
-import frc.lib.swerve.SwerveModule;
-import frc.lib.swerve.SwerveModuleConstants;
-import frc.lib.swerve.SwerveRequest;
+import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;

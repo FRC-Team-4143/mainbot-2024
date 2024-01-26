@@ -93,7 +93,8 @@ public class ReflectingLogger<T> {
 
                     // Handle other types
                 } else {
-                    throw new UnsupportedOperationException();
+                    DataLogManager.log("[Logger] Unknown type: " + full_name);
+
                 }
             } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
                 DataLogManager
@@ -124,7 +125,8 @@ public class ReflectingLogger<T> {
         logMap(fpgaTimestamp);
     }
 
-    protected void createLogEntry(Map.Entry<Field, T> entry, String full_name) throws IllegalAccessException, NoSuchFieldException {
+    protected void createLogEntry(Map.Entry<Field, T> entry, String full_name)
+            throws IllegalAccessException, NoSuchFieldException {
         // Get the data
         Object log_data = entry.getKey().get(entry.getValue());
 
@@ -135,19 +137,20 @@ public class ReflectingLogger<T> {
 
             // Handle serializable types
         } else if (StructSerializable.class.isAssignableFrom(entry.getKey().getType())) {
-            ((StructLogEntry) fieldLogEntryMap.get(full_name)).append(
-                    (Struct<T>) entry.getKey().getType().getDeclaredField("struct").get(entry.getValue()));
+
+            var cast_value = (Struct<T>) entry.getKey().getType().getDeclaredField("struct").get(entry.getValue());
+            ((StructLogEntry) fieldLogEntryMap.get(full_name)).append(cast_value);
 
             // Handle floating point types
         } else if (log_data instanceof Number) {
-            ((DoubleLogEntry) fieldLogEntryMap.get(full_name)).append((double) log_data);
+            ((DoubleLogEntry) fieldLogEntryMap.get(full_name)).append(((Number) log_data).doubleValue());
 
             // Handle boolean types
         } else if (log_data instanceof Boolean) {
             ((BooleanLogEntry) fieldLogEntryMap.get(full_name)).append((boolean) log_data);
 
         } else {
-            throw new UnsupportedOperationException();
+            // DataLogManager.log("[Logger] Unknown type: " + full_name);
         }
 
     }
@@ -171,7 +174,7 @@ public class ReflectingLogger<T> {
                     final int array_len = Array.getLength(entry.getKey().get(entry.getValue()));
                     for (int i = 0; i < array_len; i++) {
                         String field_name = full_name + i;
-                        createLogEntry(entry, full_name);
+                        createLogEntry(entry, field_name);
                     }
                 } else {
                     // otherwise create the single entry

@@ -66,7 +66,7 @@ public abstract class SubsystemManager {
         }
 
         // Run the logger!
-        // runLog(Timer.getFPGATimestamp());
+        runLog(Timer.getFPGATimestamp());
 
     }
 
@@ -106,7 +106,7 @@ public abstract class SubsystemManager {
         for (Subsystem subsystem : subsystems) {
             logs.add(subsystem.getLogger());
         }
-        // reflectingLogger = new ReflectingLogger<>(logs);
+        reflectingLogger = new ReflectingLogger<>(logs);
     }
 
     /**
