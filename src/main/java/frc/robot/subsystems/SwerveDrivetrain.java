@@ -40,7 +40,6 @@ import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
-
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
  * <p>
@@ -63,8 +62,8 @@ public class SwerveDrivetrain extends Subsystem {
 
     public static SwerveDrivetrain getInstance() {
         if (instance == null) {
-            instance = new SwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft,
-                    TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
+            instance = new SwerveDrivetrain(TunerConstants.DrivetrainConstants,  TunerConstants.FrontLeft,
+                    TunerConstants.FrontRight, TunerConstants.BackLeft,TunerConstants.BackRight);
         }
         return instance;
     }
@@ -72,11 +71,11 @@ public class SwerveDrivetrain extends Subsystem {
     // Drive Mode Selections
     private enum DriveMode {
         ROBOT_CENTRIC,
-        FIELD_CENTERIC,
+        FIELD_CENTRIC,
         TARGET
     }
 
-    DriveMode drive_mode;
+    DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
     SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
             .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
             .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
@@ -100,7 +99,7 @@ public class SwerveDrivetrain extends Subsystem {
     protected final SwerveDriveKinematics kinematics;
     protected final Translation2d[] module_locations;
 
-    private final SwerveRequest.ApplyChassisSpeeds auto_request = new SwerveRequest.ApplyChassisSpeeds();
+    // private final SwerveRequest.ApplyChassisSpeeds auto_request = new SwerveRequest.ApplyChassisSpeeds();
     protected SwerveRequest request_to_apply = new SwerveRequest.Idle();
     protected SwerveControlRequestParameters request_parameters = new SwerveControlRequestParameters();
 
@@ -123,6 +122,7 @@ public class SwerveDrivetrain extends Subsystem {
 
         // Setup the Pigeon IMU
         pigeon_imu = new Pigeon2(driveTrainConstants.Pigeon2Id, driveTrainConstants.CANbusName[0]);
+        pigeon_imu.optimizeBusUtilization();
         yaw_getter = pigeon_imu.getYaw().clone();
         yawrate_getter = pigeon_imu.getAngularVelocityZDevice().clone();
 
@@ -151,31 +151,31 @@ public class SwerveDrivetrain extends Subsystem {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
 
-        AutoBuilder.configureHolonomic(
-                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
-                PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
-                this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the
-                                                                              // robot
-                new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                        new PIDConstants(10, 0, 0),
-                        5,
-                        driveBaseRadius,
-                        new ReplanningConfig(false, false),
-                        0.004), // faster period than default
+        // AutoBuilder.configureHolonomic(
+        //         PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+        //         PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
+        //         this::getCurrentRobotChassisSpeeds,
+        //         (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the
+        //                                                                       // robot
+        //         new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
+        //                 new PIDConstants(10, 0, 0),
+        //                 5,
+        //                 driveBaseRadius,
+        //                 new ReplanningConfig(false, false),
+        //                 0.004), // faster period than default
 
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                new DumbSystem()); // Subsystem for requirements
+        //         () -> {
+        //             // Boolean supplier that controls when the path will be mirrored for the red
+        //             // alliance
+        //             // This will flip the path being followed to the red side of the field.
+        //             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+        //             var alliance = DriverStation.getAlliance();
+        //             if (alliance.isPresent()) {
+        //                 return alliance.get() == DriverStation.Alliance.Red;
+        //             }
+        //             return false;
+        //         },
+        //         new DumbSystem()); // Subsystem for requirements
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -283,19 +283,9 @@ public class SwerveDrivetrain extends Subsystem {
 
     @Override
     public void updateLogic(double timestamp) {
-        /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = PoseEstimator.getInstance().getRobotPose()
-                .relativeTo(new Pose2d(0, 0, io.field_relative_offset));
-        request_parameters.kinematics = kinematics;
-        request_parameters.swervePositions = module_locations;
-        request_parameters.updatePeriod = 1.0 / timestamp - request_parameters.timestamp;
-        request_parameters.timestamp = timestamp;
-
-        request_to_apply.apply(request_parameters, swerve_modules);
-
         switch (drive_mode) {
             case ROBOT_CENTRIC:
-                applyRequest(() -> robot_centric
+                setControl(robot_centric
                         .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive
                                                                                                            // forward
                                                                                                            // with
@@ -312,9 +302,9 @@ public class SwerveDrivetrain extends Subsystem {
                                                                                                                          // X
                                                                                                                          // (left)
                 break;
-            case FIELD_CENTERIC:
+            case FIELD_CENTRIC:
             default:
-                applyRequest(() -> field_centric
+                setControl(field_centric
                         .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive
                                                                                                            // forward
                                                                                                            // with
@@ -336,7 +326,15 @@ public class SwerveDrivetrain extends Subsystem {
 
     @Override
     public void writePeriodicOutputs(double timestamp) {
+        /* And now that we've got the new odometry, update the controls */
+        request_parameters.currentPose = PoseEstimator.getInstance().getRobotPose()
+                .relativeTo(new Pose2d(0, 0, io.field_relative_offset));
+        request_parameters.kinematics = kinematics;
+        request_parameters.swervePositions = module_locations;
+        request_parameters.updatePeriod = 1.0 / (4.0 *(timestamp - request_parameters.timestamp));
+        request_parameters.timestamp = timestamp;
 
+        request_to_apply.apply(request_parameters, swerve_modules);
     }
 
     @Override
@@ -356,7 +354,7 @@ public class SwerveDrivetrain extends Subsystem {
 
         // Make sure all signals update at around 200hz
         for (int i = 0; i < all_signals.size(); i++) {
-            BaseStatusSignal.setUpdateFrequencyForAll(200, all_signals.get(i));
+            BaseStatusSignal.setUpdateFrequencyForAll(25, all_signals.get(i));
         }
 
         configurePathPlanner();

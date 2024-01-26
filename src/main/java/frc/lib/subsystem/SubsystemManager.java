@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import frc.lib.logger.Logable.LogData;
 import frc.lib.logger.ReflectingLogger;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -14,7 +16,7 @@ public abstract class SubsystemManager {
 
     protected ReflectingLogger<LogData> reflectingLogger;
     protected ArrayList<Subsystem> subsystems;
-    protected Thread loopThread;
+    protected Notifier loopThread;
 
     public SubsystemManager() {
         // Initialize the subsystem list
@@ -22,33 +24,50 @@ public abstract class SubsystemManager {
 
         // create the thread to loop the subsystems and mark as daemon thread so
         // the robot program can properly stop
-        loopThread = new Thread(this::doControlLoop);
-        loopThread.setDaemon(true);
+        loopThread = new Notifier(this::doControlLoop);
+        // loopThread.setDaemon(true);
     }
 
     private void doControlLoop() {
-        // Set the thread to realtime priority
-        Threads.setCurrentThreadPriority(true, START_THREAD_PRIORITY);
 
-        while (true) {
-            // For each subsystem get incoming data
-            for (Subsystem subsystem : subsystems) {
-                subsystem.readPeriodicInputs(Timer.getFPGATimestamp());
+        // For each subsystem get incoming data
+        double timestamp = Timer.getFPGATimestamp();
+        for (Subsystem subsystem : subsystems) {
+            try {
+                subsystem.readPeriodicInputs(timestamp);
+            } catch (Exception e) {
+                e.printStackTrace();
+                DataLogManager.log(subsystem.getClass().getCanonicalName() + "failed to read inputs");
             }
 
-            // Now update the logic for each subsystem to allow I/O to relax
-            for (Subsystem subsystem : subsystems) {
-                subsystem.updateLogic(Timer.getFPGATimestamp());
-            }
-
-            // Finally write the outputs to the actuators
-            for (Subsystem subsystem : subsystems) {
-                subsystem.writePeriodicOutputs(Timer.getFPGATimestamp());
-            }
-
-            // Run the logger!
-            runLog(Timer.getFPGATimestamp());
         }
+
+        // Now update the logic for each subsystem to allow I/O to relax
+        timestamp = Timer.getFPGATimestamp();
+        for (Subsystem subsystem : subsystems) {
+            try {
+                subsystem.updateLogic(timestamp);
+            } catch (Exception e) {
+                e.printStackTrace();
+                DataLogManager.log(subsystem.getClass().getCanonicalName() + "failed to update logic");
+            }
+
+        }
+
+        // Finally write the outputs to the actuators
+        timestamp = Timer.getFPGATimestamp();
+        for (Subsystem subsystem : subsystems) {
+            try {
+                subsystem.writePeriodicOutputs(timestamp);
+            } catch (Exception e) {
+                e.printStackTrace();
+                DataLogManager.log(subsystem.getClass().getCanonicalName() + "failed to write outputs");
+            }
+        }
+
+        // Run the logger!
+        // runLog(Timer.getFPGATimestamp());
+
     }
 
     /**
@@ -56,7 +75,7 @@ public abstract class SubsystemManager {
      * subsystem in a loop
      */
     protected void completeRegistration() {
-        loopThread.start();
+        loopThread.startPeriodic(.1);
     }
 
     /**

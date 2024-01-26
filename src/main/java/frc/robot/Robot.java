@@ -20,44 +20,25 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private final boolean UseLimelight = false;
-
   @Override
   public void robotInit() {
     m_robotContainer = RobotContainer.getInstance();
 
-    // finish subsystem init
-    m_robotContainer.reset();
-
-    SignalLogger.start();
+    // SignalLogger.start();
   }
 
   @Override
   public void robotPeriodic() {
     // Call the scheduler so that commands work for buttons
-    CommandScheduler.getInstance().run();
+    // CommandScheduler.getInstance().run();
 
     // tell the subsystems to output telemetry to smartdashboard
-    m_robotContainer.outputTelemetry();
-
-    // Integrate limelight pose data
-    if (UseLimelight) {
-      // var lastResult =
-      // LimelightHelpers.getLatestResults("limelight").targetingResults;
-
-      // Pose2d llPose = lastResult.getBotPose2d_wpiBlue();
-
-      // if (lastResult.valid) {
-      // m_robotContainer.drivetrain.addVisionMeasurement(llPose,
-      // Timer.getFPGATimestamp());
-      // }
-
-    }
+    // m_robotContainer.outputTelemetry();
   }
 
   @Override
   public void disabledInit() {
-    m_robotContainer.stopLog();
+    // m_robotContainer.stopLog();
   }
 
   @Override
@@ -66,12 +47,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_robotContainer.initLogfile();
-    m_autonomousCommand = AutoManager.getInstance().getAutonomousCommand();
+    // // m_robotContainer.initLogfile();
+    // m_autonomousCommand = AutoManager.getInstance().getAutonomousCommand();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
   }
 
   @Override
@@ -81,11 +62,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    m_robotContainer.initLogfile();
+    // m_robotContainer.initLogfile();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.cancel();
+    // }
   }
 
   @Override
@@ -95,7 +76,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
+    // CommandScheduler.getInstance().cancelAll();
   }
 
   @Override

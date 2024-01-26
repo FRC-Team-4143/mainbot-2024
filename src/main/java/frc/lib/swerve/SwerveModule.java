@@ -72,6 +72,7 @@ public class SwerveModule {
 
     private SwerveModulePosition m_internalState = new SwerveModulePosition();
 
+
     /**
      * Construct a SwerveModule with the specified constants.
      *
@@ -87,6 +88,9 @@ public class SwerveModule {
         //m_encoder = new AnalogEncoder(constants.encoderId);
 
         //angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
+
+        // Silence all status signals for less data
+        TalonFX.optimizeBusUtilizationForAll(m_driveMotor, m_steerMotor);
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
