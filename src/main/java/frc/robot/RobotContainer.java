@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.lib.subsystem.SubsystemManager;
 import frc.robot.subsystems.*;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 
 public class RobotContainer extends SubsystemManager {
   private static RobotContainer instance;
@@ -18,9 +18,7 @@ public class RobotContainer extends SubsystemManager {
     }
 
 
-  /* Setting up bindings for necessary control of the swerve drive platform */
-  CommandXboxController driverJoystick = new CommandXboxController(0); // My joystick
-
+  
   public RobotContainer() {
     // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
     subsystems.add(ExampleSubsystem.getInstance());
@@ -33,16 +31,5 @@ public class RobotContainer extends SubsystemManager {
     completeRegistration();
   }
 
-  public double getDriverJoystickLeftX() {
-    return driverJoystick.getLeftX();
-  }
-  public double getDriverJoystickRightX() {
-    return driverJoystick.getRightX();
-  }
-  public double getDriverJoystickLeftY() {
-    return driverJoystick.getLeftY();
-  }
-  public double getDriverJoystickRightY() {
-    return driverJoystick.getRightY();
-  }
+  
 }
