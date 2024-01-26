@@ -88,11 +88,6 @@ public class SwerveDrivetrain extends Subsystem {
     // Robot Hardware
     protected final Pigeon2 pigeon_imu;
     protected final SwerveModule[] swerve_modules;
-    private ArrayList<BaseStatusSignal[]> all_signals;
-
-    // Getters for current state info on the IMU
-    protected final StatusSignal<Double> yaw_getter;
-    protected final StatusSignal<Double> yawrate_getter;
 
     // Subsystem data class
     protected PeriodicIo io;
@@ -125,8 +120,6 @@ public class SwerveDrivetrain extends Subsystem {
         // Setup the Pigeon IMU
         pigeon_imu = new Pigeon2(driveTrainConstants.Pigeon2Id, driveTrainConstants.CANbusName[0]);
         pigeon_imu.optimizeBusUtilization();
-        yaw_getter = pigeon_imu.getYaw().clone();
-        yawrate_getter = pigeon_imu.getAngularVelocityZDevice().clone();
 
         // Begin configuring swerve modules
         module_locations = new Translation2d[modules.length];
@@ -149,17 +142,13 @@ public class SwerveDrivetrain extends Subsystem {
     @Override
     public void reset() {
         // 4 signals for each module + 2 for Pigeon2
-        all_signals = new ArrayList<BaseStatusSignal[]>();
         for (int i = 0; i < swerve_modules.length; ++i) {
-            all_signals.add(swerve_modules[i].getSignals());
+            BaseStatusSignal.setUpdateFrequencyForAll(100, swerve_modules[i].getSignals());
+            swerve_modules[i].optimizeCan();
         }
-        BaseStatusSignal[] imuSignals = { yaw_getter, yawrate_getter };
-        all_signals.add(imuSignals);
-
-        // Make sure all signals update at around 200hz
-        for (int i = 0; i < all_signals.size(); i++) {
-            BaseStatusSignal.setUpdateFrequencyForAll(100, all_signals.get(i));
-        }
+        BaseStatusSignal[] imuSignals = { pigeon_imu.getYaw() };
+        BaseStatusSignal.setUpdateFrequencyForAll(100, imuSignals);
+        pigeon_imu.optimizeBusUtilization();
 
         configurePathPlanner();
     }
@@ -174,7 +163,7 @@ public class SwerveDrivetrain extends Subsystem {
         io.driver_joystick_leftY = RobotContainer.getInstance().getDriverJoystickLeftY();
         io.driver_joystick_rightX = RobotContainer.getInstance().getDriverJoystickRightX();
 
-        io.robot_yaw = Rotation2d.fromDegrees(yaw_getter.getValueAsDouble());
+        io.robot_yaw = Rotation2d.fromDegrees(pigeon_imu.getAngle());
     }
 
     @Override

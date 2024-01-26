@@ -89,9 +89,6 @@ public class SwerveModule {
 
         //angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
 
-        // Silence all status signals for less data
-        TalonFX.optimizeBusUtilizationForAll(m_driveMotor, m_steerMotor);
-
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
         talonConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -389,15 +386,9 @@ public class SwerveModule {
         return m_steerMotor;
     }
 
-    /**
-     * Gets this module's CANcoder reference.
-     * <p>
-     * This should be used only to access signals and change configurations that the
-     * swerve drivetrain does not configure itself.
-     *
-     * @return This module's CANcoder reference
-     */
-    // public CANcoder getCANcoder() {
-    // return m_cancoder;
-    // }
+    public void optimizeCan() {
+        // Silence all status signals for less data
+        TalonFX.optimizeBusUtilizationForAll(m_driveMotor, m_steerMotor);
+    }
+
 }
