@@ -19,7 +19,7 @@ package frc.robot;
 public final class Constants {
   public static class DriveConstants {
     // Can bus names for each of the swerve modules
-    public String[] CANbusName = {"CANivore", "CANivore", "CANivore2", "CANivore2"};
+    public String[] CANbusName = {"rio", "rio", "rio2", "rio"};
 
     // Can bus ID for the pigeon
     public int Pigeon2Id = 0;
@@ -34,6 +34,8 @@ public final class Constants {
     public static final int frontRightEncoder = 1;
     public static final int backLeftEncoder = 2;
     public static final int backRightEncoder = 3;
+    public static final double MaxSpeed = 6; // 6 meters per second desired top speed
+    public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   }
 }

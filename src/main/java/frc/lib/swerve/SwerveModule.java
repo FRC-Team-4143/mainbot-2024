@@ -47,7 +47,7 @@ import edu.wpi.first.wpilibj.Preferences;
 public class SwerveModule {
     private final TalonFX m_driveMotor;
     private final TalonFX m_steerMotor;
-    private final AnalogEncoder m_encoder;
+    // private final AnalogEncoder m_encoder;
 
     private final StatusSignal<Double> m_drivePosition;
     private final StatusSignal<Double> m_driveVelocity;
@@ -60,17 +60,14 @@ public class SwerveModule {
     private final double m_speedAt12VoltsMps;
     private final boolean m_supportsPro;
 
-    private final int m_steerMotorID;
-    private final int m_encoderID;
-
     private final MotionMagicVoltage m_angleSetter = new MotionMagicVoltage(0);
     private final VelocityTorqueCurrentFOC m_velocityTorqueSetter = new VelocityTorqueCurrentFOC(0);
     private final VelocityVoltage m_velocityVoltageSetter = new VelocityVoltage(0);
     private final VoltageOut m_voltageOpenLoopSetter = new VoltageOut(0);
-    private final PositionVoltage m_voltagePosition = new PositionVoltage(0);
     private double angleOffset;
 
     private SwerveModulePosition m_internalState = new SwerveModulePosition();
+    private SwerveModuleState m_requestedState = new SwerveModuleState();
 
     /**
      * Construct a SwerveModule with the specified constants.
@@ -82,11 +79,10 @@ public class SwerveModule {
     public SwerveModule(SwerveModuleConstants constants, String canbusName, boolean supportsPro) {
         m_driveMotor = new TalonFX(constants.DriveMotorId, canbusName);
         m_steerMotor = new TalonFX(constants.SteerMotorId, canbusName);
-        m_steerMotorID = constants.SteerMotorId;
-        m_encoderID = constants.encoderId;
-        m_encoder = new AnalogEncoder(constants.encoderId);
+        // m_encoderID = constants.encoderId;
+        // m_encoder = new AnalogEncoder(constants.encoderId);
 
-        angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
+        // angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
@@ -152,7 +148,6 @@ public class SwerveModule {
             System.out
                     .println("Talon ID " + constants.DriveMotorId + " failed config with error " + response.toString());
         }
-
         /*
          * CANcoderConfiguration cancoderConfigs = new CANcoderConfiguration();
          * cancoderConfigs.MagnetSensor.MagnetOffset = constants.CANcoderOffset;
@@ -219,10 +214,8 @@ public class SwerveModule {
                                                        // m_steerVelocity);
         // getlatencycompensatedvalue is broken for now RJS
 
-        /*
-         * Back out the drive rotations based on angle rotations due to coupling between
-         * azimuth and steer
-         */
+        // Back out the drive rotations based on angle rotations due to coupling between
+        // azimuth and steer
         drive_rot -= angle_rot * m_couplingRatioDriveRotorToCANcoder;
 
         /* And push them into a SwerveModulePosition object to return */
@@ -243,74 +236,46 @@ public class SwerveModule {
         var optimized = SwerveModuleState.optimize(state, m_internalState.angle);
 
         double angleToSetDeg = optimized.angle.getRotations();
-        // double angleToSetDeg = state.angle.getRotations(); // optimize appears broken
-        // for now RJS
-        m_steerMotor.setControl(m_angleSetter.withPosition(angleToSetDeg).withSlot(0));
-        // m_steerMotor.setControl(m_voltagePosition.withPosition(angleToSetDeg).withSlot(0));
-        SmartDashboard.putNumber("Motor " + m_steerMotorID + " target position", angleToSetDeg);
-        SmartDashboard.putNumber("Motor " + m_steerMotorID + " actual position", m_steerPosition.getValue());
-        SmartDashboard.putNumber("Motor " + m_steerMotorID + " internalstate position",
-                m_internalState.angle.getRotations());
-        SmartDashboard.putNumber("Analog encoder " + m_encoderID + " position", m_encoder.getAbsolutePosition());
-
         double velocityToSet = optimized.speedMetersPerSecond * m_driveRotationsPerMeter;
 
-        /*
-         * From FRC 900's whitepaper, we add a cosine compensator to the applied drive
-         * velocity
-         */
-        /* To reduce the "skew" that occurs when changing direction */
+        // From FRC 900's whitepaper, we add a cosine compensator to the applied drive
+        // velocity. For now we choose to disable this by commenting 255 (CJT)
         double steerMotorError = angleToSetDeg - m_steerPosition.getValue();
-        /* If error is close to 0 rotations, we're already there, so apply full power */
-        /*
-         * If the error is close to 0.25 rotations, then we're 90 degrees, so movement
-         * doesn't help us at all
-         */
         double cosineScalar = Math.cos(Units.rotationsToRadians(steerMotorError));
-        /*
-         * Make sure we don't invert our drive, even though we shouldn't ever target
-         * over 90 degrees anyway
-         */
         if (cosineScalar < 0.0) {
             cosineScalar = 0.0;
         }
-        velocityToSet *= cosineScalar;
+        // velocityToSet *= cosineScalar;
 
-        /* Back out the expected shimmy the drive motor will see */
-        /* Find the angular rate to determine what to back out */
+        // Back out the expected shimmy the drive motor will see. Find the angular rate
+        // to determine what to back out
+        // Azimuth turn rate multiplied by coupling ratio provides back-out rps
         double azimuthTurnRps = m_steerVelocity.getValue();
-        /* Azimuth turn rate multiplied by coupling ratio provides back-out rps */
         double driveRateBackOut = azimuthTurnRps * m_couplingRatioDriveRotorToCANcoder;
         velocityToSet -= driveRateBackOut;
 
+        m_steerMotor.setControl(m_angleSetter.withPosition(angleToSetDeg).withSlot(0));
         if (isOpenLoop) {
             /*
              * Open loop ignores the driveRotationsPerMeter since it only cares about the
-             * open loop at the mechanism
+             * open loop at the mechanism. But we do care about the backout due to coupling,
+             * so we keep it in
              */
-            /* But we do care about the backout due to coupling, so we keep it in */
-            velocityToSet /= m_driveRotationsPerMeter;
-            /* Open loop always uses voltage setter */
-            m_driveMotor.setControl(m_voltageOpenLoopSetter.withOutput(velocityToSet / m_speedAt12VoltsMps * 12.0));
+            velocityToSet *= 12.0 / (m_speedAt12VoltsMps * m_driveRotationsPerMeter);
+            // Open loop always uses voltage setter
+            m_driveMotor.setControl(m_voltageOpenLoopSetter.withOutput(velocityToSet));
         } else {
-            /* If we support pro, use the torque request */
+            // If we support pro, use the torque request
             if (m_supportsPro) {
                 m_driveMotor.setControl(m_velocityTorqueSetter.withVelocity(velocityToSet));
             } else {
                 m_driveMotor.setControl(m_velocityVoltageSetter.withVelocity(velocityToSet));
             }
         }
-    }
 
-    /**
-     * Gets the last cached swerve module position.
-     * This differs from {@link getPosition} in that it will not
-     * perform any latency compensation or refresh the signals.
-     *
-     * @return Last cached SwerveModulePosition
-     */
-    public SwerveModulePosition getCachedPosition() {
-        return m_internalState;
+        // Set the requested state for the module
+        m_requestedState.angle = optimized.angle;
+        m_requestedState.speedMetersPerSecond = velocityToSet;
     }
 
     /**
@@ -324,6 +289,18 @@ public class SwerveModule {
     public SwerveModuleState getCurrentState() {
         return new SwerveModuleState(m_driveVelocity.getValue() / m_driveRotationsPerMeter,
                 Rotation2d.fromRotations(m_steerPosition.getValue()));
+    }
+
+    /**
+     * Get the requested state of the module.
+     * <p>
+     * This is typically used for telemetry, as the SwerveModulePosition
+     * is used for odometry.
+     *
+     * @return Requested state of the module
+     */
+    public SwerveModuleState getRequestedState() {
+        return m_requestedState;
     }
 
     /**
@@ -350,50 +327,21 @@ public class SwerveModule {
     public void setWheelOffsets() {
         // m_steerMotor.setPosition(0);
 
-        angleOffset = m_encoder.getAbsolutePosition() * 360.0;
-        Preferences.setDouble("Module" + m_encoderID, angleOffset);
+        // angleOffset = m_encoder.getAbsolutePosition() * 360.0;
+        // yPreferences.setDouble("Module" + m_encoderID, angleOffset);
         resetToAbsolute();
 
     }
 
     public void resetToAbsolute() {
-        double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 - angleOffset;
-        m_steerMotor.setPosition(absolutePosition / 360.0);
+        // double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 -
+        // angleOffset;
+        // m_steerMotor.setPosition(absolutePosition / 360.0);
     }
 
-    /**
-     * Gets this module's Drive Motor TalonFX reference.
-     * <p>
-     * This should be used only to access signals and change configurations that the
-     * swerve drivetrain does not configure itself.
-     *
-     * @return This module's Drive Motor reference
-     */
-    public TalonFX getDriveMotor() {
-        return m_driveMotor;
+    public void optimizeCan() {
+        // Silence all status signals for less data
+        TalonFX.optimizeBusUtilizationForAll(m_driveMotor, m_steerMotor);
     }
 
-    /**
-     * Gets this module's Steer Motor TalonFX reference.
-     * <p>
-     * This should be used only to access signals and change configurations that the
-     * swerve drivetrain does not configure itself.
-     *
-     * @return This module's Steer Motor reference
-     */
-    public TalonFX getSteerMotor() {
-        return m_steerMotor;
-    }
-
-    /**
-     * Gets this module's CANcoder reference.
-     * <p>
-     * This should be used only to access signals and change configurations that the
-     * swerve drivetrain does not configure itself.
-     *
-     * @return This module's CANcoder reference
-     */
-    // public CANcoder getCANcoder() {
-    // return m_cancoder;
-    // }
 }
