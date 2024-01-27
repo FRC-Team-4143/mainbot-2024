@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -19,7 +21,7 @@ package frc.robot;
 public final class Constants {
   public static class DriveConstants {
     // Can bus names for each of the swerve modules
-    public String[] CANbusName = {"rio", "rio", "rio2", "rio"};
+    public String[] CANbusName = { "rio", "rio", "rio", "rio" };
 
     // Can bus ID for the pigeon
     public int Pigeon2Id = 0;
@@ -37,5 +39,19 @@ public final class Constants {
     public static final double MaxSpeed = 6; // 6 meters per second desired top speed
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
+  }
+
+  public static class MailmanConstants {
+    public static final int elevator_motor_id = 0;
+    public static final int dropper_motor_id = 0;
+    public static final double amp_height = 0;
+    public static final double trap_height = 0;
+    public static final double k_height_controllerP = 0.0;
+    public static final double k_height_controllerI = 0.0;
+    public static final double k_height_controllerD = 0.0;
+    public static final TrapezoidProfile.Constraints height_controller_constraint = new TrapezoidProfile.Constraints(0,0);
+    public static final double intake_speed = 0.0;
+    public static final double output_speed = 0.0;
+    
   }
 }
