@@ -33,6 +33,28 @@ public class RobotContainer extends SubsystemManager {
     completeRegistration();
   }
 
+  /*
+    joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    joystick.b().whileTrue(drivetrain
+        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+
+    // reset the field-centric heading on left bumper press
+    joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()).ignoringDisable(true));
+    SmartDashboard.putData("Set wheel offsets",
+        drivetrain.runOnce(() -> drivetrain.tareEverything()).ignoringDisable(true));
+
+    // if (Utils.isSimulation()) {
+    // drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
+    // Rotation2d.fromDegrees(90)));
+    // }
+    drivetrain.registerTelemetry(logger::telemeterize);
+
+    joystick.pov(0).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
+    joystick.pov(90).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5)));
+    joystick.pov(180).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
+    joystick.pov(270).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.5)));
+   */
+
   public double getDriverJoystickLeftX() {
     return driverJoystick.getLeftX();
   }
