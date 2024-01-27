@@ -24,7 +24,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -96,6 +98,9 @@ public class SwerveDrivetrain extends Subsystem {
     protected SwerveRequest request_to_apply = new SwerveRequest.Idle();
     protected SwerveControlRequestParameters request_parameters = new SwerveControlRequestParameters();
 
+    private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
+    private StructPublisher<Rotation2d> orient_pub;
+
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
      * <p>
@@ -121,7 +126,8 @@ public class SwerveDrivetrain extends Subsystem {
         module_locations = new Translation2d[modules.length];
         swerve_modules = new SwerveModule[modules.length];
         io.module_positions = new SwerveModulePosition[modules.length];
-        io.module_states = new SwerveModuleState[modules.length];
+        io.current_module_states = new SwerveModuleState[modules.length];
+        io.requested_module_states = new SwerveModuleState[modules.length];
 
         // Construct the swerve modules
         for (int i = 0; i < modules.length; i++) {
@@ -130,9 +136,18 @@ public class SwerveDrivetrain extends Subsystem {
                     driveTrainConstants.SupportsPro);
             module_locations[i] = new Translation2d(module.LocationX, module.LocationY);
             io.module_positions[i] = swerve_modules[i].getPosition(true);
-            io.module_states[i] = swerve_modules[i].getCurrentState();
+            io.current_module_states[i] = swerve_modules[i].getCurrentState();
+            io.requested_module_states[i] = swerve_modules[i].getRequestedState();
+
         }
         kinematics = new SwerveDriveKinematics(module_locations);
+
+        // NT Publishers
+        requested_state_pub = NetworkTableInstance.getDefault()
+                .getStructArrayTopic("module_states/requested", SwerveModuleState.struct).publish();
+        current_state_pub = NetworkTableInstance.getDefault()
+                .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
+        orient_pub = NetworkTableInstance.getDefault().getStructTopic("robot_heading", Rotation2d.struct).publish();
     }
 
     @Override
@@ -152,14 +167,15 @@ public class SwerveDrivetrain extends Subsystem {
     @Override
     public void readPeriodicInputs(double timestamp) {
         for (int i = 0; i < swerve_modules.length; ++i) {
-            io.module_positions[i] = swerve_modules[i].getPosition(false);
-            io.module_states[i] = swerve_modules[i].getCurrentState();
+            io.module_positions[i] = swerve_modules[i].getPosition(true);
+            io.current_module_states[i] = swerve_modules[i].getCurrentState();
+            io.requested_module_states[i] = swerve_modules[i].getRequestedState();
         }
         io.driver_joystick_leftX = RobotContainer.getInstance().getDriverJoystickLeftX();
         io.driver_joystick_leftY = RobotContainer.getInstance().getDriverJoystickLeftY();
         io.driver_joystick_rightX = RobotContainer.getInstance().getDriverJoystickRightX();
 
-        io.robot_yaw = Rotation2d.fromDegrees(pigeon_imu.getAngle());
+        io.robot_yaw = Rotation2d.fromDegrees(-pigeon_imu.getAngle());
     }
 
     @Override
@@ -189,7 +205,7 @@ public class SwerveDrivetrain extends Subsystem {
         }
 
         /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = PoseEstimator.getInstance().getRobotPose()
+        request_parameters.currentPose = new Pose2d(0, 0, io.robot_yaw)
                 .relativeTo(new Pose2d(0, 0, io.field_relative_offset));
         request_parameters.kinematics = kinematics;
         request_parameters.swervePositions = module_locations;
@@ -204,7 +220,10 @@ public class SwerveDrivetrain extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
+        current_state_pub.set(io.current_module_states);
+        requested_state_pub.set(io.requested_module_states);
 
+        orient_pub.set(io.robot_yaw);
     }
 
     /**
@@ -248,7 +267,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds() {
-        return kinematics.toChassisSpeeds(io.module_states);
+        return kinematics.toChassisSpeeds(io.current_module_states);
     }
 
     /**
@@ -256,7 +275,7 @@ public class SwerveDrivetrain extends Subsystem {
      * field-relative maneuvers.
      */
     public void seedFieldRelative() {
-        io.field_relative_offset = PoseEstimator.getInstance().getRobotPose().getRotation();
+        io.field_relative_offset = io.robot_yaw;
     }
 
     /**
@@ -302,7 +321,7 @@ public class SwerveDrivetrain extends Subsystem {
      * [FrontLeft, FrontRight, BackLeft, BackRight]
      */
     public SwerveModuleState[] getModuleStates() {
-        return io.module_states;
+        return io.current_module_states;
     }
 
     /**
@@ -326,12 +345,12 @@ public class SwerveDrivetrain extends Subsystem {
      * decision-making from the Swerve Drive.
      */
     public class PeriodicIo extends LogData {
-        public int successful_daqs = 0;
-        public int failed_daqs = 0;
-        public SwerveModuleState[] module_states;
+        public SwerveModuleState[] current_module_states, requested_module_states;
+        public SwerveModulePosition[] module_positions;
+
         public Rotation2d field_relative_offset = new Rotation2d();
         public Rotation2d robot_yaw = new Rotation2d();
-        public SwerveModulePosition[] module_positions;
+
         public double driver_joystick_leftX = 0.0;
         public double driver_joystick_leftY = 0.0;
         public double driver_joystick_rightX = 0.0;
