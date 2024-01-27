@@ -75,29 +75,27 @@ public class SwerveDrivetrain extends Subsystem {
         AUTONOMOUS
     }
 
-    DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
-    SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
-            .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-            .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
-    SwerveRequest.RobotCentric robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
-            .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-            .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+    private DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
+    private SwerveRequest.FieldCentric field_centric;
+    private SwerveRequest.RobotCentric robot_centric;
 
     // Robot Hardware
-    protected final Pigeon2 pigeon_imu;
-    protected final SwerveModule[] swerve_modules;
+    private final Pigeon2 pigeon_imu;
+    private final SwerveModule[] swerve_modules;
 
     // Subsystem data class
-    protected PeriodicIo io;
+    private PeriodicIo io;
 
     // Drivetrain config
-    protected final SwerveDriveKinematics kinematics;
-    protected final Translation2d[] module_locations;
+    final SwerveDriveKinematics kinematics;
+    private final Translation2d[] module_locations;
 
-    private final SwerveRequest.ApplyChassisSpeeds auto_request = new SwerveRequest.ApplyChassisSpeeds();
-    protected SwerveRequest request_to_apply = new SwerveRequest.Idle();
-    protected SwerveControlRequestParameters request_parameters = new SwerveControlRequestParameters();
+    // Drive requests
+    private SwerveRequest.ApplyChassisSpeeds auto_request;
+    private SwerveRequest request_to_apply;
+    private SwerveControlRequestParameters request_parameters;
 
+    // NT publishers
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
     private StructPublisher<Rotation2d> orient_pub;
 
@@ -141,6 +139,17 @@ public class SwerveDrivetrain extends Subsystem {
 
         }
         kinematics = new SwerveDriveKinematics(module_locations);
+
+        // Drive mode requests
+        field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
+                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+        robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
+                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+        auto_request = new SwerveRequest.ApplyChassisSpeeds();
+        request_parameters = new SwerveControlRequestParameters();
+        request_to_apply = new SwerveRequest.Idle();
 
         // NT Publishers
         requested_state_pub = NetworkTableInstance.getDefault()
@@ -209,7 +218,7 @@ public class SwerveDrivetrain extends Subsystem {
                 .relativeTo(new Pose2d(0, 0, io.field_relative_offset));
         request_parameters.kinematics = kinematics;
         request_parameters.swervePositions = module_locations;
-        request_parameters.updatePeriod = 1.0 / (4.0 * (timestamp - request_parameters.timestamp));
+        request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
         request_parameters.timestamp = timestamp;
     }
 

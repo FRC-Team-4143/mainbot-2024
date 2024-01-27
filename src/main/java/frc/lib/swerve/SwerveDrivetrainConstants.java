@@ -16,12 +16,13 @@ public class SwerveDrivetrainConstants {
      * Name of the CAN bus the swerve drive is on.
      * Possible CAN bus strings are:
      * <ul>
-     *   <li>"rio" for the native roboRIO CAN bus
-     *   <li>CANivore name or serial number
-     *   <li>"*" for any CANivore seen by the program
+     * <li>"rio" for the native roboRIO CAN bus
+     * <li>CANivore name or serial number
+     * <li>"*" for any CANivore seen by the program
      * </ul>
      */
-    public String[] CANbusName = {"CANivore", "CANivore", "CANivore", "CANivore"};
+    public String[] CANbusName = { "CANivore", "CANivore", "CANivore", "CANivore" };
+    // public String[] CANbusName = { "rio", "rio", "rio", "rio" };
 
     /** If using Pro, specify this as true to make use of all the Pro features. */
     public boolean SupportsPro = false;
@@ -41,17 +42,17 @@ public class SwerveDrivetrainConstants {
      * Sets the name of the CAN bus the swerve drive is on.
      * Possible CAN bus strings are:
      * <ul>
-     *   <li>"rio" for the native roboRIO CAN bus
-     *   <li>CANivore name or serial number
-     *   <li>"*" for any CANivore seen by the program
+     * <li>"rio" for the native roboRIO CAN bus
+     * <li>CANivore name or serial number
+     * <li>"*" for any CANivore seen by the program
      * </ul>
      *
      * @param name Name of the CAN bus the swerve drive is on
      * @return this object
      */
     // public SwerveDrivetrainConstants withCANbusName(String name) {
-    //     this.CANbusName = name;
-    //     return this;
+    // this.CANbusName = name;
+    // return this;
     // }
 
     /**
@@ -65,4 +66,3 @@ public class SwerveDrivetrainConstants {
         return this;
     }
 }
-
