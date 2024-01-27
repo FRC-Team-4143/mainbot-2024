@@ -43,21 +43,26 @@ public final class Constants {
   }
   
   public static class ShooterConstatnts {
-    public static final int topFlyWheelID = 10;
-    public static final int bottomFlyWheelID = 11;
-    public static final int shooterPivotID = 12;
-    public static final int shooterPivotEncoder = 0;
-    public static final int rollerID = 13;
-    public static final double flyWheelIdleSpeed = 0;
-    public static final double rollerSpeed = 0;
-    public static final double maxShootAngle = 0;
-    public static final double minShootAngle = 0;
-    public static final double kAngleControlerP = 0.0;
-    public static final double kAngleControlerI = 0.0;
-    public static final double kAngleControlerD = 0.0;
-    public static final double wristTolerance = 0.00349;
-    public static final double flywheelTolerance = 0.1;
-    public static final TrapezoidProfile.Constraints angleControlerConstraint 
+    // Flywheel constants
+    public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
+    public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
+        public static final double FLYWHEEL_IDLE_SPEED = 0;
+            public static final double FLYWHEEL_TOLERANCE = 0.1;
+
+    // Wrist constants
+    public static final int WRIST_MOTOR_ID = 12;
+    public static final int WRIST_ENCODER_ID = 0;
+    public static final double WRIST_ANGLE_MAX = 0;
+    public static final double WRIST_ANGLE_MIN = 0;
+    public static final double WRIST_CONTROLLER_P = 0.0;
+    public static final double WRIST_CONTROLLER_I = 0.0;
+    public static final double WRIST_CONTROLLER_D = 0.0;
+    public static final double WRIST_TOLERANCE = 0.00349;
+    public static final TrapezoidProfile.Constraints WRIST_CONTROLLER_CONSTRAINT 
       = new TrapezoidProfile.Constraints(0, 0);
+
+    // Roller constants
+    public static final int ROLLER_MOTOR_ID = 13;
+    public static final double ROLLER_SPEED = 0;
   }
 }

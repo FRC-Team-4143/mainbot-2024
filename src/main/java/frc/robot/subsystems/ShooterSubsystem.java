@@ -5,20 +5,17 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.ShooterConstatnts;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
 public class ShooterSubsystem extends Subsystem {
@@ -33,21 +30,20 @@ public class ShooterSubsystem extends Subsystem {
   }
   
   //initialize motors
-  private CANSparkFlex flyWheelTop;
-  private CANSparkFlex flyWheelBottom;
-  private CANSparkFlex pivotMotor;
-  private CANSparkFlex rollerMotor; //Motor type tbd
+  private CANSparkFlex top_flywheel_motor_;
+  private CANSparkFlex bot_flywheel_motor_;
+  private CANSparkFlex wrist_motor_;
+  private CANSparkFlex roller_motor_; //Motor type tbd
 
-  private AprilTagFieldLayout fieldLayout;
+  private AprilTagFieldLayout field_layout_;
   
-  private final Rotation3d zeroRotation = new Rotation3d(0, 0, 0);
-  private final Transform3d speakerTransform = new Transform3d(0, 0, 1, zeroRotation); //TODO: figure out transformation
-  private final Transform3d ampTransform = new Transform3d(0, 0, -1, zeroRotation); //TODO: figure out transformation
+  private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 1, new Rotation3d(0, 0, 0)); //TODO: figure out transformation
+  private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -1, new Rotation3d(0, 0, 0)); //TODO: figure out transformation
 
-  private final Pose3d blueSpeaker = fieldLayout.getTagPose(7).get().transformBy(speakerTransform);
-  private final Pose3d redSpeaker = fieldLayout.getTagPose(4).get().transformBy(speakerTransform);
-  private final Pose3d blueAmp = fieldLayout.getTagPose(6).get().transformBy(ampTransform);
-  private final Pose3d redAmp = fieldLayout.getTagPose(5).get().transformBy(ampTransform);
+  private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
+  private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
+  private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
+  private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
   private ProfiledPIDController angleControler;
 
@@ -74,29 +70,29 @@ public class ShooterSubsystem extends Subsystem {
   public ShooterSubsystem() {
     io = new ShooterPeriodicIo();
 
-    angleControler = new ProfiledPIDController(ShooterConstatnts.kAngleControlerP, ShooterConstatnts.kAngleControlerI, ShooterConstatnts.kAngleControlerD, ShooterConstatnts.angleControlerConstraint);
-    flyWheelTop = new CANSparkFlex(ShooterConstatnts.topFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    flyWheelBottom = new CANSparkFlex(ShooterConstatnts.bottomFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    pivotMotor = new CANSparkFlex(ShooterConstatnts.shooterPivotID, CANSparkLowLevel.MotorType.kBrushless);
-    rollerMotor = new CANSparkFlex(ShooterConstatnts.rollerID, CANSparkLowLevel.MotorType.kBrushless);
+    angleControler = new ProfiledPIDController(ShooterConstatnts.WRIST_CONTROLLER_P, ShooterConstatnts.WRIST_CONTROLLER_I, ShooterConstatnts.WRIST_CONTROLLER_D, ShooterConstatnts.WRIST_CONTROLLER_CONSTRAINT);
+    top_flywheel_motor_ = new CANSparkFlex(ShooterConstatnts.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstatnts.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    wrist_motor_ = new CANSparkFlex(ShooterConstatnts.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    roller_motor_ = new CANSparkFlex(ShooterConstatnts.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
   }
   
   //get methods
   public double getShooterAngle(){
     //TODO: return curent angle
-    return io.current_wrist_angle;
+    return io.current_wrist_angle_;
   }
 
   public boolean isTargetLocked(){
     //TODO: is curently aiming at target
-    return Util.epislonEquals(io.current_wrist_angle, io.target_wrist_angle, ShooterConstatnts.wristTolerance) &&
-    Util.epislonEquals(io.current_flywheel_speed, io.target_flywheel_speed, ShooterConstatnts.flywheelTolerance);
+    return Util.epislonEquals(io.current_wrist_angle_, io.target_wrist_angle_, ShooterConstatnts.WRIST_TOLERANCE) &&
+    Util.epislonEquals(io.current_flywheel_speed_, io.target_flywheel_speed_, ShooterConstatnts.FLYWHEEL_TOLERANCE);
   }
 
   public boolean hasNote(){
     //TODO: not is in holding postion
-    return io.has_note;
+    return io.has_note_;
   }
 
 
@@ -105,19 +101,19 @@ public class ShooterSubsystem extends Subsystem {
     angleControler.setGoal(goal);
   }
 
-  public void setTarget(ShootTarget wantedTarget){
+  public void setTarget(ShootTarget target){
     var alliance = DriverStation.getAlliance();
     if(DriverStation.Alliance.Red == alliance.get()){
-      if(wantedTarget == ShootTarget.SPEAKER){
-        io.target = redSpeaker;
+      if(target == ShootTarget.SPEAKER){
+        io.target_ = RED_SPEAKER;
       } else {
-        io.target = redAmp;
+        io.target_ = RED_AMP;
       }
     } else {
-      if(wantedTarget == ShootTarget.SPEAKER){
-        io.target = blueSpeaker;
+      if(target == ShootTarget.SPEAKER){
+        io.target_ = BLUE_SPEAKER;
       } else {
-        io.target = blueAmp;
+        io.target_ = BLUE_AMP;
       }
     }
   }
@@ -193,13 +189,13 @@ public class ShooterSubsystem extends Subsystem {
   }
 
   public class ShooterPeriodicIo extends LogData {
-    public Pose3d target;
-    public double target_flywheel_speed;
-    public double current_flywheel_speed;
-    public double target_wrist_angle;
-    public double current_wrist_angle;
-    public ShootMode mode = ShootMode.IDLE;
-    public double roller_speed;
-    public boolean has_note;
+    public Pose3d target_;
+    public double target_flywheel_speed_;
+    public double current_flywheel_speed_;
+    public double target_wrist_angle_;
+    public double current_wrist_angle_;
+    public ShootMode target_mode_ = ShootMode.IDLE;
+    public double roller_speed_;
+    public boolean has_note_;
   }
 }
