@@ -42,20 +42,24 @@ public final class Constants {
 
   }
   
-  public static class ShooterConstatnts {
-    public static final int topFlyWheelID = 10;
-    public static final int bottomFlyWheelID = 11;
-    public static final int shooterPivotID = 12;
-    public static final int shooterPivotEncoder = 0;
-    public static final int rollerID = 13;
-    public static final double flyWheelIdleSpeed = 0;
-    public static final double rollerSpeed = 0;
-    public static final double maxShootAngle = 0;
-    public static final double minShootAngle = 0;
+  public static class ShooterSubsystemConstatnts {
+    // Shooter Constants
+    public static final int topFlywheelMotorID = 10;
+    public static final int botFlywheelMotorID = 11;
+    public static final double flywheelIdleSpeed = 0.0;
     public static final double kAngleControlerP = 0.0;
     public static final double kAngleControlerI = 0.0;
     public static final double kAngleControlerD = 0.0;
-    public static final TrapezoidProfile.Constraints angleControlerConstraint 
-      = new TrapezoidProfile.Constraints(0, 0);
+    public static final TrapezoidProfile.Constraints angleControlerConstraint = new TrapezoidProfile.Constraints(0, 0);
+    
+    // Pivot Constatns
+    public static final int pivotMotorID = 13;
+    public static final int pivotEncoderID = 0;
+    public static final double maxShootAngle = 0.0;
+    public static final double minShootAngle = 0.0;
+
+    // Roller Feeder Constants
+    public static final int rollerMotorID = 12;
+    public static final double rollerSpeed = 0.0;
   }
 }
