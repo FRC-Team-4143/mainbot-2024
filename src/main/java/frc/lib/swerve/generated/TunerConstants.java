@@ -43,8 +43,8 @@ public class TunerConstants {
     private static final boolean kInvertRightSide = false; //true;
 
     private static final int kPigeonId = 0;
-    private static final double frameWidth = 30.213;
-    private static final double frameLength = 18.51;
+    private static final double frameWidth = 19.0;
+    private static final double frameLength = 18.0;
 
 
     // These are only used for simulation

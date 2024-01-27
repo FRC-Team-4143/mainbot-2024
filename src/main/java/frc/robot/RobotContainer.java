@@ -21,15 +21,13 @@ public class RobotContainer extends SubsystemManager {
   
   public RobotContainer() {
     // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
-    subsystems.add(ExampleSubsystem.getInstance());
     subsystems.add(SwerveDrivetrain.getInstance());
     subsystems.add(PoseEstimator.getInstance());
 
 
-
-    // !!!!! LEAVE THIS LINE AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
+    // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
+    reset();
     completeRegistration();
   }
 
-  
 }
