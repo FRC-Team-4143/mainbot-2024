@@ -55,6 +55,8 @@ public final class Constants {
     public static final double kAngleControlerP = 0.0;
     public static final double kAngleControlerI = 0.0;
     public static final double kAngleControlerD = 0.0;
+    public static final double wristTolerance = 0.00349;
+    public static final double flywheelTolerance = 0.1;
     public static final TrapezoidProfile.Constraints angleControlerConstraint 
       = new TrapezoidProfile.Constraints(0, 0);
   }

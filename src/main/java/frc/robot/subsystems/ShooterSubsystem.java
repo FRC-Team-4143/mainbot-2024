@@ -7,8 +7,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
-import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstatnts;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -21,6 +22,15 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
 public class ShooterSubsystem extends Subsystem {
+  // Singleton pattern
+  private static ShooterSubsystem ShooterInstance = null;
+
+  public static ShooterSubsystem getInstance() {
+    if (ShooterInstance == null) {
+      ShooterInstance = new ShooterSubsystem();
+    }
+    return ShooterInstance;
+  }
   
   //initialize motors
   private CANSparkFlex flyWheelTop;
@@ -41,24 +51,18 @@ public class ShooterSubsystem extends Subsystem {
 
   private ProfiledPIDController angleControler;
 
-  public enum shootTarget{
+  public enum ShootTarget{
     SPEAKER, 
     AMP
   }
 
-  // Singleton pattern
-  private static ShooterSubsystem ShooterInstance = null;
-
-  public static ShooterSubsystem getInstance() {
-    if (ShooterInstance == null) {
-      ShooterInstance = new ShooterSubsystem();
-    }
-    return ShooterInstance;
+  public enum ShootMode{
+    ACTIVETARGETING,
+    IDLE,
+    READY,
+    TRANSFER
   }
 
-  /**
-   * 
-   */
   private ShooterPeriodicIo io;
 
   /**
@@ -70,28 +74,29 @@ public class ShooterSubsystem extends Subsystem {
   public ShooterSubsystem() {
     io = new ShooterPeriodicIo();
 
-    angleControler = new ProfiledPIDController(Constants.ShooterConstatnts.kAngleControlerP, Constants.ShooterConstatnts.kAngleControlerI, Constants.ShooterConstatnts.kAngleControlerD, Constants.ShooterConstatnts.angleControlerConstraint);
-    flyWheelTop = new CANSparkFlex(Constants.ShooterConstatnts.topFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    flyWheelBottom = new CANSparkFlex(Constants.ShooterConstatnts.bottomFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    pivotMotor = new CANSparkFlex(Constants.ShooterConstatnts.shooterPivotID, CANSparkLowLevel.MotorType.kBrushless);
-    rollerMotor = new CANSparkFlex(Constants.ShooterConstatnts.rollerID, CANSparkLowLevel.MotorType.kBrushless);
+    angleControler = new ProfiledPIDController(ShooterConstatnts.kAngleControlerP, ShooterConstatnts.kAngleControlerI, ShooterConstatnts.kAngleControlerD, ShooterConstatnts.angleControlerConstraint);
+    flyWheelTop = new CANSparkFlex(ShooterConstatnts.topFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
+    flyWheelBottom = new CANSparkFlex(ShooterConstatnts.bottomFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
+    pivotMotor = new CANSparkFlex(ShooterConstatnts.shooterPivotID, CANSparkLowLevel.MotorType.kBrushless);
+    rollerMotor = new CANSparkFlex(ShooterConstatnts.rollerID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
   }
   
   //get methods
   public double getShooterAngle(){
     //TODO: return curent angle
-    return 0;
+    return io.current_wrist_angle;
   }
 
   public boolean isTargetLocked(){
-    //TODO: is curently aming at target
-    return false;
+    //TODO: is curently aiming at target
+    return Util.epislonEquals(io.current_wrist_angle, io.target_wrist_angle, ShooterConstatnts.wristTolerance) &&
+    Util.epislonEquals(io.current_flywheel_speed, io.target_flywheel_speed, ShooterConstatnts.flywheelTolerance);
   }
 
   public boolean hasNote(){
     //TODO: not is in holding postion
-    return false;
+    return io.has_note;
   }
 
 
@@ -100,16 +105,16 @@ public class ShooterSubsystem extends Subsystem {
     angleControler.setGoal(goal);
   }
 
-  public void setTarget(shootTarget wantedTarget){
+  public void setTarget(ShootTarget wantedTarget){
     var alliance = DriverStation.getAlliance();
     if(DriverStation.Alliance.Red == alliance.get()){
-      if(wantedTarget == shootTarget.SPEAKER){
+      if(wantedTarget == ShootTarget.SPEAKER){
         io.target = redSpeaker;
       } else {
         io.target = redAmp;
       }
     } else {
-      if(wantedTarget == shootTarget.SPEAKER){
+      if(wantedTarget == ShootTarget.SPEAKER){
         io.target = blueSpeaker;
       } else {
         io.target = blueAmp;
@@ -124,6 +129,12 @@ public class ShooterSubsystem extends Subsystem {
   public void setFlyWheelSpeed(){
 
   }
+
+  private double calcuateAngle(Pose3d robot_pose, Pose3d target_pose, double velocity ){
+    return 0.0;
+  }
+    
+  
   
   @Override
   /**
@@ -183,5 +194,12 @@ public class ShooterSubsystem extends Subsystem {
 
   public class ShooterPeriodicIo extends LogData {
     public Pose3d target;
+    public double target_flywheel_speed;
+    public double current_flywheel_speed;
+    public double target_wrist_angle;
+    public double current_wrist_angle;
+    public ShootMode mode = ShootMode.IDLE;
+    public double roller_speed;
+    public boolean has_note;
   }
 }
