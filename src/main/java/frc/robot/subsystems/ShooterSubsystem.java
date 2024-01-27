@@ -23,37 +23,37 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 public class ShooterSubsystem extends Subsystem {
   
   //initialize motors
-  private CANSparkFlex flyWheelTop;
-  private CANSparkFlex flyWheelBottom;
-  private CANSparkFlex pivotMotor;
-  private CANSparkFlex rollerMotor; //Motor type tbd
+  private CANSparkFlex top_flywheel_motor;
+  private CANSparkFlex bot_flywheel_motor;
+  private CANSparkFlex pivot_motor;
+  private CANSparkFlex roller_motor; //Motor type tbd
 
-  private AprilTagFieldLayout fieldLayout;
+  private AprilTagFieldLayout field_layout;
   
-  private final Rotation3d zeroRotation = new Rotation3d(0, 0, 0);
-  private final Transform3d speakerTransform = new Transform3d(0, 0, 1, zeroRotation); //TODO: figure out transformation
-  private final Transform3d ampTransform = new Transform3d(0, 0, -1, zeroRotation); //TODO: figure out transformation
+  private final Rotation3d zero_rotation = new Rotation3d(0, 0, 0);
+  private final Transform3d speaker_transform = new Transform3d(0, 0, 1, zero_rotation); //TODO: figure out transformation
+  private final Transform3d amp_transform = new Transform3d(0, 0, -1, zero_rotation); //TODO: figure out transformation
 
-  private final Pose3d blueSpeaker = fieldLayout.getTagPose(7).get().transformBy(speakerTransform);
-  private final Pose3d redSpeaker = fieldLayout.getTagPose(4).get().transformBy(speakerTransform);
-  private final Pose3d blueAmp = fieldLayout.getTagPose(6).get().transformBy(ampTransform);
-  private final Pose3d redAmp = fieldLayout.getTagPose(5).get().transformBy(ampTransform);
+  private final Pose3d blue_speaker = field_layout.getTagPose(7).get().transformBy(speaker_transform);
+  private final Pose3d red_speaker = field_layout.getTagPose(4).get().transformBy(speaker_transform);
+  private final Pose3d blue_amp = field_layout.getTagPose(6).get().transformBy(amp_transform);
+  private final Pose3d red_amp = field_layout.getTagPose(5).get().transformBy(amp_transform);
 
-  private ProfiledPIDController angleControler;
+  private ProfiledPIDController angle_controler;
 
-  public enum shootTarget{
+  public enum ShootTarget{
     SPEAKER, 
     AMP
   }
 
   // Singleton pattern
-  private static ShooterSubsystem ShooterInstance = null;
+  private static ShooterSubsystem instance = null;
 
   public static ShooterSubsystem getInstance() {
-    if (ShooterInstance == null) {
-      ShooterInstance = new ShooterSubsystem();
+    if (instance == null) {
+      instance = new ShooterSubsystem();
     }
-    return ShooterInstance;
+    return instance;
   }
 
   /**
@@ -70,11 +70,14 @@ public class ShooterSubsystem extends Subsystem {
   public ShooterSubsystem() {
     io = new ShooterPeriodicIo();
 
-    angleControler = new ProfiledPIDController(Constants.ShooterConstatnts.kAngleControlerP, Constants.ShooterConstatnts.kAngleControlerI, Constants.ShooterConstatnts.kAngleControlerD, Constants.ShooterConstatnts.angleControlerConstraint);
-    flyWheelTop = new CANSparkFlex​(Constants.ShooterConstatnts.topFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    flyWheelBottom = new CANSparkFlex​(Constants.ShooterConstatnts.bottomFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    pivotMotor = new CANSparkFlex​(Constants.ShooterConstatnts.shooterPivotID, CANSparkLowLevel.MotorType.kBrushless);
-    rollerMotor = new CANSparkFlex​(Constants.ShooterConstatnts.rollerID, CANSparkLowLevel.MotorType.kBrushless);
+    angle_controler = new ProfiledPIDController(Constants.ShooterSubsystemConstatnts.kAngleControlerP, 
+                                                Constants.ShooterSubsystemConstatnts.kAngleControlerI, 
+                                                Constants.ShooterSubsystemConstatnts.kAngleControlerD, 
+                                                Constants.ShooterSubsystemConstatnts.angleControlerConstraint);
+    top_flywheel_motor = new CANSparkFlex(Constants.ShooterSubsystemConstatnts.topFlywheelMotorID, CANSparkLowLevel.MotorType.kBrushless);
+    bot_flywheel_motor = new CANSparkFlex​(Constants.ShooterSubsystemConstatnts.botFlywheelMotorID, CANSparkLowLevel.MotorType.kBrushless);
+    pivot_motor = new CANSparkFlex​(Constants.ShooterSubsystemConstatnts.pivotMotorID, CANSparkLowLevel.MotorType.kBrushless);
+    roller_motor = new CANSparkFlex​(Constants.ShooterSubsystemConstatnts.rollerMotorID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
   }
   
@@ -97,22 +100,22 @@ public class ShooterSubsystem extends Subsystem {
 
   //set methods
   public void setAngle(double goal){
-    angleControler.setGoal(goal);
+    angle_controler.setGoal(goal);
   }
 
-  public void setTarget(shootTarget wantedTarget){
+  public void setTarget(ShootTarget desiredShootTarget){
     var alliance = DriverStation.getAlliance();
     if(DriverStation.Alliance.Red == alliance.get()){
-      if(wantedTarget == shootTarget.SPEAKER){
-        io.target = redSpeaker;
+      if(desiredShootTarget == ShootTarget.SPEAKER){
+        io.target = red_speaker;
       } else {
-        io.target = redAmp;
+        io.target = red_amp;
       }
     } else {
-      if(wantedTarget == shootTarget.SPEAKER){
-        io.target = blueSpeaker;
+      if(desiredShootTarget == ShootTarget.SPEAKER){
+        io.target = blue_speaker;
       } else {
-        io.target = blueAmp;
+        io.target = blue_amp;
       }
     }
   }
@@ -182,7 +185,6 @@ public class ShooterSubsystem extends Subsystem {
   }
 
   public class ShooterPeriodicIo extends LogData {
-    public double test = 0;
     public Pose3d target;
   }
 }
