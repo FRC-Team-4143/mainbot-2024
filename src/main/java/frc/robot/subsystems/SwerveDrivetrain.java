@@ -37,6 +37,7 @@ import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;
+import frc.robot.OI;
 import frc.robot.RobotContainer;
 
 /**
@@ -180,9 +181,9 @@ public class SwerveDrivetrain extends Subsystem {
             io.current_module_states[i] = swerve_modules[i].getCurrentState();
             io.requested_module_states[i] = swerve_modules[i].getRequestedState();
         }
-        io.driver_joystick_leftX = RobotContainer.getInstance().getDriverJoystickLeftX();
-        io.driver_joystick_leftY = RobotContainer.getInstance().getDriverJoystickLeftY();
-        io.driver_joystick_rightX = RobotContainer.getInstance().getDriverJoystickRightX();
+        io.driver_joystick_leftX = OI.getDriverJoystickLeftX();
+        io.driver_joystick_leftY = OI.getDriverJoystickLeftY();
+        io.driver_joystick_rightX = OI.getDriverJoystickRightX();
 
         io.robot_yaw = Rotation2d.fromDegrees(-pigeon_imu.getAngle());
     }

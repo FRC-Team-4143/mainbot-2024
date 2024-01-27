@@ -10,21 +10,20 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public abstract class OI {
 
     //Sets up both controllers
-    CommandXboxController driverJoystick = new CommandXboxController(0); 
+    static CommandXboxController driverJoystick = new CommandXboxController(0); 
+    static CommandXboxController operatorJoystick = new CommandXboxController(1);
 
-    CommandXboxController operatorJoystick = new CommandXboxController(1);
-
-    public double getDriverJoystickLeftX() {
+    static public double getDriverJoystickLeftX() {
         return driverJoystick.getLeftX();
-      }
+    }
 
-    public double getDriverJoystickLeftY() {
+    static public double getDriverJoystickLeftY() {
         return driverJoystick.getLeftY();
-      }
+    }
 
-    public double getDriverJoystickRightX() {
+    static public double getDriverJoystickRightX() {
         return driverJoystick.getRightX();
-      }
+    }
 
 
 
