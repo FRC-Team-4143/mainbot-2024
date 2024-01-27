@@ -29,10 +29,12 @@ public class MailmanSubsystem extends Subsystem {
   /**
    * 
    */
-  private PeriodicIo io;
-  private CANSparkFlex elevatorMotor;
-  private CANSparkFlex dropperMotor;
-  private RelativeEncoder elevatorEncoder;
+  private MailmanPeriodicIo io;
+  private CANSparkFlex elevator_motor_;
+  private RelativeEncoder elevator_encoder_;
+  private CANSparkFlex dropper_motor_;
+  // TODO: Implement PID Controller on SparkFlex for faster preformance
+  // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/Java/Position%20Closed%20Loop%20Control/src/main/java/frc/robot/Robot.java
   private ProfiledPIDController heightController;
   public enum HeightTarget{
     AMP,
@@ -47,12 +49,11 @@ public class MailmanSubsystem extends Subsystem {
    * should be done in the reset() function.
    */
   private MailmanSubsystem() {
-    io = new PeriodicIo();
-    elevatorMotor = new CANSparkFlex(Constants.MailmanConstants.elevator_motor_id,
-        CANSparkLowLevel.MotorType.kBrushless);
-    dropperMotor = new CANSparkFlex(Constants.MailmanConstants.dropper_motor_id, CANSparkLowLevel.MotorType.kBrushless);
-    elevatorEncoder = elevatorMotor.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-    heightController = new ProfiledPIDController(Constants.MailmanConstants.k_height_controllerP,Constants.MailmanConstants.k_height_controllerI,Constants.MailmanConstants.k_height_controllerD,Constants.MailmanConstants.height_controller_constraint);
+    io = new MailmanPeriodicIo();
+    elevator_motor_ = new CANSparkFlex(Constants.MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    dropper_motor_ = new CANSparkFlex(Constants.MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    elevator_encoder_ = elevator_motor_.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+    heightController = new ProfiledPIDController(Constants.MailmanConstants.HEIGHT_CONTROLLER_P,Constants.MailmanConstants.HEIGHT_CONTROLLER_I,Constants.MailmanConstants.HEIGHT_CONTROLLER_D,Constants.MailmanConstants.HEIGHT_CONTROLLER_CONSTRAINT);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class MailmanSubsystem extends Subsystem {
    * initializing data members.
    */
   public void reset() {
-    io = new PeriodicIo();
+    io = new MailmanPeriodicIo();
   }
 
   @Override
@@ -72,7 +73,7 @@ public class MailmanSubsystem extends Subsystem {
    * actuators, or any logic within this function.
    */
   public void readPeriodicInputs(double timestamp) {
-    io.current_height = elevatorEncoder.getPosition();
+    io.current_height_ = elevator_encoder_.getPosition();
 
   }
 
@@ -83,7 +84,7 @@ public class MailmanSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
-    io.controller_output = heightController.calculate(io.current_height, io.wanted_height);
+    io.controller_output_ = heightController.calculate(io.current_height_, io.desired_height_);
   }
 
   @Override
@@ -94,8 +95,8 @@ public class MailmanSubsystem extends Subsystem {
    * contained within this function, and no sensors should be read.
    */
   public void writePeriodicOutputs(double timestamp) {
-    elevatorMotor.set(io.controller_output);
-    dropperMotor.set(io.roller_speed);
+    elevator_motor_.set(io.controller_output_);
+    dropper_motor_.set(io.roller_speed_);
   }
 
   @Override
@@ -115,38 +116,38 @@ public class MailmanSubsystem extends Subsystem {
   }
 
 public boolean atHeight(){
-  return Util.epislonEquals(io.current_height,io.wanted_height);
+  return Util.epislonEquals(io.current_height_,io.desired_height_);
 }
 
-public void setHeight(HeightTarget desiredHeight){
-  if(desiredHeight==HeightTarget.AMP){
-    io.wanted_height = Constants.MailmanConstants.amp_height;
-  } else if(desiredHeight==HeightTarget.TRAP){
-    io.wanted_height = Constants.MailmanConstants.trap_height;
+public void setHeight(HeightTarget target){
+  if(target==HeightTarget.AMP){
+    io.desired_height_ = Constants.MailmanConstants.AMP_HEIGHT;
+  } else if(target==HeightTarget.TRAP){
+    io.desired_height_ = Constants.MailmanConstants.TRAP_HEIGHT;
   }else{
-    io.wanted_height = 0.0; //stored elevator height
+    io.desired_height_ = 0.0; //stored elevator height
   }
 }
 
 public void setRollerIntake(){
-    io.roller_speed = Constants.MailmanConstants.intake_speed;
+    io.roller_speed_ = Constants.MailmanConstants.DROPPER_IN_SPEED;
 }
 
 public void setRollerOutput(){
-    io.roller_speed = Constants.MailmanConstants.output_speed;
+    io.roller_speed_ = Constants.MailmanConstants.DROPPER_OUT_SPEED;
 }
 
 public void setRollerStop(){
-    io.roller_speed = 0;
+    io.roller_speed_ = 0;
 }
 
-  public class PeriodicIo extends LogData {
-    public double current_height = 0.0;
-    public double wanted_height = 0.0;
-    public boolean is_holding_note = false;
-    public boolean is_allinged = false;
-    public boolean note_wanted_elsewhere = false;
-    public double controller_output = 0.0;
-    public double roller_speed = 0.0;
+  public class MailmanPeriodicIo extends LogData {
+    public double current_height_ = 0.0;
+    public double desired_height_ = 0.0;
+    public boolean is_holding_note_ = false;
+    public boolean is_allinged_ = false;
+    public boolean note_wanted_elsewhere_ = false;
+    public double controller_output_ = 0.0;
+    public double roller_speed_ = 0.0;
   }
 }

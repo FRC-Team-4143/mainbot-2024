@@ -42,16 +42,16 @@ public final class Constants {
   }
 
   public static class MailmanConstants {
-    public static final int elevator_motor_id = 0;
-    public static final int dropper_motor_id = 0;
-    public static final double amp_height = 0;
-    public static final double trap_height = 0;
-    public static final double k_height_controllerP = 0.0;
-    public static final double k_height_controllerI = 0.0;
-    public static final double k_height_controllerD = 0.0;
-    public static final TrapezoidProfile.Constraints height_controller_constraint = new TrapezoidProfile.Constraints(0,0);
-    public static final double intake_speed = 0.0;
-    public static final double output_speed = 0.0;
+    public static final int ELEVATOR_MOTOR_ID = 0;
+    public static final int DROPPER_MOTOR_ID = 0;
+    public static final double AMP_HEIGHT = 0;
+    public static final double TRAP_HEIGHT = 0;
+    public static final double HEIGHT_CONTROLLER_P = 0.0;
+    public static final double HEIGHT_CONTROLLER_I = 0.0;
+    public static final double HEIGHT_CONTROLLER_D = 0.0;
+    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
+    public static final double DROPPER_IN_SPEED = 0.0;
+    public static final double DROPPER_OUT_SPEED = 0.0;
     
   }
 }
