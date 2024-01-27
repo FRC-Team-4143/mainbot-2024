@@ -6,7 +6,6 @@
  */
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -25,21 +24,21 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.lib.subsystem.Subsystem;
-import frc.lib.swerve.SwerveDrivetrainConstants;
-import frc.lib.swerve.SwerveModule;
-import frc.lib.swerve.SwerveModuleConstants;
-import frc.lib.swerve.SwerveRequest;
+import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;
+import frc.robot.OI;
 import frc.robot.RobotContainer;
-
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -70,39 +69,36 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     // Drive Mode Selections
-    private enum DriveMode {
+    public enum DriveMode {
         ROBOT_CENTRIC,
-        FIELD_CENTERIC,
-        TARGET
+        FIELD_CENTRIC,
+        TARGET,
+        AUTONOMOUS
     }
 
-    DriveMode drive_mode;
-    SwerveRequest.FieldCentric field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
-            .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-            .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
-    SwerveRequest.RobotCentric robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
-            .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
-            .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+    private DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
+    private SwerveRequest.FieldCentric field_centric;
+    private SwerveRequest.RobotCentric robot_centric;
 
     // Robot Hardware
-    protected final Pigeon2 pigeon_imu;
-    protected final SwerveModule[] swerve_modules;
-    private ArrayList<BaseStatusSignal[]> all_signals;
-
-    // Getters for current state info on the IMU
-    protected final StatusSignal<Double> yaw_getter;
-    protected final StatusSignal<Double> yawrate_getter;
+    private final Pigeon2 pigeon_imu;
+    private final SwerveModule[] swerve_modules;
 
     // Subsystem data class
-    protected PeriodicIo io;
+    private PeriodicIo io;
 
     // Drivetrain config
-    protected final SwerveDriveKinematics kinematics;
-    protected final Translation2d[] module_locations;
+    final SwerveDriveKinematics kinematics;
+    private final Translation2d[] module_locations;
 
-    private final SwerveRequest.ApplyChassisSpeeds auto_request = new SwerveRequest.ApplyChassisSpeeds();
-    protected SwerveRequest request_to_apply = new SwerveRequest.Idle();
-    protected SwerveControlRequestParameters request_parameters = new SwerveControlRequestParameters();
+    // Drive requests
+    private SwerveRequest.ApplyChassisSpeeds auto_request;
+    private SwerveRequest request_to_apply;
+    private SwerveControlRequestParameters request_parameters;
+
+    // NT publishers
+    private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
+    private StructPublisher<Rotation2d> orient_pub;
 
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
@@ -123,13 +119,14 @@ public class SwerveDrivetrain extends Subsystem {
 
         // Setup the Pigeon IMU
         pigeon_imu = new Pigeon2(driveTrainConstants.Pigeon2Id, driveTrainConstants.CANbusName[0]);
-        yaw_getter = pigeon_imu.getYaw().clone();
-        yawrate_getter = pigeon_imu.getAngularVelocityZDevice().clone();
+        pigeon_imu.optimizeBusUtilization();
 
         // Begin configuring swerve modules
+        module_locations = new Translation2d[modules.length];
         swerve_modules = new SwerveModule[modules.length];
         io.module_positions = new SwerveModulePosition[modules.length];
-        module_locations = new Translation2d[modules.length];
+        io.current_module_states = new SwerveModuleState[modules.length];
+        io.requested_module_states = new SwerveModuleState[modules.length];
 
         // Construct the swerve modules
         for (int i = 0; i < modules.length; i++) {
@@ -138,8 +135,105 @@ public class SwerveDrivetrain extends Subsystem {
                     driveTrainConstants.SupportsPro);
             module_locations[i] = new Translation2d(module.LocationX, module.LocationY);
             io.module_positions[i] = swerve_modules[i].getPosition(true);
+            io.current_module_states[i] = swerve_modules[i].getCurrentState();
+            io.requested_module_states[i] = swerve_modules[i].getRequestedState();
+
         }
         kinematics = new SwerveDriveKinematics(module_locations);
+
+        // Drive mode requests
+        field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
+                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+        robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
+                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+        auto_request = new SwerveRequest.ApplyChassisSpeeds();
+        request_parameters = new SwerveControlRequestParameters();
+        request_to_apply = new SwerveRequest.Idle();
+
+        // NT Publishers
+        requested_state_pub = NetworkTableInstance.getDefault()
+                .getStructArrayTopic("module_states/requested", SwerveModuleState.struct).publish();
+        current_state_pub = NetworkTableInstance.getDefault()
+                .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
+        orient_pub = NetworkTableInstance.getDefault().getStructTopic("robot_heading", Rotation2d.struct).publish();
+    }
+
+    @Override
+    public void reset() {
+        // 4 signals for each module + 2 for Pigeon2
+        for (int i = 0; i < swerve_modules.length; ++i) {
+            BaseStatusSignal.setUpdateFrequencyForAll(100, swerve_modules[i].getSignals());
+            swerve_modules[i].optimizeCan();
+        }
+        BaseStatusSignal[] imuSignals = { pigeon_imu.getYaw() };
+        BaseStatusSignal.setUpdateFrequencyForAll(100, imuSignals);
+        pigeon_imu.optimizeBusUtilization();
+
+        configurePathPlanner();
+    }
+
+    @Override
+    public void readPeriodicInputs(double timestamp) {
+        for (int i = 0; i < swerve_modules.length; ++i) {
+            io.module_positions[i] = swerve_modules[i].getPosition(true);
+            io.current_module_states[i] = swerve_modules[i].getCurrentState();
+            io.requested_module_states[i] = swerve_modules[i].getRequestedState();
+        }
+        io.driver_joystick_leftX = OI.getDriverJoystickLeftX();
+        io.driver_joystick_leftY = OI.getDriverJoystickLeftY();
+        io.driver_joystick_rightX = OI.getDriverJoystickRightX();
+
+        io.robot_yaw = Rotation2d.fromDegrees(-pigeon_imu.getAngle());
+    }
+
+    @Override
+    public void updateLogic(double timestamp) {
+        switch (drive_mode) {
+            case ROBOT_CENTRIC:
+                setControl(robot_centric
+                        // Drive forward with negative Y (forward)
+                        .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed)
+                        // Drive left with negative X (left)
+                        .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed)
+                        // Drive counterclockwise with negative X (left)
+                        .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate));
+                break;
+            case FIELD_CENTRIC:
+                setControl(field_centric
+                        // Drive forward with negative Y (forward)
+                        .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed)
+                        // Drive left with negative X (left)
+                        .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed)
+                        // Drive counterclockwise with negative X (left)
+                        .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate));
+                break;
+            default:
+                // yes these dont do anything for auto...
+                break;
+        }
+
+        /* And now that we've got the new odometry, update the controls */
+        request_parameters.currentPose = new Pose2d(0, 0, io.robot_yaw)
+                .relativeTo(new Pose2d(0, 0, io.field_relative_offset));
+        request_parameters.kinematics = kinematics;
+        request_parameters.swervePositions = module_locations;
+        request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
+        request_parameters.timestamp = timestamp;
+    }
+
+    @Override
+    public void writePeriodicOutputs(double timestamp) {
+        request_to_apply.apply(request_parameters, swerve_modules);
+    }
+
+    @Override
+    public void outputTelemetry(double timestamp) {
+        current_state_pub.set(io.current_module_states);
+        requested_state_pub.set(io.requested_module_states);
+
+        orient_pub.set(io.robot_yaw);
     }
 
     /**
@@ -162,7 +256,7 @@ public class SwerveDrivetrain extends Subsystem {
                         5,
                         driveBaseRadius,
                         new ReplanningConfig(false, false),
-                        0.004), // faster period than default
+                        0.008), // faster period than default
 
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red
@@ -175,7 +269,7 @@ public class SwerveDrivetrain extends Subsystem {
                     }
                     return false;
                 },
-                new DumbSystem()); // Subsystem for requirements
+                this); // Subsystem for requirements
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -183,7 +277,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds() {
-        return kinematics.toChassisSpeeds(io.module_states);
+        return kinematics.toChassisSpeeds(io.current_module_states);
     }
 
     /**
@@ -191,7 +285,7 @@ public class SwerveDrivetrain extends Subsystem {
      * field-relative maneuvers.
      */
     public void seedFieldRelative() {
-        io.field_relative_offset = PoseEstimator.getInstance().getRobotPose().getRotation();
+        io.field_relative_offset = io.robot_yaw;
     }
 
     /**
@@ -220,7 +314,7 @@ public class SwerveDrivetrain extends Subsystem {
      * Gets the raw value from the Robot IMU
      */
     public Rotation2d getImuYaw() {
-        return new Rotation2d(yaw_getter.getValueAsDouble());
+        return io.robot_yaw;
     }
 
     /**
@@ -237,7 +331,7 @@ public class SwerveDrivetrain extends Subsystem {
      * [FrontLeft, FrontRight, BackLeft, BackRight]
      */
     public SwerveModuleState[] getModuleStates() {
-        return io.module_states;
+        return io.current_module_states;
     }
 
     /**
@@ -261,104 +355,14 @@ public class SwerveDrivetrain extends Subsystem {
      * decision-making from the Swerve Drive.
      */
     public class PeriodicIo extends LogData {
-        public int successful_daqs = 0;
-        public int failed_daqs = 0;
-        public SwerveModuleState[] module_states;
-        public Rotation2d field_relative_offset = new Rotation2d();
+        public SwerveModuleState[] current_module_states, requested_module_states;
         public SwerveModulePosition[] module_positions;
+
+        public Rotation2d field_relative_offset = new Rotation2d();
+        public Rotation2d robot_yaw = new Rotation2d();
+
         public double driver_joystick_leftX = 0.0;
         public double driver_joystick_leftY = 0.0;
         public double driver_joystick_rightX = 0.0;
-    }
-
-    @Override
-    public void readPeriodicInputs(double timestamp) {
-        for (int i = 0; i < swerve_modules.length; ++i) {
-            io.module_positions[i] = swerve_modules[i].getPosition(false);
-        }
-        io.driver_joystick_leftX = RobotContainer.getInstance().getDriverJoystickLeftX();
-        io.driver_joystick_leftY = RobotContainer.getInstance().getDriverJoystickLeftY();
-        io.driver_joystick_rightX = RobotContainer.getInstance().getDriverJoystickRightX();
-    }
-
-    @Override
-    public void updateLogic(double timestamp) {
-        /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = PoseEstimator.getInstance().getRobotPose()
-                .relativeTo(new Pose2d(0, 0, io.field_relative_offset));
-        request_parameters.kinematics = kinematics;
-        request_parameters.swervePositions = module_locations;
-        request_parameters.updatePeriod = 1.0 / timestamp - request_parameters.timestamp;
-        request_parameters.timestamp = timestamp;
-
-        request_to_apply.apply(request_parameters, swerve_modules);
-
-        switch (drive_mode) {
-            case ROBOT_CENTRIC:
-                applyRequest(() -> robot_centric
-                        .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive
-                                                                                                           // forward
-                                                                                                           // with
-                                                                                                           // negative Y
-                                                                                                           // (forward)
-                        .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left
-                                                                                                           // with
-                                                                                                           // negative X
-                                                                                                           // (left)
-                        .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive
-                                                                                                                         // counterclockwise
-                                                                                                                         // with
-                                                                                                                         // negative
-                                                                                                                         // X
-                                                                                                                         // (left)
-                break;
-            case FIELD_CENTERIC:
-            default:
-                applyRequest(() -> field_centric
-                        .withVelocityX(-io.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed) // Drive
-                                                                                                           // forward
-                                                                                                           // with
-                                                                                                           // negative Y
-                                                                                                           // (forward)
-                        .withVelocityY(-io.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed) // Drive left
-                                                                                                           // with
-                                                                                                           // negative X
-                                                                                                           // (left)
-                        .withRotationalRate(-io.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate)); // Drive
-                                                                                                                         // counterclockwise
-                                                                                                                         // with
-                                                                                                                         // negative
-                                                                                                                         // X
-                                                                                                                         // (left)
-                break;
-        }
-    }
-
-    @Override
-    public void writePeriodicOutputs(double timestamp) {
-
-    }
-
-    @Override
-    public void outputTelemetry(double timestamp) {
-
-    }
-
-    @Override
-    public void reset() {
-        // 4 signals for each module + 2 for Pigeon2
-        all_signals = new ArrayList<BaseStatusSignal[]>();
-        for (int i = 0; i < swerve_modules.length; ++i) {
-            all_signals.add(swerve_modules[i].getSignals());
-        }
-        BaseStatusSignal[] imuSignals = { yaw_getter, yawrate_getter };
-        all_signals.add(imuSignals);
-
-        // Make sure all signals update at around 200hz
-        for (int i = 0; i < all_signals.size(); i++) {
-            BaseStatusSignal.setUpdateFrequencyForAll(200, all_signals.get(i));
-        }
-
-        configurePathPlanner();
     }
 }

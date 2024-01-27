@@ -71,10 +71,10 @@ public class ShooterSubsystem extends Subsystem {
     io = new ShooterPeriodicIo();
 
     angleControler = new ProfiledPIDController(Constants.ShooterConstatnts.kAngleControlerP, Constants.ShooterConstatnts.kAngleControlerI, Constants.ShooterConstatnts.kAngleControlerD, Constants.ShooterConstatnts.angleControlerConstraint);
-    flyWheelTop = new CANSparkFlex​(Constants.ShooterConstatnts.topFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    flyWheelBottom = new CANSparkFlex​(Constants.ShooterConstatnts.bottomFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
-    pivotMotor = new CANSparkFlex​(Constants.ShooterConstatnts.shooterPivotID, CANSparkLowLevel.MotorType.kBrushless);
-    rollerMotor = new CANSparkFlex​(Constants.ShooterConstatnts.rollerID, CANSparkLowLevel.MotorType.kBrushless);
+    flyWheelTop = new CANSparkFlex(Constants.ShooterConstatnts.topFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
+    flyWheelBottom = new CANSparkFlex(Constants.ShooterConstatnts.bottomFlyWheelID, CANSparkLowLevel.MotorType.kBrushless);
+    pivotMotor = new CANSparkFlex(Constants.ShooterConstatnts.shooterPivotID, CANSparkLowLevel.MotorType.kBrushless);
+    rollerMotor = new CANSparkFlex(Constants.ShooterConstatnts.rollerID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
   }
   
@@ -182,7 +182,6 @@ public class ShooterSubsystem extends Subsystem {
   }
 
   public class ShooterPeriodicIo extends LogData {
-    public double test = 0;
     public Pose3d target;
   }
 }

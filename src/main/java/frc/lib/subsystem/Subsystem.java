@@ -1,8 +1,9 @@
 package frc.lib.subsystem;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logger.Logable;
 
-public abstract class Subsystem implements Logable {
+public abstract class Subsystem extends SubsystemBase implements Logable  {
 
     /**
      * Reads all sensors and stores periodic data
