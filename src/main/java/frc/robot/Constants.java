@@ -93,4 +93,18 @@ public final class Constants {
     public final boolean ROLLER_MOTOR_INVERTED;
   }
 
+
+  public static class MailmanConstants {
+    public static final int elevator_motor_id = 0;
+    public static final int dropper_motor_id = 0;
+    public static final double amp_height = 0;
+    public static final double trap_height = 0;
+    public static final double k_height_controllerP = 0.0;
+    public static final double k_height_controllerI = 0.0;
+    public static final double k_height_controllerD = 0.0;
+    public static final TrapezoidProfile.Constraints height_controller_constraint = new TrapezoidProfile.Constraints(0,0);
+    public static final double intake_speed = 0.0;
+    public static final double output_speed = 0.0;
+    
+  }
 }
