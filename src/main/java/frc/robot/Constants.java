@@ -49,12 +49,12 @@ public final class Constants {
 
   public class PickupSettings {
     public PickupSettings(int ID, boolean invert) {
-      rollerID = ID;
-      rollerInverted = invert;
+      ROLLER_MOTOR_ID = ID;
+      ROLLER_MOTOR_INVERTED = invert;
     }
 
-    public final int rollerID;
-    public final boolean rollerInverted;
+    public final int ROLLER_MOTOR_ID;
+    public final boolean ROLLER_MOTOR_INVERTED;
   }
 
 }
