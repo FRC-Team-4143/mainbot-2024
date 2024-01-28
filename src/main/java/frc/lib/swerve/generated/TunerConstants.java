@@ -34,8 +34,8 @@ public class TunerConstants {
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5;
     
-    private static final double kDriveGearRatio = 6.21;  //7.363636364;
-    private static final double kSteerGearRatio = 150./7.; //15.42857143;
+    private static final double kDriveGearRatio = 5.14; // Mk4i: 6.12, Mk4: 5.14 
+    private static final double kSteerGearRatio = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
     private static final double kWheelRadiusInches = 2.167; // Estimated at first, then fudge-factored to make odom match record
 
     private static final boolean kSteerMotorReversed = true;
