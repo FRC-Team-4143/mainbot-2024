@@ -42,23 +42,24 @@ public final class Constants {
 
   }
   
-  public static class ShooterConstatnts {
+  // IDs Range from 10 - 19
+  public static class ShooterConstants {
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
-        public static final double FLYWHEEL_IDLE_SPEED = 0;
-            public static final double FLYWHEEL_TOLERANCE = 0.1;
+    public static final double FLYWHEEL_IDLE_SPEED = 0;
+    public static final double FLYWHEEL_TOLERANCE = 0.1;
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
     public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double WRIST_CONTROLLER_P = 0.0;
-    public static final double WRIST_CONTROLLER_I = 0.0;
-    public static final double WRIST_CONTROLLER_D = 0.0;
-    public static final double WRIST_TOLERANCE = 0.00349;
-    public static final TrapezoidProfile.Constraints WRIST_CONTROLLER_CONSTRAINT 
+    public static final double ANGLE_CONTROLLER_P = 0.0;
+    public static final double ANGLE_CONTROLLER_I = 0.0;
+    public static final double ANGLE_CONTROLLER_D = 0.0;
+    public static final double ANGLE_TOLERANCE = 0.00349;
+    public static final TrapezoidProfile.Constraints ANGLE_CONTROLLER_CONSTRAINT 
       = new TrapezoidProfile.Constraints(0, 0);
 
     // Roller constants
@@ -66,12 +67,13 @@ public final class Constants {
     public static final double ROLLER_SPEED = 0;
   }
 
+  // IDs Range from 20 - 29
   public static class PickupConstants {
-    public static final double rollerForward = 0.5;
-    public static final double rollerReverse = -0.5;
-    public static final int rollerAmpLimit = 40;
-    public static final PickupSettings shooter_pickup = new Constants().new PickupSettings(0, false);
-    public static final PickupSettings mailman_pickup = new Constants().new PickupSettings(0, false);
+    public static final double ROLLER_FORWARD = 0.5;
+    public static final double ROLLER_REVERSE = -0.5;
+    public static final int ROLLER_AMP_LIMIT = 40;
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, false);
   }
 
   public class PickupSettings {

@@ -8,13 +8,14 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
-import frc.robot.Constants.ShooterConstatnts;
+import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
@@ -33,7 +34,7 @@ public class ShooterSubsystem extends Subsystem {
   private CANSparkFlex top_flywheel_motor_;
   private CANSparkFlex bot_flywheel_motor_;
   private CANSparkFlex wrist_motor_;
-  private CANSparkFlex roller_motor_; //Motor type tbd
+  private CANSparkMax roller_motor_; //Motor type tbd
 
   private AprilTagFieldLayout field_layout_;
   
@@ -45,7 +46,7 @@ public class ShooterSubsystem extends Subsystem {
   private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
   private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
-  private ProfiledPIDController angleControler;
+  private ProfiledPIDController angle_controller_;
 
   public enum ShootTarget{
     SPEAKER, 
@@ -59,7 +60,7 @@ public class ShooterSubsystem extends Subsystem {
     TRANSFER
   }
 
-  private ShooterPeriodicIo io;
+  private ShooterPeriodicIo io_;
 
   /**
    * Constructor for the example subsystem. The constructor should create all
@@ -68,62 +69,77 @@ public class ShooterSubsystem extends Subsystem {
    * should be done in the reset() function.
    */
   public ShooterSubsystem() {
-    io = new ShooterPeriodicIo();
+    io_ = new ShooterPeriodicIo();
 
-    angleControler = new ProfiledPIDController(ShooterConstatnts.WRIST_CONTROLLER_P, ShooterConstatnts.WRIST_CONTROLLER_I, ShooterConstatnts.WRIST_CONTROLLER_D, ShooterConstatnts.WRIST_CONTROLLER_CONSTRAINT);
-    top_flywheel_motor_ = new CANSparkFlex(ShooterConstatnts.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstatnts.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-    wrist_motor_ = new CANSparkFlex(ShooterConstatnts.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-    roller_motor_ = new CANSparkFlex(ShooterConstatnts.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    angle_controller_ = new ProfiledPIDController(ShooterConstants.ANGLE_CONTROLLER_P, ShooterConstants.ANGLE_CONTROLLER_I, ShooterConstants.ANGLE_CONTROLLER_D, ShooterConstants.ANGLE_CONTROLLER_CONSTRAINT);
+    top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    top_flywheel_motor_.follow(bot_flywheel_motor_, true);
+    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
   }
   
   //get methods
   public double getShooterAngle(){
     //TODO: return curent angle
-    return io.current_wrist_angle_;
+    return io_.current_wrist_angle_;
   }
 
   public boolean isTargetLocked(){
     //TODO: is curently aiming at target
-    return Util.epislonEquals(io.current_wrist_angle_, io.target_wrist_angle_, ShooterConstatnts.WRIST_TOLERANCE) &&
-    Util.epislonEquals(io.current_flywheel_speed_, io.target_flywheel_speed_, ShooterConstatnts.FLYWHEEL_TOLERANCE);
+    return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, ShooterConstants.ANGLE_TOLERANCE) &&
+    Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_, ShooterConstants.FLYWHEEL_TOLERANCE);
   }
 
   public boolean hasNote(){
     //TODO: not is in holding postion
-    return io.has_note_;
+    return io_.has_note_;
   }
 
 
   //set methods
   public void setAngle(double goal){
-    angleControler.setGoal(goal);
+    angle_controller_.setGoal(goal);
   }
 
   public void setTarget(ShootTarget target){
     var alliance = DriverStation.getAlliance();
     if(DriverStation.Alliance.Red == alliance.get()){
       if(target == ShootTarget.SPEAKER){
-        io.target_ = RED_SPEAKER;
+        io_.target_ = RED_SPEAKER;
       } else {
-        io.target_ = RED_AMP;
+        io_.target_ = RED_AMP;
       }
     } else {
       if(target == ShootTarget.SPEAKER){
-        io.target_ = BLUE_SPEAKER;
+        io_.target_ = BLUE_SPEAKER;
       } else {
-        io.target_ = BLUE_AMP;
+        io_.target_ = BLUE_AMP;
       }
     }
   }
 
-  public void setFeedSpeed(){
-
+  public void setRollerFeed(){
+    io_.roller_speed_ = ShooterConstants.ROLLER_SPEED;
   } 
 
-  public void setFlyWheelSpeed(){
+  public void setRollerReverse(){
+    io_.roller_speed_ = -ShooterConstants.ROLLER_SPEED;
+  } 
 
+  public void rollerStop(){
+    io_.roller_speed_ = 0;
+  }
+
+  // TODO: This method should either be rewritten or only used for manual overrides
+  // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
+  public void setFlyWheelSpeed(double speed){
+    io_.target_flywheel_speed_ =  speed;
+  }
+
+  public void flyWheelStop(){
+    io_.target_flywheel_speed_ =  0;
   }
 
   private double calcuateAngle(Pose3d robot_pose, Pose3d target_pose, double velocity ){
@@ -139,7 +155,7 @@ public class ShooterSubsystem extends Subsystem {
    * initializing data members.
    */
   public void reset() {
-    io = new ShooterPeriodicIo();
+    io_ = new ShooterPeriodicIo();
   }
 
   @Override
@@ -169,7 +185,8 @@ public class ShooterSubsystem extends Subsystem {
    * contained within this function, and no sensors should be read.
    */
   public void writePeriodicOutputs(double timestamp) {
-
+    bot_flywheel_motor_.set(io_.target_flywheel_speed_);
+    roller_motor_.set(io_.roller_speed_);
   }
 
   @Override
@@ -185,7 +202,7 @@ public class ShooterSubsystem extends Subsystem {
 
   @Override
   public LogData getLogger() {
-    return io;
+    return io_;
   }
 
   public class ShooterPeriodicIo extends LogData {
