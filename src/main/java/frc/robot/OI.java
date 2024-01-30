@@ -22,6 +22,7 @@ public abstract class OI {
     public static void configureBindings(){
 
         SmartDashboard.putNumber("Shooter Speed", 0);
+        SmartDashboard.putNumber("Wrist Speed", 0);
 
         // Spin Shooter
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
@@ -37,6 +38,15 @@ public abstract class OI {
             () -> ShooterSubsystem.getInstance().setRollerFeed(), 
             () -> ShooterSubsystem.getInstance().rollerStop() ));
 
+        driver_joystick_.x().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().wristStop(), 
+            ShooterSubsystem.getInstance()));
+
+        driver_joystick_.b().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().wristStop(), 
+            ShooterSubsystem.getInstance()));
         // Run Pickup
         driver_joystick_.y().whileTrue(Commands.startEnd(
             () -> PickupSubsystem.getShooterInstance().setPickupMode(), 

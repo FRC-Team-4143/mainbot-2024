@@ -131,6 +131,12 @@ public class ShooterSubsystem extends Subsystem {
   public void rollerStop(){
     io_.roller_speed_ = 0;
   }
+  public void setWristSpeed(double wristSpeed){
+    io_.wrist_speed_ = wristSpeed;
+  } 
+  public void wristStop(){
+    io_.wrist_speed_ = 0;
+  }
 
   // TODO: This method should either be rewritten or only used for manual overrides
   // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
@@ -187,6 +193,7 @@ public class ShooterSubsystem extends Subsystem {
   public void writePeriodicOutputs(double timestamp) {
     bot_flywheel_motor_.set(io_.target_flywheel_speed_);
     roller_motor_.set(io_.roller_speed_);
+    wrist_motor_.set(io_.wrist_speed_);
   }
 
   @Override
@@ -214,5 +221,6 @@ public class ShooterSubsystem extends Subsystem {
     public ShootMode target_mode_ = ShootMode.IDLE;
     public double roller_speed_;
     public boolean has_note_;
+    public double wrist_speed_;
   }
 }
