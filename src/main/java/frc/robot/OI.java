@@ -14,34 +14,40 @@ public abstract class OI {
 
     //Sets up both controllers
     static CommandXboxController driver_joystick_ = new CommandXboxController(0); 
-    static CommandXboxController operator_joystick_ = new CommandXboxController(1);
+    // static CommandXboxController operator_joystick_ = new CommandXboxController(1);
 
-    ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
-    PickupSubsystem pickup_front_ = PickupSubsystem.getShooterInstance();
+    // ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
+    // PickupSubsystem pickup_front_ = PickupSubsystem.getShooterInstance();
 
-    public void configureBindings(){
+    public static void configureBindings(){
 
-        SmartDashboard.putNumber("Shoot-Speed", 0);
+        SmartDashboard.putNumber("Shooter Speed", 0);
 
         // Spin Shooter
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
-            () -> shooter_.setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)), 
-            () -> shooter_.flyWheelStop(), 
-            shooter_));
+            () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().flyWheelStop(), 
+            ShooterSubsystem.getInstance()));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-            () -> shooter_.setRollerFeed(), 
-            () -> shooter_.rollerStop() ));
+            () -> ShooterSubsystem.getInstance().setRollerFeed(), 
+            () -> ShooterSubsystem.getInstance().rollerStop() ));
 
         // Run Pickup
         driver_joystick_.y().whileTrue(Commands.startEnd(
-            () -> pickup_front_.setPickupMode(), 
-            () -> pickup_front_.setIdleMode(), 
-            pickup_front_));
+            () -> PickupSubsystem.getShooterInstance().setPickupMode(), 
+            () -> PickupSubsystem.getShooterInstance().setIdleMode(), 
+            PickupSubsystem.getShooterInstance()));
+
+        // Run Pickup Rev
+        driver_joystick_.a().whileTrue(Commands.startEnd(
+            () -> PickupSubsystem.getShooterInstance().setCleanMode(), 
+            () -> PickupSubsystem.getShooterInstance().setIdleMode(), 
+            PickupSubsystem.getShooterInstance()));
     }
 
 

@@ -13,7 +13,7 @@ import frc.robot.Constants.PickupSettings;
 public class PickupSubsystem extends Subsystem {
 
   private enum PickupMode {
-    IDLE, PICKUP, TRANSFER
+    IDLE, PICKUP, TRANSFER, CLEAN
   }
 
   // Singleton pattern
@@ -100,6 +100,9 @@ public class PickupSubsystem extends Subsystem {
           setIdleMode();
         }
         break;
+      case CLEAN:
+        setRollersBackward();
+        break;
       default:
         stopRollers();
         break;
@@ -159,6 +162,10 @@ public class PickupSubsystem extends Subsystem {
 
   public void setIdleMode() {
     io_.pickup_mode_ = PickupMode.IDLE;
+  }
+
+  public void setCleanMode() {
+    io_.pickup_mode_ = PickupMode.CLEAN;
   }
 
   public class PeriodicIo extends LogData {

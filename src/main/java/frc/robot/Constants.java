@@ -69,10 +69,10 @@ public final class Constants {
 
   // IDs Range from 20 - 29
   public static class PickupConstants {
-    public static final double ROLLER_FORWARD = 0.5;
+    public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
     public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, false);
   }
 

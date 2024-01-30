@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 
 public class ShooterSubsystem extends Subsystem {
   // Singleton pattern
@@ -36,7 +37,7 @@ public class ShooterSubsystem extends Subsystem {
   private CANSparkFlex wrist_motor_;
   private CANSparkMax roller_motor_; //Motor type tbd
 
-  private AprilTagFieldLayout field_layout_;
+  private AprilTagFieldLayout field_layout_= AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   
   private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 1, new Rotation3d(0, 0, 0)); //TODO: figure out transformation
   private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -1, new Rotation3d(0, 0, 0)); //TODO: figure out transformation
@@ -70,11 +71,10 @@ public class ShooterSubsystem extends Subsystem {
    */
   public ShooterSubsystem() {
     io_ = new ShooterPeriodicIo();
-
     angle_controller_ = new ProfiledPIDController(ShooterConstants.ANGLE_CONTROLLER_P, ShooterConstants.ANGLE_CONTROLLER_I, ShooterConstants.ANGLE_CONTROLLER_D, ShooterConstants.ANGLE_CONTROLLER_CONSTRAINT);
     top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-    top_flywheel_motor_.follow(bot_flywheel_motor_, true);
     bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    top_flywheel_motor_.follow(bot_flywheel_motor_, true);
     wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
