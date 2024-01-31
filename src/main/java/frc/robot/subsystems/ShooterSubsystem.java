@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -148,8 +149,15 @@ public class ShooterSubsystem extends Subsystem {
     io_.target_flywheel_speed_ =  0;
   }
 
-  private double calcuateAngle(Pose3d robot_pose, Pose3d target_pose, double velocity ){
-    return 0.0;
+  private double calcuateAngle(Pose3d robot_pose, Pose3d target_pose, double velocity){
+    robot_pose = robot_pose.transformBy(Constants.ShooterConstants.shooter_position_);
+    double x = Math.abs(robot_pose.getX() - target_pose.getX());
+    double z = Math.abs(robot_pose.getZ() - target_pose.getZ());
+    double d = Math.sqrt((x * x) + (z * z));
+    double G = 9.81;
+    double root = Math.pow(velocity, 4) - G * (G * velocity * velocity + 2 * velocity * z);
+    double angle = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
+    return angle;
   }
     
   

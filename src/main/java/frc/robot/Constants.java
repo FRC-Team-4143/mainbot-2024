@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
@@ -43,7 +45,12 @@ public final class Constants {
   }
   
   // IDs Range from 10 - 19
-  public static class ShooterConstants {
+  public static class ShooterConstants { 
+    public static final double SHOOTER_X_OFFSET = 0;
+    public static final double SHOOTER_Y_OFFSET = 0;
+    public static final double SHOOTER_Z_OFFSET = 0;
+    public static final Transform3d shooter_position_ = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); //TODO: figure out constants
+
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
