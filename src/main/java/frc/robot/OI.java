@@ -4,25 +4,78 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.*;
 
 /** Add your docs here. */
 public abstract class OI {
 
     //Sets up both controllers
-    static CommandXboxController driverJoystick = new CommandXboxController(0); 
-    static CommandXboxController operatorJoystick = new CommandXboxController(1);
+    static CommandXboxController driver_joystick_ = new CommandXboxController(0); 
+    // static CommandXboxController operator_joystick_ = new CommandXboxController(1);
+
+    // ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
+    // PickupSubsystem pickup_front_ = PickupSubsystem.getShooterInstance();
+
+    public static void configureBindings(){
+
+        SmartDashboard.putNumber("Shooter Speed", 0);
+        SmartDashboard.putNumber("Wrist Speed", 0);
+
+        // Spin Shooter
+        // TODO: This Command does not use correct ShooterSubsystem Interfacing
+        // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
+        driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().flyWheelStop(), 
+            ShooterSubsystem.getInstance()));
+
+        // TODO: This Command does not use correct ShooterSubsystem Interfacing
+        // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
+        driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setRollerFeed(), 
+            () -> ShooterSubsystem.getInstance().rollerStop() ));
+
+        driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setRollerReverse(), 
+            () -> ShooterSubsystem.getInstance().rollerStop() ));
+
+        driver_joystick_.x().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().wristStop(), 
+            ShooterSubsystem.getInstance()));
+
+        driver_joystick_.b().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().wristStop(), 
+            ShooterSubsystem.getInstance()));
+            
+        // Run Pickup
+        driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
+            () -> PickupSubsystem.getShooterInstance().setPickupMode(), 
+            () -> PickupSubsystem.getShooterInstance().setIdleMode(), 
+            PickupSubsystem.getShooterInstance()));
+
+        // Run Pickup Rev
+        driver_joystick_.a().whileTrue(Commands.startEnd(
+            () -> PickupSubsystem.getShooterInstance().setCleanMode(), 
+            () -> PickupSubsystem.getShooterInstance().setIdleMode(), 
+            PickupSubsystem.getShooterInstance()));
+    }
+
 
     static public double getDriverJoystickLeftX() {
-        return driverJoystick.getLeftX();
+        return driver_joystick_.getLeftX();
     }
 
     static public double getDriverJoystickLeftY() {
-        return driverJoystick.getLeftY();
+        return driver_joystick_.getLeftY();
     }
 
     static public double getDriverJoystickRightX() {
-        return driverJoystick.getRightX();
+        return driver_joystick_.getRightX();
     }
 
 

@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -38,13 +43,44 @@ public final class Constants {
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   }
+  
+  // IDs Range from 10 - 19
+  public static class ShooterConstants { 
+    public static final double SHOOTER_X_OFFSET = 0;
+    public static final double SHOOTER_Y_OFFSET = 0;
+    public static final double SHOOTER_Z_OFFSET = 0;
+    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); //TODO: figure out constants
 
+    // Flywheel constants
+    public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
+    public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
+    public static final double FLYWHEEL_IDLE_SPEED = 0;
+    public static final double FLYWHEEL_TOLERANCE = 0.1;
+
+    // Wrist constants
+    public static final int WRIST_MOTOR_ID = 12;
+    public static final int WRIST_ENCODER_ID = 0;
+    public static final double WRIST_ANGLE_MAX = 0;
+    public static final double WRIST_ANGLE_MIN = 0;
+    public static final double ANGLE_CONTROLLER_P = 0.0;
+    public static final double ANGLE_CONTROLLER_I = 0.0;
+    public static final double ANGLE_CONTROLLER_D = 0.0;
+    public static final double ANGLE_TOLERANCE = 0.00349;
+    public static final TrapezoidProfile.Constraints ANGLE_CONTROLLER_CONSTRAINT 
+      = new TrapezoidProfile.Constraints(0, 0);
+
+    // Roller constants
+    public static final int ROLLER_MOTOR_ID = 13;
+    public static final double ROLLER_SPEED = 0.5;
+  }
+
+  // IDs Range from 20 - 29
   public static class PickupConstants {
-    public static final double rollerForward = 0.5;
-    public static final double rollerReverse = -0.5;
-    public static final int rollerAmpLimit = 40;
-    public static final PickupSettings shooter_pickup = new Constants().new PickupSettings(0, false);
-    public static final PickupSettings mailman_pickup = new Constants().new PickupSettings(0, false);
+    public static final double ROLLER_FORWARD = 1.0;
+    public static final double ROLLER_REVERSE = -0.5;
+    public static final int ROLLER_AMP_LIMIT = 40;
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, false);
   }
 
   public class PickupSettings {
