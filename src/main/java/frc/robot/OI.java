@@ -24,29 +24,39 @@ public abstract class OI {
         SmartDashboard.putNumber("Shooter Speed", 0);
         SmartDashboard.putNumber("Wrist Speed", 0);
 
+        SmartDashboard.putData("Set Wheel Offsets", Commands.runOnce(() -> SwerveDrivetrain.getInstance().tareEverything()));
+        SmartDashboard.putData("Seed Field Centric", Commands.runOnce(() -> SwerveDrivetrain.getInstance().seedFieldRelative()));
+
         // Spin Shooter
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)), 
-            () -> ShooterSubsystem.getInstance().flyWheelStop(), 
-            ShooterSubsystem.getInstance()));
+            () -> ShooterSubsystem.getInstance().flyWheelStop()));
+
+        // Run shooter as feeder
+        driver_joystick_.y().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),
+            () -> ShooterSubsystem.getInstance().flyWheelStop()));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setRollerFeed(), 
-            () -> ShooterSubsystem.getInstance().rollerStop() ));
+            () -> ShooterSubsystem.getInstance().rollerStop()));
 
+        // Backfeed Shooter Feeder
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setRollerReverse(), 
-            () -> ShooterSubsystem.getInstance().rollerStop() ));
+            () -> ShooterSubsystem.getInstance().rollerStop()));
 
+        // Wrist CCW
         driver_joystick_.x().whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0)), 
             () -> ShooterSubsystem.getInstance().wristStop(), 
             ShooterSubsystem.getInstance()));
 
+        // Writst CW
         driver_joystick_.b().whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0)), 
             () -> ShooterSubsystem.getInstance().wristStop(), 
