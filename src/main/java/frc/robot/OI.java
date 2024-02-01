@@ -27,15 +27,19 @@ public abstract class OI {
         // Spin Shooter
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-        driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
+        driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)), 
             () -> ShooterSubsystem.getInstance().flyWheelStop(), 
             ShooterSubsystem.getInstance()));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-        driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
+        driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
             () -> ShooterSubsystem.getInstance().setRollerFeed(), 
+            () -> ShooterSubsystem.getInstance().rollerStop() ));
+
+        driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
+            () -> ShooterSubsystem.getInstance().setRollerReverse(), 
             () -> ShooterSubsystem.getInstance().rollerStop() ));
 
         driver_joystick_.x().whileTrue(Commands.startEnd(
@@ -47,8 +51,9 @@ public abstract class OI {
             () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0)), 
             () -> ShooterSubsystem.getInstance().wristStop(), 
             ShooterSubsystem.getInstance()));
+            
         // Run Pickup
-        driver_joystick_.y().whileTrue(Commands.startEnd(
+        driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
             () -> PickupSubsystem.getShooterInstance().setPickupMode(), 
             () -> PickupSubsystem.getShooterInstance().setIdleMode(), 
             PickupSubsystem.getShooterInstance()));

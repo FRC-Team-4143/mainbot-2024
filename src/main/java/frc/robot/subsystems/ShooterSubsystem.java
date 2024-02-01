@@ -78,6 +78,7 @@ public class ShooterSubsystem extends Subsystem {
     top_flywheel_motor_.follow(bot_flywheel_motor_, true);
     wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    roller_motor_.setInverted(true);
     reset();
   }
   
@@ -150,7 +151,7 @@ public class ShooterSubsystem extends Subsystem {
   }
 
   private double calcuateAngle(Pose3d robot_pose, Pose3d target_pose, double velocity){
-    robot_pose = robot_pose.transformBy(Constants.ShooterConstants.shooter_position_);
+    robot_pose = robot_pose.transformBy(Constants.ShooterConstants.SHOOTER_OFFSET);
     double x = Math.abs(robot_pose.getX() - target_pose.getX());
     double z = Math.abs(robot_pose.getZ() - target_pose.getZ());
     double d = Math.sqrt((x * x) + (z * z));
