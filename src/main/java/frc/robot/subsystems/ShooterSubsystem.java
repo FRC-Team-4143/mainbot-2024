@@ -5,14 +5,20 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
-import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
@@ -31,17 +37,19 @@ public class ShooterSubsystem extends Subsystem {
     }
     return ShooterInstance;
   }
-  
-  //initialize motors
+
+  // initialize motors
   private CANSparkFlex top_flywheel_motor_;
   private CANSparkFlex bot_flywheel_motor_;
   private CANSparkFlex wrist_motor_;
-  private CANSparkMax roller_motor_; //Motor type tbd
+  private CANSparkMax roller_motor_; // Motor type tbd
 
-  private AprilTagFieldLayout field_layout_= AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-  
-  private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 1, new Rotation3d(0, 0, 0)); //TODO: figure out transformation
-  private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -1, new Rotation3d(0, 0, 0)); //TODO: figure out transformation
+  private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+
+  private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 1, new Rotation3d(0, 0, 0)); // TODO: figure out
+                                                                                                   // transformation
+  private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -1, new Rotation3d(0, 0, 0)); // TODO: figure out
+                                                                                                // transformation
 
   private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
   private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
@@ -50,12 +58,12 @@ public class ShooterSubsystem extends Subsystem {
 
   private ProfiledPIDController angle_controller_;
 
-  public enum ShootTarget{
-    SPEAKER, 
+  public enum ShootTarget {
+    SPEAKER,
     AMP
   }
 
-  public enum ShootMode{
+  public enum ShootMode {
     ACTIVETARGETING,
     IDLE,
     READY,
@@ -72,49 +80,53 @@ public class ShooterSubsystem extends Subsystem {
    */
   public ShooterSubsystem() {
     io_ = new ShooterPeriodicIo();
-    angle_controller_ = new ProfiledPIDController(ShooterConstants.ANGLE_CONTROLLER_P, ShooterConstants.ANGLE_CONTROLLER_I, ShooterConstants.ANGLE_CONTROLLER_D, ShooterConstants.ANGLE_CONTROLLER_CONSTRAINT);
-    top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    angle_controller_ = new ProfiledPIDController(ShooterConstants.ANGLE_CONTROLLER_P,
+        ShooterConstants.ANGLE_CONTROLLER_I, ShooterConstants.ANGLE_CONTROLLER_D,
+        ShooterConstants.ANGLE_CONTROLLER_CONSTRAINT);
+    top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
+        CANSparkLowLevel.MotorType.kBrushless);
+    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
+        CANSparkLowLevel.MotorType.kBrushless);
     top_flywheel_motor_.follow(bot_flywheel_motor_, true);
     wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_.setInverted(true);
     reset();
   }
-  
-  //get methods
-  public double getShooterAngle(){
-    //TODO: return curent angle
+
+  // get methods
+  public double getShooterAngle() {
+    // TODO: return curent angle
     return io_.current_wrist_angle_;
   }
 
-  public boolean isTargetLocked(){
-    //TODO: is curently aiming at target
+  public boolean isTargetLocked() {
+    // TODO: is curently aiming at target
     return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, ShooterConstants.ANGLE_TOLERANCE) &&
-    Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_, ShooterConstants.FLYWHEEL_TOLERANCE);
+        Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_,
+            ShooterConstants.FLYWHEEL_TOLERANCE);
   }
 
-  public boolean hasNote(){
-    //TODO: not is in holding postion
+  public boolean hasNote() {
+    // TODO: not is in holding postion
     return io_.has_note_;
   }
 
-
-  //set methods
-  public void setAngle(double goal){
+  // set methods
+  public void setAngle(double goal) {
     angle_controller_.setGoal(goal);
   }
 
-  public void setTarget(ShootTarget target){
+  public void setTarget(ShootTarget target) {
     var alliance = DriverStation.getAlliance();
-    if(DriverStation.Alliance.Red == alliance.get()){
-      if(target == ShootTarget.SPEAKER){
+    if (DriverStation.Alliance.Red == alliance.get()) {
+      if (target == ShootTarget.SPEAKER) {
         io_.target_ = RED_SPEAKER;
       } else {
         io_.target_ = RED_AMP;
       }
     } else {
-      if(target == ShootTarget.SPEAKER){
+      if (target == ShootTarget.SPEAKER) {
         io_.target_ = BLUE_SPEAKER;
       } else {
         io_.target_ = BLUE_AMP;
@@ -122,47 +134,77 @@ public class ShooterSubsystem extends Subsystem {
     }
   }
 
-  public void setRollerFeed(){
+  public void setRollerFeed() {
     io_.roller_speed_ = ShooterConstants.ROLLER_SPEED;
-  } 
+  }
 
-  public void setRollerReverse(){
+  public void setRollerReverse() {
     io_.roller_speed_ = -ShooterConstants.ROLLER_SPEED;
-  } 
+  }
 
-  public void rollerStop(){
+  public void rollerStop() {
     io_.roller_speed_ = 0;
   }
-  public void setWristSpeed(double wristSpeed){
+
+  public void setWristSpeed(double wristSpeed) {
     io_.wrist_speed_ = wristSpeed;
-  } 
-  public void wristStop(){
+  }
+
+  public void wristStop() {
     io_.wrist_speed_ = 0;
   }
 
-  // TODO: This method should either be rewritten or only used for manual overrides
+  // TODO: This method should either be rewritten or only used for manual
+  // overrides
   // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-  public void setFlyWheelSpeed(double speed){
-    io_.target_flywheel_speed_ =  speed;
+  public void setFlyWheelSpeed(double speed) {
+    io_.target_flywheel_speed_ = speed;
   }
 
-  public void flyWheelStop(){
-    io_.target_flywheel_speed_ =  0;
+  public void flyWheelStop() {
+    io_.target_flywheel_speed_ = 0;
   }
 
-  private double calcuateAngle(Pose3d robot_pose, Pose3d target_pose, double velocity){
-    robot_pose = robot_pose.transformBy(Constants.ShooterConstants.SHOOTER_OFFSET);
+  // private void updateTargetTransform(Pose3d target_pose) {
+  //   io_.target_transform_ = new Transform3d(target_pose.getTranslation(), target_pose.getRotation());
+  // }
+
+  private void transformVelocities(Pose3d target_pose) {
+    ChassisSpeeds temp_chassis_speed = SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds();
+    io_.target_transform_ = new Transform3d(target_pose.getTranslation(), target_pose.getRotation());
+    Translation3d temp_translation = new Translation3d(temp_chassis_speed.vxMetersPerSecond,
+        temp_chassis_speed.vyMetersPerSecond, 0.0);
+    temp_translation.rotateBy(io_.target_transform_.getRotation());
+    io_.relative_chassis_speed_ = new ChassisSpeeds(temp_translation.getX(), temp_translation.getY(), 0.0);
+  }
+
+  private void calculateNoteTravelTime(Pose3d robot_pose, Pose3d target_pose) {
+    double temp_distance = robot_pose.getTranslation().getDistance(target_pose.getTranslation());
+    io_.note_travel_time_ = temp_distance / ShooterConstants.NOTE_EXIT_VELOCITY; // TODO Find the actual exit velocity
+
+    // Pose3d pose_difference = robot_pose.relativeTo(target_pose);
+    // pose_difference.getTranslation().getDistance(robot_pose.toPose2d().getTranslation());
+  }
+
+  private void calculateWristAngle(Pose3d robot_pose, Pose3d target_pose, double velocity) {
+    robot_pose = robot_pose.transformBy(ShooterConstants.SHOOTER_OFFSET);
     double x = Math.abs(robot_pose.getX() - target_pose.getX());
     double z = Math.abs(robot_pose.getZ() - target_pose.getZ());
     double d = Math.sqrt((x * x) + (z * z));
     double G = 9.81;
     double root = Math.pow(velocity, 4) - G * (G * velocity * velocity + 2 * velocity * z);
-    double angle = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
-    return angle;
+    io_.wrist_angle_ = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
   }
-    
-  
-  
+
+  private void calculateTargetYaw(Pose3d robot_pose, Pose3d target_pose) {
+    Pose3d pose_difference = robot_pose.relativeTo(target_pose);
+    ChassisSpeeds chassis_speeds = SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds();
+    double vx = chassis_speeds.vxMetersPerSecond;
+    double vy = chassis_speeds.vyMetersPerSecond;
+    io_.target_robot_yaw_ = pose_difference.toPose2d().getRotation();
+
+  }
+
   @Override
   /**
    * Inside this function should be logic and code to fully reset your subsystem.
@@ -195,7 +237,8 @@ public class ShooterSubsystem extends Subsystem {
 
   @Override
   /**
-   * Inside this function actuator OUTPUTS should be updated from data contained in
+   * Inside this function actuator OUTPUTS should be updated from data contained
+   * in
    * the PeriodicIO class defined below. There should be little to no logic
    * contained within this function, and no sensors should be read.
    */
@@ -231,5 +274,10 @@ public class ShooterSubsystem extends Subsystem {
     public double roller_speed_;
     public boolean has_note_;
     public double wrist_speed_;
+    public double wrist_angle_;
+    public Rotation2d target_robot_yaw_;
+    public double note_travel_time_;
+    public Transform3d target_transform_;
+    public ChassisSpeeds relative_chassis_speed_;
   }
 }

@@ -54,8 +54,9 @@ public final class Constants {
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
-    public static final double FLYWHEEL_IDLE_SPEED = 0;
+    public static final double FLYWHEEL_IDLE_SPEED = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 0.1;
+    public static final double NOTE_EXIT_VELOCITY = 8.0;
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
