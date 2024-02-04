@@ -24,8 +24,8 @@ public abstract class OI {
         SmartDashboard.putNumber("Shooter Speed", 0);
         SmartDashboard.putNumber("Wrist Speed", 0);
 
-        SmartDashboard.putData("Set Wheel Offsets", Commands.runOnce(() -> SwerveDrivetrain.getInstance().tareEverything()));
-        SmartDashboard.putData("Seed Field Centric", Commands.runOnce(() -> SwerveDrivetrain.getInstance().seedFieldRelative()));
+        SmartDashboard.putData("Set Wheel Offsets", Commands.runOnce(() -> SwerveDrivetrain.getInstance().tareEverything()).ignoringDisable(true));
+        SmartDashboard.putData("Seed Field Centric", Commands.runOnce(() -> SwerveDrivetrain.getInstance().seedFieldRelative()).ignoringDisable(true));
 
         // Spin Shooter
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
