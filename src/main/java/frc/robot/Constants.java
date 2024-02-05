@@ -81,7 +81,7 @@ public final class Constants {
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
     public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, false);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true);
   }
 
   public class PickupSettings {

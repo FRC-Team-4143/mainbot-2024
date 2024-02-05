@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 
 /** Add your docs here. */
 public abstract class OI {
@@ -28,8 +30,11 @@ public abstract class OI {
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
-            () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)), 
-            () -> ShooterSubsystem.getInstance().flyWheelStop(), 
+            () -> {ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)); 
+                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+                    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);}, 
+            () -> {ShooterSubsystem.getInstance().flyWheelStop();
+                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);},
             ShooterSubsystem.getInstance()));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
@@ -63,6 +68,11 @@ public abstract class OI {
             () -> PickupSubsystem.getShooterInstance().setCleanMode(), 
             () -> PickupSubsystem.getShooterInstance().setIdleMode(), 
             PickupSubsystem.getShooterInstance()));
+
+        driver_joystick_.start().whileTrue(Commands.startEnd(
+            () -> PickupSubsystem.getMailmanInstance().setPickupMode(), 
+            () -> PickupSubsystem.getMailmanInstance().setIdleMode(), 
+            PickupSubsystem.getMailmanInstance()));
     }
 
 

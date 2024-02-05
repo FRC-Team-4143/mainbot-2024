@@ -24,6 +24,7 @@ public class RobotContainer extends SubsystemManager {
     subsystems.add(SwerveDrivetrain.getInstance());
     subsystems.add(PoseEstimator.getInstance());
     subsystems.add(PickupSubsystem.getShooterInstance());
+    subsystems.add(PickupSubsystem.getMailmanInstance());
     subsystems.add(ShooterSubsystem.getInstance());
 
 

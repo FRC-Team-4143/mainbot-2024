@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.subsystem.Subsystem;
 import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
@@ -79,6 +79,8 @@ public class SwerveDrivetrain extends Subsystem {
     private DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
     private SwerveRequest.FieldCentric field_centric;
     private SwerveRequest.RobotCentric robot_centric;
+
+    private SwerveRequest.FieldCentricFacingAngle target_facing;
 
     // Robot Hardware
     private final Pigeon2 pigeon_imu;
@@ -148,6 +150,9 @@ public class SwerveDrivetrain extends Subsystem {
         robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
+        target_facing = new SwerveRequest.FieldCentricFacingAngle().withIsOpenLoop(true)
+                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.1)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.1);
         auto_request = new SwerveRequest.ApplyChassisSpeeds();
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
@@ -213,6 +218,15 @@ public class SwerveDrivetrain extends Subsystem {
                         .withRotationalRate(
                                 -io_.driver_joystick_rightX * Constants.DrivetrainConstants.MaxAngularRate));
                 break;
+            case TARGET:
+                setControl(target_facing
+                        // Drive forward with negative Y (forward)
+                        .withVelocityX(-io_.driver_joystick_leftY * Constants.DrivetrainConstants.MaxSpeed)
+                        // Drive left with negative X (left)
+                        .withVelocityY(-io_.driver_joystick_leftX * Constants.DrivetrainConstants.MaxSpeed)
+                        //
+                        .withTargetDirection(io_.target_rotation_));
+                break;
             default:
                 // yes these dont do anything for auto...
                 break;
@@ -238,6 +252,9 @@ public class SwerveDrivetrain extends Subsystem {
         requested_state_pub.set(io_.requested_module_states);
 
         orient_pub.set(io_.robot_yaw);
+
+        SmartDashboard.putNumber("Target Angle", io_.target_rotation_.getDegrees());
+        SmartDashboard.putNumber("Yaw", io_.robot_yaw.getDegrees());
     }
 
     /**
@@ -339,7 +356,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        io_.target_rotation_ = target_angle_.rotateBy(io_.field_relative_offset);
+        io_.target_rotation_ = target_angle_;//.rotateBy(io_.field_relative_offset);
     }
 
     /**

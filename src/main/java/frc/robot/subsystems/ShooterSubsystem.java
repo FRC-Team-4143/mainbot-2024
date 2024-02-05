@@ -12,6 +12,7 @@ import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -196,12 +197,9 @@ public class ShooterSubsystem extends Subsystem {
     io_.wrist_angle_ = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
   }
 
-  private void calculateTargetYaw(Pose3d robot_pose, Pose3d target_pose) {
-    Pose3d pose_difference = robot_pose.relativeTo(target_pose);
-    ChassisSpeeds chassis_speeds = SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds();
-    double vx = chassis_speeds.vxMetersPerSecond;
-    double vy = chassis_speeds.vyMetersPerSecond;
-    io_.target_robot_yaw_ = pose_difference.toPose2d().getRotation();
+  private void calculateTargetYaw(Pose2d robot_pose) {
+    Pose2d pose_difference = robot_pose.relativeTo(io_.target_.toPose2d());
+    io_.target_robot_yaw_ = pose_difference.getTranslation().getAngle();
 
   }
 
@@ -232,6 +230,7 @@ public class ShooterSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
+    calculateTargetYaw(PoseEstimator.getInstance().getRobotPose());
 
   }
 
@@ -246,6 +245,8 @@ public class ShooterSubsystem extends Subsystem {
     bot_flywheel_motor_.set(io_.target_flywheel_speed_);
     roller_motor_.set(io_.roller_speed_);
     wrist_motor_.set(io_.wrist_speed_);
+    SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
+
   }
 
   @Override
@@ -256,7 +257,7 @@ public class ShooterSubsystem extends Subsystem {
    * actuators within this function. Only publish to smartdashboard here.
    */
   public void outputTelemetry(double timestamp) {
-
+    SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
   }
 
   @Override
@@ -265,7 +266,7 @@ public class ShooterSubsystem extends Subsystem {
   }
 
   public class ShooterPeriodicIo extends LogData {
-    public Pose3d target_;
+    public Pose3d target_ = new Pose3d();
     public double target_flywheel_speed_;
     public double current_flywheel_speed_;
     public double target_wrist_angle_;
@@ -275,7 +276,7 @@ public class ShooterSubsystem extends Subsystem {
     public boolean has_note_;
     public double wrist_speed_;
     public double wrist_angle_;
-    public Rotation2d target_robot_yaw_;
+    public Rotation2d target_robot_yaw_ = new Rotation2d();
     public double note_travel_time_;
     public Transform3d target_transform_;
     public ChassisSpeeds relative_chassis_speed_;
