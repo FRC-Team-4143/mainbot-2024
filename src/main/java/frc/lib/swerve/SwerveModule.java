@@ -47,7 +47,8 @@ import edu.wpi.first.wpilibj.Preferences;
 public class SwerveModule {
     private final TalonFX m_driveMotor;
     private final TalonFX m_steerMotor;
-    // private final AnalogEncoder m_encoder;
+    private final AnalogEncoder m_encoder;
+    private double m_encoderID;
 
     private final StatusSignal<Double> m_drivePosition;
     private final StatusSignal<Double> m_driveVelocity;
@@ -79,8 +80,8 @@ public class SwerveModule {
     public SwerveModule(SwerveModuleConstants constants, String canbusName, boolean supportsPro) {
         m_driveMotor = new TalonFX(constants.DriveMotorId, canbusName);
         m_steerMotor = new TalonFX(constants.SteerMotorId, canbusName);
-        // m_encoderID = constants.encoderId;
-        // m_encoder = new AnalogEncoder(constants.encoderId);
+        m_encoderID = constants.encoderId;
+        m_encoder = new AnalogEncoder(constants.encoderId);
 
         // angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
 
@@ -327,16 +328,16 @@ public class SwerveModule {
     public void setWheelOffsets() {
         // m_steerMotor.setPosition(0);
 
-        // angleOffset = m_encoder.getAbsolutePosition() * 360.0;
-        // yPreferences.setDouble("Module" + m_encoderID, angleOffset);
+        angleOffset = m_encoder.getAbsolutePosition() * 360.0;
+        Preferences.setDouble("Module" + m_encoderID, angleOffset);
         resetToAbsolute();
 
     }
 
     public void resetToAbsolute() {
-        // double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 -
-        // angleOffset;
-        // m_steerMotor.setPosition(absolutePosition / 360.0);
+        double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 -
+        angleOffset;
+        m_steerMotor.setPosition(absolutePosition / 360.0);
     }
 
     public void optimizeCan() {
