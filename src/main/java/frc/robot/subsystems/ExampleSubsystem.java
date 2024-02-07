@@ -4,8 +4,9 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import frc.lib.subsystem.Subsystem;
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class ExampleSubsystem extends Subsystem {
 
@@ -22,7 +23,7 @@ public class ExampleSubsystem extends Subsystem {
   /**
    * 
    */
-  private PeriodicIo io;
+  private PeriodicIoAutoLogged io;
 
   /**
    * Constructor for the example subsystem. The constructor should create all
@@ -31,7 +32,7 @@ public class ExampleSubsystem extends Subsystem {
    * should be done in the reset() function.
    */
   private ExampleSubsystem() {
-    io = new PeriodicIo();
+    io = new PeriodicIoAutoLogged();
 
     reset();
   }
@@ -43,7 +44,7 @@ public class ExampleSubsystem extends Subsystem {
    * initializing data members.
    */
   public void reset() {
-    io = new PeriodicIo();
+    io = new PeriodicIoAutoLogged();
   }
 
   @Override
@@ -88,10 +89,11 @@ public class ExampleSubsystem extends Subsystem {
   }
 
   @Override
-  public LogData getLogger() {
+  public LoggableInputs getLogger() {
     return io;
   }
 
+  @AutoLog
   public class PeriodicIo extends LogData {
     public double test = 0;
   }
