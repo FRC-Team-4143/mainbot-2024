@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // // m_robotContainer.initLogfile();
+    m_robotContainer.initLogfile();
 
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.AUTONOMOUS);
 
@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    // m_robotContainer.initLogfile();
+    m_robotContainer.initLogfile();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

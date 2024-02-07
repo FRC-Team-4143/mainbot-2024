@@ -2,12 +2,19 @@ package frc.lib.subsystem;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import frc.lib.logger.Logable.LogData;
 import frc.lib.logger.ReflectingLogger;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
+
 
 public abstract class SubsystemManager {
 
@@ -26,6 +33,10 @@ public abstract class SubsystemManager {
         // the robot program can properly stop
         loopThread = new Notifier(this::doControlLoop);
         // loopThread.setDaemon(true);
+
+        // Logger
+        Logger.recordMetadata("ProjectName", "mainbot-2024"); // Set a metadata value
+        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
     }
 
     private void doControlLoop() {
@@ -87,13 +98,9 @@ public abstract class SubsystemManager {
         // Check if the logger is valid first
         if (reflectingLogger != null) {
             // If it is valid, collect the subsystem I/Os
-            ArrayList<LogData> logs = new ArrayList<>();
             for (Subsystem subsystem : subsystems) {
-                logs.add(subsystem.getLogger());
+                Logger.processInputs(subsystem.getClass().getCanonicalName(), subsystem.getLogger());
             }
-
-            // Log the data
-            reflectingLogger.update(logs, timestamp);
         }
     }
 
@@ -102,11 +109,8 @@ public abstract class SubsystemManager {
      * capabilities
      */
     public void initLogfile() {
-        ArrayList<LogData> logs = new ArrayList<>();
-        for (Subsystem subsystem : subsystems) {
-            logs.add(subsystem.getLogger());
-        }
-        reflectingLogger = new ReflectingLogger<>(logs);
+        Logger.end();
+        Logger.start();
     }
 
     /**
