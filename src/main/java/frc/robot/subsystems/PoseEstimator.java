@@ -2,7 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -13,6 +14,8 @@ import frc.lib.subsystem.Subsystem;
 public class PoseEstimator extends Subsystem {
 
     private static PoseEstimator instance;
+    private StructPublisher<Pose2d> pose_pub;
+ 
 
     public static PoseEstimator getInstance() {
         if (instance == null) {
@@ -21,13 +24,14 @@ public class PoseEstimator extends Subsystem {
         return instance;
     }
 
-    private PeriodicIo io;
+    private PeriodicIo io_;
     private Field2d field;
     private SwerveDrivePoseEstimator odometry;
 
     PoseEstimator() {
         field = new Field2d();
-        io = new PeriodicIo();
+        io_ = new PeriodicIo();
+        pose_pub = NetworkTableInstance.getDefault().getStructTopic("robot_pose", Pose2d.struct).publish();
     }
 
     @Override
@@ -38,7 +42,7 @@ public class PoseEstimator extends Subsystem {
     @Override
     public void updateLogic(double timestamp) {
         var drive = SwerveDrivetrain.getInstance();
-        io.pose = odometry.update(drive.getImuYaw(), drive.getModulePositions());
+        io_.pose_ = odometry.update(drive.getImuYaw(), drive.getModulePositions());
     }
 
     @Override
@@ -47,20 +51,21 @@ public class PoseEstimator extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
-        field.setRobotPose(io.pose);
+        field.setRobotPose(io_.pose_);
         SmartDashboard.putData("Field", field);
+        pose_pub.set(io_.pose_);
     }
 
     @Override
     public void reset() {
         odometry = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics, new Rotation2d(),
                 SwerveDrivetrain.getInstance().getModulePositions(), new Pose2d());
-        io = new PeriodicIo();
+        io_ = new PeriodicIo();
     }
 
     @Override
     public LogData getLogger() {
-        return io;
+        return io_;
     }
 
     /**
@@ -68,7 +73,7 @@ public class PoseEstimator extends Subsystem {
      * @return
      */
     public Pose2d getRobotPose(){
-        return io.pose;
+        return io_.pose_;
     }
 
     /**
@@ -81,7 +86,7 @@ public class PoseEstimator extends Subsystem {
     }
 
     class PeriodicIo extends LogData {
-        Pose2d pose = new Pose2d();
+        Pose2d pose_ = new Pose2d();
     }
 
 }

@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 
@@ -59,6 +61,9 @@ public class ShooterSubsystem extends Subsystem {
 
   private ProfiledPIDController angle_controller_;
 
+  private StructPublisher<Pose3d> target_pub;
+
+
   public enum ShootTarget {
     SPEAKER,
     AMP
@@ -92,6 +97,7 @@ public class ShooterSubsystem extends Subsystem {
     wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_.setInverted(true);
+    target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
     reset();
   }
 
@@ -246,6 +252,7 @@ public class ShooterSubsystem extends Subsystem {
     roller_motor_.set(io_.roller_speed_);
     wrist_motor_.set(io_.wrist_speed_);
     SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
+    
 
   }
 
@@ -258,6 +265,7 @@ public class ShooterSubsystem extends Subsystem {
    */
   public void outputTelemetry(double timestamp) {
     SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
+    target_pub.set(io_.target_);
   }
 
   @Override

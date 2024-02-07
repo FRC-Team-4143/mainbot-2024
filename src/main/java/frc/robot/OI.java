@@ -37,8 +37,7 @@ public abstract class OI {
                     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
                     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);}, 
             () -> {ShooterSubsystem.getInstance().flyWheelStop();
-                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);},
-            ShooterSubsystem.getInstance()));
+                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);}));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!

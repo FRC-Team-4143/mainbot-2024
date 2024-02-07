@@ -72,7 +72,7 @@ public final class Constants {
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
-    public static final double ROLLER_SPEED = 0.5;
+    public static final double ROLLER_SPEED = 1.0;
   }
 
   // IDs Range from 20 - 29

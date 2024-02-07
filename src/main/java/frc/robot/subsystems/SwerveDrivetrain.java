@@ -79,7 +79,6 @@ public class SwerveDrivetrain extends Subsystem {
     private DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
     private SwerveRequest.FieldCentric field_centric;
     private SwerveRequest.RobotCentric robot_centric;
-
     private SwerveRequest.FieldCentricFacingAngle target_facing;
 
     // Robot Hardware
@@ -100,7 +99,6 @@ public class SwerveDrivetrain extends Subsystem {
 
     // NT publishers
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
-    private StructPublisher<Rotation2d> orient_pub;
 
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
@@ -162,7 +160,6 @@ public class SwerveDrivetrain extends Subsystem {
                 .getStructArrayTopic("module_states/requested", SwerveModuleState.struct).publish();
         current_state_pub = NetworkTableInstance.getDefault()
                 .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
-        orient_pub = NetworkTableInstance.getDefault().getStructTopic("robot_heading", Rotation2d.struct).publish();
     }
 
     @Override
@@ -251,9 +248,7 @@ public class SwerveDrivetrain extends Subsystem {
         current_state_pub.set(io_.current_module_states);
         requested_state_pub.set(io_.requested_module_states);
 
-        orient_pub.set(io_.robot_yaw);
-
-        SmartDashboard.putNumber("Target Angle", io_.target_rotation_.getDegrees());
+        SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Yaw", io_.robot_yaw.getDegrees());
     }
 
@@ -356,7 +351,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        io_.target_rotation_ = target_angle_;//.rotateBy(io_.field_relative_offset);
+        io_.target_rotation_ = target_angle_;//.rotateBy(new Rotation2d(180));//.rotateBy(io_.field_relative_offset);
     }
 
     /**
