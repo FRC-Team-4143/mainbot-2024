@@ -351,7 +351,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        io_.target_rotation_ = target_angle_;//.rotateBy(new Rotation2d(180));//.rotateBy(io_.field_relative_offset);
+        io_.target_rotation_ = target_angle_;
     }
 
     /**

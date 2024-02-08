@@ -23,9 +23,14 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -45,13 +50,13 @@ public class ShooterSubsystem extends Subsystem {
   private CANSparkFlex top_flywheel_motor_;
   private CANSparkFlex bot_flywheel_motor_;
   private CANSparkFlex wrist_motor_;
-  private CANSparkMax roller_motor_; // Motor type tbd
+  private CANSparkMax roller_motor_;
 
   private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
-  private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 1, new Rotation3d(0, 0, 0)); // TODO: figure out
+  private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 0.5, new Rotation3d(0, 0, 0)); // TODO: figure out
                                                                                                    // transformation
-  private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -1, new Rotation3d(0, 0, 0)); // TODO: figure out
+  private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0)); // TODO: figure out
                                                                                                 // transformation
 
   private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
@@ -59,9 +64,11 @@ public class ShooterSubsystem extends Subsystem {
   private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
   private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
-  private ProfiledPIDController angle_controller_;
+  SparkPIDController wrist_controller_;
+  CANcoder wrist_encoder_;
 
   private StructPublisher<Pose3d> target_pub;
+  private StructPublisher<Pose2d> rot_pub;
 
 
   public enum ShootTarget {
@@ -86,18 +93,22 @@ public class ShooterSubsystem extends Subsystem {
    */
   public ShooterSubsystem() {
     io_ = new ShooterPeriodicIo();
-    angle_controller_ = new ProfiledPIDController(ShooterConstants.ANGLE_CONTROLLER_P,
-        ShooterConstants.ANGLE_CONTROLLER_I, ShooterConstants.ANGLE_CONTROLLER_D,
-        ShooterConstants.ANGLE_CONTROLLER_CONSTRAINT);
-    top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
-        CANSparkLowLevel.MotorType.kBrushless);
-    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
-        CANSparkLowLevel.MotorType.kBrushless);
+    top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     top_flywheel_motor_.follow(bot_flywheel_motor_, true);
+
     wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+    wrist_motor_.setInverted(true);
+    wrist_encoder_ = new CANcoder(ShooterConstants.WRIST_ENCODER_ID, "CANivore");
+    wrist_encoder_.getConfigurator().apply(new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive));
+    //SparkPIDController wrist_controller_ = wrist_motor_.getPIDController(); TODO: Wait for REV Through Bore Encoder
+    //wrist_controller_.setFeedbackDevice(wrist_encoder_); TODO: Wait for REV Through Bore Encoder
+
     roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     roller_motor_.setInverted(true);
+
     target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
+    rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
     reset();
   }
 
@@ -109,9 +120,8 @@ public class ShooterSubsystem extends Subsystem {
 
   public boolean isTargetLocked() {
     // TODO: is curently aiming at target
-    return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, ShooterConstants.ANGLE_TOLERANCE) &&
-        Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_,
-            ShooterConstants.FLYWHEEL_TOLERANCE);
+    return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, ShooterConstants.WRIST_TOLERANCE) &&
+           Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_, ShooterConstants.FLYWHEEL_TOLERANCE);
   }
 
   public boolean hasNote() {
@@ -120,9 +130,17 @@ public class ShooterSubsystem extends Subsystem {
   }
 
   // set methods
-  public void setAngle(double goal) {
-    angle_controller_.setGoal(goal);
-  }
+  public double setWristAngle() {
+    if (Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, 1)) {
+      return 0.0;
+    }
+    double diff = io_.current_wrist_angle_ - io_.target_wrist_angle_;
+    if (io_.current_wrist_angle_ > io_.target_wrist_angle_) {
+      return -0.1;
+    } else {
+      return 0.2;
+    }
+ }
 
   public void setTarget(ShootTarget target) {
     var alliance = DriverStation.getAlliance();
@@ -172,41 +190,42 @@ public class ShooterSubsystem extends Subsystem {
     io_.target_flywheel_speed_ = 0;
   }
 
-  // private void updateTargetTransform(Pose3d target_pose) {
-  //   io_.target_transform_ = new Transform3d(target_pose.getTranslation(), target_pose.getRotation());
-  // }
-
-  private void transformVelocities(Pose3d target_pose) {
+  private ChassisSpeeds transformChassisVelocity() {
     ChassisSpeeds temp_chassis_speed = SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds();
-    io_.target_transform_ = new Transform3d(target_pose.getTranslation(), target_pose.getRotation());
-    Translation3d temp_translation = new Translation3d(temp_chassis_speed.vxMetersPerSecond,
-        temp_chassis_speed.vyMetersPerSecond, 0.0);
+    io_.target_transform_ = new Transform3d(io_.target_.getTranslation(), io_.target_.getRotation());
+    Translation3d temp_translation = new Translation3d(temp_chassis_speed.vxMetersPerSecond, temp_chassis_speed.vyMetersPerSecond, 0.0);
     temp_translation.rotateBy(io_.target_transform_.getRotation());
-    io_.relative_chassis_speed_ = new ChassisSpeeds(temp_translation.getX(), temp_translation.getY(), 0.0);
+    return new ChassisSpeeds(temp_translation.getX(), temp_translation.getY(), 0.0);
   }
 
-  private void calculateNoteTravelTime(Pose3d robot_pose, Pose3d target_pose) {
-    double temp_distance = robot_pose.getTranslation().getDistance(target_pose.getTranslation());
-    io_.note_travel_time_ = temp_distance / ShooterConstants.NOTE_EXIT_VELOCITY; // TODO Find the actual exit velocity
-
-    // Pose3d pose_difference = robot_pose.relativeTo(target_pose);
-    // pose_difference.getTranslation().getDistance(robot_pose.toPose2d().getTranslation());
+  public double calculateNoteExitVelocity(){
+    return io_.current_flywheel_speed_*0.102/60;
   }
 
-  private void calculateWristAngle(Pose3d robot_pose, Pose3d target_pose, double velocity) {
-    robot_pose = robot_pose.transformBy(ShooterConstants.SHOOTER_OFFSET);
-    double x = Math.abs(robot_pose.getX() - target_pose.getX());
-    double z = Math.abs(robot_pose.getZ() - target_pose.getZ());
-    double d = Math.sqrt((x * x) + (z * z));
+  private void calculateNoteTravelTime(Pose2d robot_pose, Pose3d target_pose) {
+    double distance = (new Pose3d(robot_pose)).getTranslation().getDistance(target_pose.getTranslation());
+    io_.note_travel_time_ = distance / ShooterConstants.NOTE_EXIT_VELOCITY; // TODO Find the actual exit velocity
+  }
+
+  private double calculateWristAngle(Pose2d robot_pose, Pose3d target_pose, double velocity) {
+    Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
+
+    double x = Math.abs(shooter_pose.getX() - target_pose.getX());
+    double y = Math.abs(shooter_pose.getY() - target_pose.getY());
+    double z = Math.abs(shooter_pose.getZ() - target_pose.getZ());
+    double d = Math.sqrt((x * x) + (y * y));
     double G = 9.81;
-    double root = Math.pow(velocity, 4) - G * (G * velocity * velocity + 2 * velocity * z);
-    io_.wrist_angle_ = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
+    double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
+    return Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
   }
 
-  private void calculateTargetYaw(Pose2d robot_pose) {
-    Pose2d pose_difference = robot_pose.relativeTo(io_.target_.toPose2d());
-    io_.target_robot_yaw_ = pose_difference.getTranslation().getAngle();
+  private Rotation2d calculateTargetYaw() {
+    Pose2d pose_difference = io_.target_.toPose2d().relativeTo(PoseEstimator.getInstance().getRobotPose());
+     return pose_difference.getTranslation().getAngle();
+  }
 
+  public void setShootMode(ShootMode mode){
+    io_.target_mode_ = mode;
   }
 
   @Override
@@ -226,7 +245,8 @@ public class ShooterSubsystem extends Subsystem {
    * actuators, or any logic within this function.
    */
   public void readPeriodicInputs(double timestamp) {
-
+      io_.current_flywheel_speed_ = top_flywheel_motor_.getEncoder().getVelocity();
+      io_.current_wrist_angle_ = wrist_encoder_.getAbsolutePosition().getValueAsDouble() * 360;
   }
 
   @Override
@@ -236,8 +256,18 @@ public class ShooterSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
-    calculateTargetYaw(PoseEstimator.getInstance().getRobotPose());
+    Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
 
+    if (io_.target_mode_ == ShootMode.ACTIVETARGETING) {
+          io_.target_robot_yaw_ = calculateTargetYaw();
+          io_.target_wrist_angle_ = 30;//calculateWristAngle(robot_pose, io_.target_, calculateNoteExitVelocity());
+          io_.wrist_speed_ = setWristAngle();
+          io_.relative_chassis_speed_ = transformChassisVelocity();
+    }
+    if (io_.target_mode_ == ShootMode.IDLE) {
+        io_.target_wrist_angle_ = 10;
+        io_.wrist_speed_ = setWristAngle();
+    }
   }
 
   @Override
@@ -252,8 +282,6 @@ public class ShooterSubsystem extends Subsystem {
     roller_motor_.set(io_.roller_speed_);
     wrist_motor_.set(io_.wrist_speed_);
     SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
-    
-
   }
 
   @Override
@@ -266,6 +294,11 @@ public class ShooterSubsystem extends Subsystem {
   public void outputTelemetry(double timestamp) {
     SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
     target_pub.set(io_.target_);
+    rot_pub.set(new Pose2d( PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
+    SmartDashboard.putNumber(" Actual Wrist Angle", io_.current_wrist_angle_);
+    SmartDashboard.putNumber( "Desired Wrist Angle", io_.target_wrist_angle_);
+    SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
+
   }
 
   @Override
@@ -275,15 +308,14 @@ public class ShooterSubsystem extends Subsystem {
 
   public class ShooterPeriodicIo extends LogData {
     public Pose3d target_ = new Pose3d();
-    public double target_flywheel_speed_;
-    public double current_flywheel_speed_;
-    public double target_wrist_angle_;
-    public double current_wrist_angle_;
+    public double target_flywheel_speed_ = 0;
+    public double current_flywheel_speed_ = 0;
+    public double target_wrist_angle_ = 0;
+    public double current_wrist_angle_ = 0;
     public ShootMode target_mode_ = ShootMode.IDLE;
     public double roller_speed_;
     public boolean has_note_;
-    public double wrist_speed_;
-    public double wrist_angle_;
+    public double wrist_speed_ = 0;
     public Rotation2d target_robot_yaw_ = new Rotation2d();
     public double note_travel_time_;
     public Transform3d target_transform_;

@@ -60,15 +60,13 @@ public final class Constants {
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
-    public static final int WRIST_ENCODER_ID = 0;
+    public static final int WRIST_ENCODER_ID = 12;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double ANGLE_CONTROLLER_P = 0.0;
-    public static final double ANGLE_CONTROLLER_I = 0.0;
-    public static final double ANGLE_CONTROLLER_D = 0.0;
-    public static final double ANGLE_TOLERANCE = 0.00349;
-    public static final TrapezoidProfile.Constraints ANGLE_CONTROLLER_CONSTRAINT 
-      = new TrapezoidProfile.Constraints(0, 0);
+    public static final double WRIST_CONTROLLER_P = 0.0;
+    public static final double WRIST_CONTROLLER_I = 0.0;
+    public static final double WRIST_CONTROLLER_D = 0.0;
+    public static final double WRIST_TOLERANCE = 0.00349;
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;

@@ -23,27 +23,28 @@ public abstract class OI {
 
     public static void configureBindings(){
 
-        SmartDashboard.putNumber("Shooter Speed", 0);
-        SmartDashboard.putNumber("Wrist Speed", 0);
+        SmartDashboard.putNumber("Shooter Speed", 0.75);
+        SmartDashboard.putNumber("Wrist Speed", 0.1);
 
         SmartDashboard.putData("Set Wheel Offsets", Commands.runOnce(() -> SwerveDrivetrain.getInstance().tareEverything()).ignoringDisable(true));
         SmartDashboard.putData("Seed Field Centric", Commands.runOnce(() -> SwerveDrivetrain.getInstance().seedFieldRelative()).ignoringDisable(true));
 
-        // Spin Shooter
-        // TODO: This Command does not use correct ShooterSubsystem Interfacing
-        // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
-            () -> {ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0)); 
-                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-                    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);}, 
+            () -> {ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
+                    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER); 
+                    //SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+                    ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);}, 
             () -> {ShooterSubsystem.getInstance().flyWheelStop();
-                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);}));
+                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
+                    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);}));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
         driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
-            () -> ShooterSubsystem.getInstance().setRollerFeed(), 
-            () -> ShooterSubsystem.getInstance().rollerStop()));
+            () -> {ShooterSubsystem.getInstance().setRollerFeed();
+                    PickupSubsystem.getShooterInstance().setPickupMode();}, 
+            () -> {ShooterSubsystem.getInstance().rollerStop();
+                    PickupSubsystem.getShooterInstance().setIdleMode();}));
 
         // Backfeed Shooter Feeder
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
@@ -52,13 +53,13 @@ public abstract class OI {
 
         // Wrist CCW
         driver_joystick_.x().whileTrue(Commands.startEnd(
-            () -> ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0.1)), 
             () -> ShooterSubsystem.getInstance().wristStop(), 
             ShooterSubsystem.getInstance()));
 
         // Writst CW
         driver_joystick_.b().whileTrue(Commands.startEnd(
-            () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0)), 
+            () -> ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0.1)), 
             () -> ShooterSubsystem.getInstance().wristStop(), 
             ShooterSubsystem.getInstance()));
             
