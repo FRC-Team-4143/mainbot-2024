@@ -48,7 +48,7 @@ public class SwerveModule {
     private final TalonFX m_driveMotor;
     private final TalonFX m_steerMotor;
     private final AnalogEncoder m_encoder;
-    private double m_encoderID;
+    private int m_encoderID;
 
     private final StatusSignal<Double> m_drivePosition;
     private final StatusSignal<Double> m_driveVelocity;
@@ -83,7 +83,7 @@ public class SwerveModule {
         m_encoderID = constants.encoderId;
         m_encoder = new AnalogEncoder(constants.encoderId);
 
-        // angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
+        angleOffset = Preferences.getDouble("Module" + m_encoderID, 0);
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
@@ -336,7 +336,7 @@ public class SwerveModule {
 
     public void resetToAbsolute() {
         double absolutePosition = m_encoder.getAbsolutePosition() * 360.0 -
-        angleOffset;
+                angleOffset;
         m_steerMotor.setPosition(absolutePosition / 360.0);
     }
 

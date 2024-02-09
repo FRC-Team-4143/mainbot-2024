@@ -46,9 +46,9 @@ public final class Constants {
   
   // IDs Range from 10 - 19
   public static class ShooterConstants { 
-    public static final double SHOOTER_X_OFFSET = 0;
+    public static final double SHOOTER_X_OFFSET = -0.3286; // 12.940 in
     public static final double SHOOTER_Y_OFFSET = 0;
-    public static final double SHOOTER_Z_OFFSET = 0;
+    public static final double SHOOTER_Z_OFFSET = 0.4404; // 17.34 in
     public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); //TODO: figure out constants
 
     // Flywheel constants
@@ -67,6 +67,7 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_I = 0.0;
     public static final double WRIST_CONTROLLER_D = 0.0;
     public static final double WRIST_TOLERANCE = 0.00349;
+    public static final double ZERO_WRIST_ANGLE = 1.04719;
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
