@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -31,6 +30,7 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -101,6 +101,7 @@ public class ShooterSubsystem extends Subsystem {
 
     wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     wrist_motor_.setInverted(true);
+    wrist_motor_.setIdleMode(IdleMode.kBrake);
     wrist_encoder_ = new CANcoder(ShooterConstants.WRIST_ENCODER_ID, "CANivore");
     wrist_encoder_.getConfigurator()
         .apply(new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive));
@@ -232,7 +233,8 @@ public class ShooterSubsystem extends Subsystem {
 
   private Rotation2d calculateTargetYaw() {
     Pose2d pose_difference = io_.target_.toPose2d().relativeTo(PoseEstimator.getInstance().getRobotPose());
-    return pose_difference.getTranslation().getAngle();
+    // return pose_difference.getTranslation().getAngle();
+    return Rotation2d.fromDegrees(90);
   }
 
   public void setShootMode(ShootMode mode) {

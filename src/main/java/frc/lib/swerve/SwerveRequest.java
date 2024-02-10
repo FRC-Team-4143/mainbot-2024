@@ -287,7 +287,7 @@ public interface SwerveRequest {
          * This PID controller operates on heading radians and outputs a target
          * rotational rate in radians per second.
          */
-        public PhoenixPIDController HeadingController = new PhoenixPIDController(0, 0, 0);
+        public PhoenixPIDController HeadingController = new PhoenixPIDController(5.0, 0, 0);
 
         public StatusCode apply(SwerveControlRequestParameters parameters, SwerveModule... modulesToApply) {
             double toApplyX = VelocityX;

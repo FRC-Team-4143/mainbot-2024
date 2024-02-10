@@ -36,7 +36,7 @@ public abstract class OI {
                 () -> {
                     ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
                     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-                    // SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
                     ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
                 },
                 () -> {
