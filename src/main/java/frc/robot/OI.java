@@ -14,13 +14,14 @@ import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 /** Add your docs here. */
 public abstract class OI {
 
-    // Sets up both controllers
-    static CommandXboxController driver_joystick_ = new CommandXboxController(0);
-    // static CommandXboxController operator_joystick_ = new
-    // CommandXboxController(1);
+        // Sets up both controllers
+        static CommandXboxController driver_joystick_ = new CommandXboxController(0);
+        static CommandXboxController operator_joystick_ = new CommandXboxController(1);
+        // static CommandXboxController operator_joystick_ = new
+        // CommandXboxController(1);
 
-    // ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
-    // PickupSubsystem pickup_front_ = PickupSubsystem.getShooterInstance();
+        // ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
+        // PickupSubsystem pickup_front_ = PickupSubsystem.getShooterInstance();
 
     public static void configureBindings() {
 
@@ -90,26 +91,36 @@ public abstract class OI {
                 () -> PickupSubsystem.getMailmanInstance().setPickupMode(),
                 () -> PickupSubsystem.getMailmanInstance().setIdleMode(),
                 PickupSubsystem.getMailmanInstance()));
+        
+        operator_joystick_.rightBumper().whileTrue(Commands.startEnd(
+                () -> MailmanSubsystem.getInstance().setRollerOutput(),
+                () -> MailmanSubsystem.getInstance().setRollerStop()
+         , MailmanSubsystem.getInstance()));
+         
+         operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
+                () -> MailmanSubsystem.getInstance().setRollerIntake(),
+                () -> MailmanSubsystem.getInstance().setRollerStop()
+         , MailmanSubsystem.getInstance()));
     }
 
-    static public double getDriverJoystickLeftX() {
-        double val = driver_joystick_.getLeftX();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
-    }
+        static public double getDriverJoystickLeftX() {
+                double val = driver_joystick_.getLeftX();
+                double output = val * val;
+                output = Math.copySign(output, val);
+                return output;
+        }
 
-    static public double getDriverJoystickLeftY() {
-        double val = driver_joystick_.getLeftY();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
-    }
+        static public double getDriverJoystickLeftY() {
+                double val = driver_joystick_.getLeftY();
+                double output = val * val;
+                output = Math.copySign(output, val);
+                return output;
+        }
 
-    static public double getDriverJoystickRightX() {
-        double val = driver_joystick_.getRightX();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
-    }
+        static public double getDriverJoystickRightX() {
+                double val = driver_joystick_.getRightX();
+                double output = val * val;
+                output = Math.copySign(output, val);
+                return output;
+        }
 }
