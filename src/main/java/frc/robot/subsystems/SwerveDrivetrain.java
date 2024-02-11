@@ -76,7 +76,7 @@ public class SwerveDrivetrain extends Subsystem {
         AUTONOMOUS
     }
 
-    private DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
+    private DriveMode drive_mode = DriveMode.FIELD_CENTRIC;
     private SwerveRequest.FieldCentric field_centric;
     private SwerveRequest.RobotCentric robot_centric;
     private SwerveRequest.FieldCentricFacingAngle target_facing;
@@ -351,7 +351,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        io_.target_rotation_ = target_angle_;
+        io_.target_rotation_ = target_angle_.rotateBy(io_.field_relative_offset);
     }
 
     /**

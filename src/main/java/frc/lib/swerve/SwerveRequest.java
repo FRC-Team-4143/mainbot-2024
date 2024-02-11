@@ -41,7 +41,8 @@ public interface SwerveRequest {
      * Applies this swerve request to the given modules.
      * This is typically called by the SwerveDrivetrain.
      *
-     * @param parameters Parameters the control request needs to calculate the module state
+     * @param parameters     Parameters the control request needs to calculate the
+     *                       module state
      * @param modulesToApply Modules to which the control request is applied
      * @return Status code of sending the request
      */
@@ -136,14 +137,16 @@ public interface SwerveRequest {
             double toApplyX = VelocityX;
             double toApplyY = VelocityY;
             double toApplyOmega = RotationalRate;
-            if(Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
+            if (Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
                 toApplyX = 0;
                 toApplyY = 0;
             }
-            if(Math.abs(toApplyOmega) < RotationalDeadband) toApplyOmega = 0;
+            if (Math.abs(toApplyOmega) < RotationalDeadband)
+                toApplyOmega = 0;
 
-            ChassisSpeeds speeds = ChassisSpeeds.discretize(ChassisSpeeds.fromFieldRelativeSpeeds(toApplyX, toApplyY, toApplyOmega,
-                        parameters.currentPose.getRotation()), parameters.updatePeriod);
+            ChassisSpeeds speeds = ChassisSpeeds
+                    .discretize(ChassisSpeeds.fromFieldRelativeSpeeds(toApplyX, toApplyY, toApplyOmega,
+                            parameters.currentPose.getRotation()), parameters.updatePeriod);
 
             var states = parameters.kinematics.toSwerveModuleStates(speeds, new Translation2d());
 
@@ -203,6 +206,7 @@ public interface SwerveRequest {
             this.Deadband = deadband;
             return this;
         }
+
         /**
          * Sets the rotational deadband of the request.
          *
@@ -287,24 +291,27 @@ public interface SwerveRequest {
          * This PID controller operates on heading radians and outputs a target
          * rotational rate in radians per second.
          */
-        public PhoenixPIDController HeadingController = new PhoenixPIDController(5.0, 0, 0);
+        public PhoenixPIDController HeadingController = new PhoenixPIDController(5.0, 0, 0); // 5 is good
 
         public StatusCode apply(SwerveControlRequestParameters parameters, SwerveModule... modulesToApply) {
             double toApplyX = VelocityX;
             double toApplyY = VelocityY;
-
+            
+            HeadingController.enableContinuousInput(0, 2 * Math.PI);
             double rotationRate = HeadingController.calculate(parameters.currentPose.getRotation().getRadians(),
                     TargetDirection.getRadians(), parameters.timestamp);
 
             double toApplyOmega = rotationRate;
-            if(Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
+            if (Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
                 toApplyX = 0;
                 toApplyY = 0;
             }
-            if(Math.abs(toApplyOmega) < RotationalDeadband) toApplyOmega = 0;
+            if (Math.abs(toApplyOmega) < RotationalDeadband)
+                toApplyOmega = 0;
 
-            ChassisSpeeds speeds = ChassisSpeeds.discretize(ChassisSpeeds.fromFieldRelativeSpeeds(toApplyX, toApplyY, toApplyOmega,
-                    parameters.currentPose.getRotation()), parameters.updatePeriod);
+            ChassisSpeeds speeds = ChassisSpeeds
+                    .discretize(ChassisSpeeds.fromFieldRelativeSpeeds(toApplyX, toApplyY, toApplyOmega,
+                            parameters.currentPose.getRotation()), parameters.updatePeriod);
 
             var states = parameters.kinematics.toSwerveModuleStates(speeds, new Translation2d());
 
@@ -365,6 +372,7 @@ public interface SwerveRequest {
             this.Deadband = deadband;
             return this;
         }
+
         /**
          * Sets the rotational deadband of the request.
          *
@@ -516,11 +524,12 @@ public interface SwerveRequest {
             double toApplyX = VelocityX;
             double toApplyY = VelocityY;
             double toApplyOmega = RotationalRate;
-            if(Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
+            if (Math.sqrt(toApplyX * toApplyX + toApplyY * toApplyY) < Deadband) {
                 toApplyX = 0;
                 toApplyY = 0;
             }
-            if(Math.abs(toApplyOmega) < RotationalDeadband) toApplyOmega = 0;
+            if (Math.abs(toApplyOmega) < RotationalDeadband)
+                toApplyOmega = 0;
             ChassisSpeeds speeds = new ChassisSpeeds(toApplyX, toApplyY, toApplyOmega);
 
             var states = parameters.kinematics.toSwerveModuleStates(speeds, new Translation2d());
@@ -581,6 +590,7 @@ public interface SwerveRequest {
             this.Deadband = deadband;
             return this;
         }
+
         /**
          * Sets the rotational deadband of the request.
          *
@@ -641,6 +651,7 @@ public interface SwerveRequest {
             this.Speeds = speeds;
             return this;
         }
+
         /**
          * Sets the center of rotation to rotate around.
          *
