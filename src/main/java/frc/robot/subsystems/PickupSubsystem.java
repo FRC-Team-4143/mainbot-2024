@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
+import com.playingwithfusion.TimeOfFlight;
 
 public class PickupSubsystem extends Subsystem {
 
@@ -39,6 +40,7 @@ public class PickupSubsystem extends Subsystem {
    */
   private PeriodicIo io_;
   private final CANSparkFlex roller_motor_;
+  private final TimeOfFlight tof_sensor_;
   private final PickupSettings settings_;
 
   /**
@@ -52,6 +54,7 @@ public class PickupSubsystem extends Subsystem {
     io_ = new PeriodicIo();
     roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
+    tof_sensor_ = new TimeOfFlight(PickupConstants.TOF_SENSOR_ID_);
   }
 
   @Override
@@ -76,6 +79,13 @@ public class PickupSubsystem extends Subsystem {
   public void readPeriodicInputs(double timestamp) {
     // TODO Need reciever subsystem to tell if it has a note and know the note
     // sensor
+    if(tof_sensor_.getRange() < 35.0){
+      io_.has_note_pickup_ = true;
+    } else {
+      io_.has_note_pickup_ = false;
+    }
+        // System.out.println(io_.has_note_pickup_);
+        // System.out.println(tof_sensor_.getRange());
   }
 
   @Override
@@ -85,7 +95,6 @@ public class PickupSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
-
     switch (io_.pickup_mode_) {
       case PICKUP:
         setRollersForward();
@@ -118,7 +127,6 @@ public class PickupSubsystem extends Subsystem {
    */
   public void writePeriodicOutputs(double timestamp) {
     roller_motor_.set(io_.roller_speed_);
-
   }
 
   @Override
