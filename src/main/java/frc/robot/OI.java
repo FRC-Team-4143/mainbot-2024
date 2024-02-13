@@ -90,6 +90,11 @@ public abstract class OI {
                 () -> PickupSubsystem.getMailmanInstance().setPickupMode(),
                 () -> PickupSubsystem.getMailmanInstance().setIdleMode(),
                 PickupSubsystem.getMailmanInstance()));
+
+        driver_joystick_.y().whileTrue(Commands.startEnd(
+                () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),
+                () -> ShooterSubsystem.getInstance().flyWheelStop()));
+
     }
 
     static public double getDriverJoystickLeftX() {

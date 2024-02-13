@@ -62,7 +62,7 @@ public class ShooterSubsystem extends Subsystem {
     // transformation
 
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM)
-            .rotateBy(new Rotation3d(0, 0, Math.PI));
+            .transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
     private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
@@ -143,9 +143,7 @@ public class ShooterSubsystem extends Subsystem {
     public double setWristAngle() {
         if (Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, 0.01745)) {
             return 0.0;
-        }
-        double diff = io_.current_wrist_angle_ - io_.target_wrist_angle_;
-        if (io_.current_wrist_angle_ > io_.target_wrist_angle_) {
+        } else if (io_.current_wrist_angle_ > io_.target_wrist_angle_) {
             return -0.1;
         } else {
             return 0.2;
@@ -228,8 +226,8 @@ public class ShooterSubsystem extends Subsystem {
         double G = 9.81;
         double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
         double result = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
-        if (result > 1.5707 || result < 0) {
-            return 0;
+        if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
+            return 0.17450;
         }
         return result;
     }
@@ -280,8 +278,7 @@ public class ShooterSubsystem extends Subsystem {
             io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, calculateNoteExitVelocity());
             io_.wrist_speed_ = setWristAngle();
             io_.relative_chassis_speed_ = transformChassisVelocity();
-        }
-        if (io_.target_mode_ == ShootMode.IDLE) {
+        } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = 0.1745;
             io_.wrist_speed_ = setWristAngle();
         }
@@ -316,7 +313,6 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber(" Current Wrist Angle", io_.current_wrist_angle_ * 180 / 3.14159);
         SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_ * 180 / 3.14159);
         SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
-
     }
 
     @Override
