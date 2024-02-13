@@ -107,4 +107,10 @@ public final class Constants {
     public static final double DROPPER_OUT_SPEED = 0.0;
     
   }
+
+  // IDs range from 40 - 49
+  public static class ClimberConstants {
+    public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
+    public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
+  }
 }
