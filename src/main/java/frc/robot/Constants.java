@@ -79,7 +79,7 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false);
     public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true);
   }
 
@@ -94,17 +94,18 @@ public final class Constants {
   }
 
 
+
   public static class MailmanConstants {
-    public static final int ELEVATOR_MOTOR_ID = 0;
-    public static final int DROPPER_MOTOR_ID = 0;
+    public static final int ELEVATOR_MOTOR_ID = 45;
+    public static final int DROPPER_MOTOR_ID = 31;
     public static final double AMP_HEIGHT = 0;
     public static final double TRAP_HEIGHT = 0;
     public static final double HEIGHT_CONTROLLER_P = 0.0;
     public static final double HEIGHT_CONTROLLER_I = 0.0;
     public static final double HEIGHT_CONTROLLER_D = 0.0;
     public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
-    public static final double DROPPER_IN_SPEED = 0.0;
-    public static final double DROPPER_OUT_SPEED = 0.0;
+    public static final double DROPPER_IN_SPEED = -0.5;
+    public static final double DROPPER_OUT_SPEED = 0.5;
     
   }
 

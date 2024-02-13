@@ -52,7 +52,7 @@ public class MailmanSubsystem extends Subsystem {
     io = new MailmanPeriodicIo();
     elevator_motor_ = new CANSparkFlex(Constants.MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     dropper_motor_ = new CANSparkFlex(Constants.MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-    elevator_encoder_ = elevator_motor_.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+    // elevator_encoder_ = elevator_motor_.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
     heightController = new ProfiledPIDController(Constants.MailmanConstants.HEIGHT_CONTROLLER_P,Constants.MailmanConstants.HEIGHT_CONTROLLER_I,Constants.MailmanConstants.HEIGHT_CONTROLLER_D,Constants.MailmanConstants.HEIGHT_CONTROLLER_CONSTRAINT);
   }
 
@@ -73,7 +73,7 @@ public class MailmanSubsystem extends Subsystem {
    * actuators, or any logic within this function.
    */
   public void readPeriodicInputs(double timestamp) {
-    io.current_height_ = elevator_encoder_.getPosition();
+    // io.current_height_ = elevator_encoder_.getPosition();
 
   }
 
