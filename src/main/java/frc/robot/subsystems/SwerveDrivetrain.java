@@ -76,7 +76,7 @@ public class SwerveDrivetrain extends Subsystem {
         AUTONOMOUS
     }
 
-    private DriveMode drive_mode = DriveMode.ROBOT_CENTRIC;
+    private DriveMode drive_mode = DriveMode.FIELD_CENTRIC;
     private SwerveRequest.FieldCentric field_centric;
     private SwerveRequest.RobotCentric robot_centric;
     private SwerveRequest.FieldCentricFacingAngle target_facing;
@@ -142,13 +142,13 @@ public class SwerveDrivetrain extends Subsystem {
         kinematics = new SwerveDriveKinematics(module_locations);
 
         // Drive mode requests
-        field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(true)
+        field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(false)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
-        robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(true)
+        robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(false)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
-        target_facing = new SwerveRequest.FieldCentricFacingAngle().withIsOpenLoop(true)
+        target_facing = new SwerveRequest.FieldCentricFacingAngle().withIsOpenLoop(false)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
         auto_request = new SwerveRequest.ApplyChassisSpeeds();
@@ -351,7 +351,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        io_.target_rotation_ = target_angle_;
+        io_.target_rotation_ = target_angle_.rotateBy(io_.field_relative_offset);
     }
 
     /**

@@ -71,7 +71,10 @@ public class Robot extends TimedRobot {
     }
 
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
+
   }
+
+
 
   @Override
   public void teleopPeriodic() {

@@ -37,7 +37,7 @@ public abstract class OI {
                 () -> {
                     ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
                     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-                    // SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
                     ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
                 },
                 () -> {
@@ -101,6 +101,11 @@ public abstract class OI {
                 () -> MailmanSubsystem.getInstance().setRollerIntake(),
                 () -> MailmanSubsystem.getInstance().setRollerStop()
          , MailmanSubsystem.getInstance()));
+      
+        driver_joystick_.y().whileTrue(Commands.startEnd(
+                () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),
+                () -> ShooterSubsystem.getInstance().flyWheelStop()));
+
     }
 
         static public double getDriverJoystickLeftX() {
