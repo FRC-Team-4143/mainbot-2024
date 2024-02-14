@@ -91,16 +91,6 @@ public abstract class OI {
                 () -> PickupSubsystem.getMailmanInstance().setPickupMode(),
                 () -> PickupSubsystem.getMailmanInstance().setIdleMode(),
                 PickupSubsystem.getMailmanInstance()));
-        
-        operator_joystick_.rightBumper().whileTrue(Commands.startEnd(
-                () -> MailmanSubsystem.getInstance().setRollerOutput(),
-                () -> MailmanSubsystem.getInstance().setRollerStop()
-         , MailmanSubsystem.getInstance()));
-         
-         operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> MailmanSubsystem.getInstance().setRollerIntake(),
-                () -> MailmanSubsystem.getInstance().setRollerStop()
-         , MailmanSubsystem.getInstance()));
       
         driver_joystick_.y().whileTrue(Commands.startEnd(
                 () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),

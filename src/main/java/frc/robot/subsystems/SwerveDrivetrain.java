@@ -24,6 +24,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.MathUtil;
+
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
@@ -32,13 +34,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.lib.subsystem.Subsystem;
 import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.RobotContainer;
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -187,7 +189,7 @@ public class SwerveDrivetrain extends Subsystem {
         io_.driver_joystick_leftY = OI.getDriverJoystickLeftY();
         io_.driver_joystick_rightX = OI.getDriverJoystickRightX();
 
-        io_.robot_yaw = Rotation2d.fromDegrees(-pigeon_imu.getAngle());
+        io_.robot_yaw = Rotation2d.fromRadians(MathUtil.angleModulus(-pigeon_imu.getAngle() * Math.PI / 180));
 
         io_.chassis_speeds_ = kinematics.toChassisSpeeds(io_.current_module_states);
     }
@@ -250,6 +252,7 @@ public class SwerveDrivetrain extends Subsystem {
 
         SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Yaw", io_.robot_yaw.getDegrees());
+        SmartDashboard.putNumber("Field relative offset", io_.field_relative_offset.getDegrees());
     }
 
     /**
@@ -351,7 +354,9 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        io_.target_rotation_ = target_angle_.rotateBy(io_.field_relative_offset);
+        // io_.target_rotation_ = target_angle_.rotateBy(io_.field_relative_offset);
+        io_.target_rotation_ = target_angle_;
+
     }
 
     /**

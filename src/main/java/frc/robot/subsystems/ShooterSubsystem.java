@@ -61,9 +61,9 @@ public class ShooterSubsystem extends Subsystem {
     private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0)); // TODO: figure out
     // transformation
 
-    private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM)
+    private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
+    private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM)
             .transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
-    private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
@@ -122,12 +122,10 @@ public class ShooterSubsystem extends Subsystem {
 
     // get methods
     public double getShooterAngle() {
-        // TODO: return curent angle
         return io_.current_wrist_angle_;
     }
 
     public boolean isTargetLocked() {
-        // TODO: is curently aiming at target
         return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, ShooterConstants.WRIST_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_,
@@ -135,7 +133,6 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public boolean hasNote() {
-        // TODO: not is in holding postion
         return io_.has_note_;
     }
 
@@ -187,8 +184,7 @@ public class ShooterSubsystem extends Subsystem {
         io_.wrist_speed_ = 0;
     }
 
-    // TODO: This method should either be rewritten or only used for manual
-    // overrides
+    // This method should only used for manual overrides
     // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
     public void setFlyWheelSpeed(double speed) {
         io_.target_flywheel_speed_ = speed;
