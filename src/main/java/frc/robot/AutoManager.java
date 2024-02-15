@@ -5,7 +5,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
+import com.pathplanner.lib.auto.NamedCommands;
+import frc.robot.commands.*;
+
 
 public class AutoManager {
 
@@ -22,6 +26,8 @@ public class AutoManager {
     private final SendableChooser<Command> autoChooser;
 
     private AutoManager() {
+        NamedCommands.registerCommand("ShootAtSpeaker", new ShootAtTarget(ShootTarget.SPEAKER));
+        NamedCommands.registerCommand("RunPickup", new RunPickup());
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto mode", autoChooser);
     }
