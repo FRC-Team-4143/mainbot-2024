@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -54,20 +56,24 @@ public class ShooterSubsystem extends Subsystem {
 
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
+    // transformations
     private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0.05, 0, 0.65, new Rotation3d(0, 0, 0)); // TODO:
-                                                                                                           // figure
-    // out
-    // transformation
     private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0)); // TODO: figure out
-    // transformation
 
+    // Target positions
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM)
             .transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
     private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
+    // Speed maps
+    private final InterpolatingDoubleTreeMap linear_to_angular_vel_map = ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
+    private final InterpolatingDoubleTreeMap distance_to_linear_vel_map = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
+
     SparkPIDController wrist_controller_;
+    SparkPIDController top_flywheel_controller_;
+    SparkPIDController bot_flywheel_controller_;
     CANcoder wrist_encoder_;
 
     private StructPublisher<Pose3d> target_pub;
@@ -97,9 +103,15 @@ public class ShooterSubsystem extends Subsystem {
         io_ = new ShooterPeriodicIo();
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
+        top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
+        top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
+        top_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D);
+
         bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
-        top_flywheel_motor_.follow(bot_flywheel_motor_, true);
+        bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
+        bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
+        bot_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D);
 
         wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         wrist_motor_.setInverted(true);
@@ -184,14 +196,18 @@ public class ShooterSubsystem extends Subsystem {
         io_.wrist_speed_ = 0;
     }
 
-    // This method should only used for manual overrides
-    // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-    public void setFlyWheelSpeed(double speed) {
-        io_.target_flywheel_speed_ = speed;
+    private double lookupFlywheelAngularVelocity(double velocity){
+        return linear_to_angular_vel_map.get(velocity);
+    }
+
+    public void setFlyWheelRPM(double rpm) {
+        top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
+        bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
     }
 
     public void flyWheelStop() {
-        io_.target_flywheel_speed_ = 0;
+        top_flywheel_controller_.setReference(ShooterConstants.FLYWHEEL_IDLE_VOLTAGE, ControlType.kVoltage);
+        bot_flywheel_controller_.setReference(ShooterConstants.FLYWHEEL_IDLE_VOLTAGE, ControlType.kVoltage);
     }
 
     private ChassisSpeeds transformChassisVelocity() {
@@ -204,7 +220,7 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public double calculateNoteExitVelocity() {
-        return 10;
+        return ShooterConstants.NOTE_EXIT_VELOCITY;
     }
 
     private void calculateNoteTravelTime(Pose2d robot_pose, Pose3d target_pose) {

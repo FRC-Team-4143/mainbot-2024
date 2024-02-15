@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
@@ -43,20 +45,45 @@ public final class Constants {
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   }
-  
+
   // IDs Range from 10 - 19
-  public static class ShooterConstants { 
+  public static class ShooterConstants {
     public static final double SHOOTER_X_OFFSET = -0.3286; // 12.940 in
     public static final double SHOOTER_Y_OFFSET = 0;
     public static final double SHOOTER_Z_OFFSET = 0.4404; // 17.34 in
-    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); 
+    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET,
+        SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0));
 
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
-    public static final double FLYWHEEL_IDLE_SPEED = 0.0;
+    public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 0.1;
-    public static final double NOTE_EXIT_VELOCITY = 8.0;
+    public static final double NOTE_EXIT_VELOCITY = 10.0;
+    public static final double FLYWHEEL_CONTROLLER_P = 0.01;
+    public static final double FLYWHEEL_CONTROLLER_D = 0.0;
+
+    public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
+      var map = new InterpolatingDoubleTreeMap();
+      map.put(null, null);
+      map.put(null, null);
+      map.put(null, null);
+      map.put(null, null);
+      map.put(null, null);
+
+      return map;
+    }
+
+    public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
+      var map = new InterpolatingDoubleTreeMap();
+      map.put(null, null);
+      map.put(null, null);
+      map.put(null, null);
+      map.put(null, null);
+      map.put(null, null);
+
+      return map;
+    }
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
@@ -93,7 +120,6 @@ public final class Constants {
     public final boolean ROLLER_MOTOR_INVERTED;
   }
 
-
   public static class MailmanConstants {
     public static final int ELEVATOR_MOTOR_ID = 0;
     public static final int DROPPER_MOTOR_ID = 0;
@@ -102,9 +128,10 @@ public final class Constants {
     public static final double HEIGHT_CONTROLLER_P = 0.0;
     public static final double HEIGHT_CONTROLLER_I = 0.0;
     public static final double HEIGHT_CONTROLLER_D = 0.0;
-    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
+    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,
+        0);
     public static final double DROPPER_IN_SPEED = 0.0;
     public static final double DROPPER_OUT_SPEED = 0.0;
-    
+
   }
 }

@@ -35,7 +35,7 @@ public abstract class OI {
 
         driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> {
-                    ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
+                    ShooterSubsystem.getInstance().setFlyWheelRPM(SmartDashboard.getNumber("Shooter Speed", 0.75));
                     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
                     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
                     ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
@@ -93,7 +93,7 @@ public abstract class OI {
                 PickupSubsystem.getMailmanInstance()));
       
         driver_joystick_.y().whileTrue(Commands.startEnd(
-                () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),
+                () -> ShooterSubsystem.getInstance().setFlyWheelRPM(-0.1),
                 () -> ShooterSubsystem.getInstance().flyWheelStop()));
 
     }
