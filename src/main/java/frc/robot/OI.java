@@ -16,19 +16,11 @@ import frc.robot.commands.*;
 /** Add your docs here. */
 public abstract class OI {
 
-        // Sets up both controllers
-        static CommandXboxController driver_joystick_ = new CommandXboxController(0);
-        static CommandXboxController operator_joystick_ = new CommandXboxController(1);
-        // static CommandXboxController operator_joystick_ = new
-        // CommandXboxController(1);
-
-        // ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
-        // PickupSubsystem pickup_front_ = PickupSubsystem.getShooterInstance();
+    // Sets up both controllers
+    static CommandXboxController driver_joystick_ = new CommandXboxController(0);
+    static CommandXboxController operator_joystick_ = new CommandXboxController(1);
 
     public static void configureBindings() {
-
-        SmartDashboard.putNumber("Shooter Speed", 0.75);
-        SmartDashboard.putNumber("Wrist Speed", 0.1);
 
         SmartDashboard.putData("Set Wheel Offsets",
                 Commands.runOnce(() -> SwerveDrivetrain.getInstance().tareEverything())
@@ -37,20 +29,6 @@ public abstract class OI {
                 Commands.runOnce(() -> SwerveDrivetrain.getInstance().seedFieldRelative())
                         .ignoringDisable(true));
 
-        // driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
-        //         () -> {
-        //             ShooterSubsystem.getInstance().setFlyWheelSpeed(
-        //                     SmartDashboard.getNumber("Shooter Speed", 0.75));
-        //             ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-        //             // SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-        //             ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
-        //         },
-        //         () -> {
-        //             ShooterSubsystem.getInstance().flyWheelStop();
-        //             SwerveDrivetrain.getInstance()
-        //                     .setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-        //             ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-        //         }));
         driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtTarget(ShootTarget.SPEAKER));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
@@ -78,7 +56,7 @@ public abstract class OI {
         // Speed", 0.1)),
         // () -> ShooterSubsystem.getInstance().wristStop(),
         // ShooterSubsystem.getInstance()));
-        driver_joystick_.x().whileTrue(new WristCCW());
+        
         // // Writst CW
         // driver_joystick_.b().whileTrue(Commands.startEnd(
         // () ->
@@ -86,7 +64,7 @@ public abstract class OI {
         // Speed", 0.1)),
         // () -> ShooterSubsystem.getInstance().wristStop(),
         // ShooterSubsystem.getInstance()));
-        driver_joystick_.b().whileTrue(new WristCW());
+
 
         // Run Pickup
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
@@ -104,31 +82,31 @@ public abstract class OI {
                 () -> PickupSubsystem.getMailmanInstance().setPickupMode(),
                 () -> PickupSubsystem.getMailmanInstance().setIdleMode(),
                 PickupSubsystem.getMailmanInstance()));
-      
+
         driver_joystick_.y().whileTrue(Commands.startEnd(
                 () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),
                 () -> ShooterSubsystem.getInstance().flyWheelStop()));
 
     }
 
-        static public double getDriverJoystickLeftX() {
-                double val = driver_joystick_.getLeftX();
-                double output = val * val;
-                output = Math.copySign(output, val);
-                return output;
-        }
+    static public double getDriverJoystickLeftX() {
+        double val = driver_joystick_.getLeftX();
+        double output = val * val;
+        output = Math.copySign(output, val);
+        return output;
+    }
 
-        static public double getDriverJoystickLeftY() {
-                double val = driver_joystick_.getLeftY();
-                double output = val * val;
-                output = Math.copySign(output, val);
-                return output;
-        }
+    static public double getDriverJoystickLeftY() {
+        double val = driver_joystick_.getLeftY();
+        double output = val * val;
+        output = Math.copySign(output, val);
+        return output;
+    }
 
-        static public double getDriverJoystickRightX() {
-                double val = driver_joystick_.getRightX();
-                double output = val * val;
-                output = Math.copySign(output, val);
-                return output;
-        }
+    static public double getDriverJoystickRightX() {
+        double val = driver_joystick_.getRightX();
+        double output = val * val;
+        output = Math.copySign(output, val);
+        return output;
+    }
 }

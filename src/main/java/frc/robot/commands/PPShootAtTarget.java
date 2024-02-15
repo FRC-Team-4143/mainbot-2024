@@ -12,13 +12,12 @@ import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
 
-public class ShootAtTarget extends Command {
-  /** Creates a new ShootAtTarget. */
+public class PPShootAtTarget extends Command {
+  /** Creates a new PPShootAtTarget. */
   ShootTarget target;
-  public ShootAtTarget(ShootTarget targetRequest) {
+  public PPShootAtTarget(ShootTarget targetRequest) {
     target = targetRequest;
     addRequirements(ShooterSubsystem.getInstance());
-    addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(PickupSubsystem.getShooterInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -28,7 +27,7 @@ public class ShootAtTarget extends Command {
   public void initialize() {
     ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
     ShooterSubsystem.getInstance().setTarget(target);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS_TARGET);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
   }
 
@@ -45,7 +44,7 @@ public class ShootAtTarget extends Command {
   @Override
   public void end(boolean interrupted) {
     ShooterSubsystem.getInstance().flyWheelStop();
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
     PickupSubsystem.getShooterInstance().setIdleMode();

@@ -4,21 +4,21 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class WristCW extends Command {
-  /** Creates a new WristCW. */
-  public WristCW() {
-    addRequirements(ShooterSubsystem.getInstance());
+public class LaunchNote extends Command {
+  /** Creates a new LaunchNote. */
+  public LaunchNote() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0.1));
+    ShooterSubsystem.getInstance().setRollerFeed();
+    PickupSubsystem.getShooterInstance().setPickupMode();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -28,7 +28,7 @@ public class WristCW extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ShooterSubsystem.getInstance().wristStop();
+    PickupSubsystem.getShooterInstance().setIdleMode();
   }
 
   // Returns true when the command should end.
