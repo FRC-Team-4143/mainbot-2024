@@ -5,6 +5,10 @@
 package frc.robot.subsystems;
 
 import frc.lib.subsystem.Subsystem;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import frc.robot.Constants.PickupConstants;
@@ -37,7 +41,7 @@ public class PickupSubsystem extends Subsystem {
   /**
    * 
    */
-  private PeriodicIo io;
+  private PeriodicIoAutoLogged io;
   private final CANSparkFlex roller_motor_;
   private final PickupSettings settings_;
 
@@ -49,7 +53,7 @@ public class PickupSubsystem extends Subsystem {
    */
   private PickupSubsystem(PickupSettings settings) {
     settings_ = settings;
-    io = new PeriodicIo();
+    io = new PeriodicIoAutoLogged();
     roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
   }
@@ -61,7 +65,7 @@ public class PickupSubsystem extends Subsystem {
    * initializing data members. pickup_rollers
    */
   public void reset() {
-    io = new PeriodicIo();
+    io = new PeriodicIoAutoLogged();
     roller_motor_.setSmartCurrentLimit(PickupConstants.rollerAmpLimit);
     roller_motor_.setInverted(settings_.ROLLER_MOTOR_INVERTED);
     roller_motor_.burnFlash();
@@ -130,7 +134,7 @@ public class PickupSubsystem extends Subsystem {
   }
 
   @Override
-  public LogData getLogger() {
+  public LoggableInputs getLogger() {
     return io;
   }
 
@@ -161,6 +165,7 @@ public class PickupSubsystem extends Subsystem {
     io.pickup_mode_ = PickupMode.IDLE;
   }
 
+  @AutoLog
   public class PeriodicIo extends LogData {
     public boolean has_note_pickup_ = false;
     public boolean has_note_reciever_;

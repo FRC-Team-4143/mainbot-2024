@@ -108,8 +108,9 @@ public abstract class SubsystemManager {
      * Once the subsystems have been registered, call this function to init logging
      * capabilities
      */
-    public void initLogfile() {
+    public void initLogfile(String ctrl_mode) {
         Logger.end();
+        Logger.recordMetadata("Control Mode", ctrl_mode);
         Logger.start();
     }
 

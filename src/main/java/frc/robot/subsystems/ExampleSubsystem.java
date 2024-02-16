@@ -23,7 +23,8 @@ public class ExampleSubsystem extends Subsystem {
   /**
    * 
    */
-  private PeriodicIoAutoLogged io;
+  private ExamplePeriodicIo io_;
+  private ExamplePeriodicIoAutoLogged io_autoLogged_ = new ExamplePeriodicIoAutoLogged();
 
   /**
    * Constructor for the example subsystem. The constructor should create all
@@ -32,7 +33,7 @@ public class ExampleSubsystem extends Subsystem {
    * should be done in the reset() function.
    */
   private ExampleSubsystem() {
-    io = new PeriodicIoAutoLogged();
+    io_ = new ExamplePeriodicIo();
 
     reset();
   }
@@ -44,7 +45,7 @@ public class ExampleSubsystem extends Subsystem {
    * initializing data members.
    */
   public void reset() {
-    io = new PeriodicIoAutoLogged();
+    io_ = new ExamplePeriodicIo();
   }
 
   @Override
@@ -85,16 +86,17 @@ public class ExampleSubsystem extends Subsystem {
    * actuators within this function. Only publish to smartdashboard here.
    */
   public void outputTelemetry(double timestamp) {
-
+    io_.updateInputs(io_autoLogged_);
+    
   }
 
   @Override
   public LoggableInputs getLogger() {
-    return io;
+    return io_autoLogged_;
   }
 
   @AutoLog
-  public class PeriodicIo extends LogData {
+  public class ExamplePeriodicIo {
     public double test = 0;
   }
 }
