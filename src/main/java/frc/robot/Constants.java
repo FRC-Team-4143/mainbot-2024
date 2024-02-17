@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -87,18 +86,20 @@ public final class Constants {
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
-    public static final int WRIST_ENCODER_ID = 12;
+    public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double WRIST_CONTROLLER_P = 0.0;
-    public static final double WRIST_CONTROLLER_I = 0.0;
-    public static final double WRIST_CONTROLLER_D = 0.0;
+    public static final double WRIST_CONTROLLER_P = 13.0;
+    public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = 0.00349;
-    public static final double ZERO_WRIST_ANGLE = 1.04719;
+    public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
+    public static final double WRIST_HOME_ANGLE = 0.78539;
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 1.0;
+
+    public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
   }
 
   // IDs Range from 20 - 29
@@ -121,8 +122,8 @@ public final class Constants {
   }
 
   public static class MailmanConstants {
-    public static final int ELEVATOR_MOTOR_ID = 0;
-    public static final int DROPPER_MOTOR_ID = 0;
+    public static final int ELEVATOR_MOTOR_ID = 31;
+    public static final int DROPPER_MOTOR_ID = 32;
     public static final double AMP_HEIGHT = 0;
     public static final double TRAP_HEIGHT = 0;
     public static final double HEIGHT_CONTROLLER_P = 0.0;

@@ -63,18 +63,6 @@ public abstract class OI {
                 () -> ShooterSubsystem.getInstance().setRollerReverse(),
                 () -> ShooterSubsystem.getInstance().rollerStop()));
 
-        // Wrist CCW
-        driver_joystick_.x().whileTrue(Commands.startEnd(
-                () -> ShooterSubsystem.getInstance().setWristSpeed(-SmartDashboard.getNumber("Wrist Speed", 0.1)),
-                () -> ShooterSubsystem.getInstance().wristStop(),
-                ShooterSubsystem.getInstance()));
-
-        // Writst CW
-        driver_joystick_.b().whileTrue(Commands.startEnd(
-                () -> ShooterSubsystem.getInstance().setWristSpeed(SmartDashboard.getNumber("Wrist Speed", 0.1)),
-                () -> ShooterSubsystem.getInstance().wristStop(),
-                ShooterSubsystem.getInstance()));
-
         // Run Pickup
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> PickupSubsystem.getShooterInstance().setPickupMode(),
@@ -91,6 +79,16 @@ public abstract class OI {
                 () -> PickupSubsystem.getMailmanInstance().setPickupMode(),
                 () -> PickupSubsystem.getMailmanInstance().setIdleMode(),
                 PickupSubsystem.getMailmanInstance()));
+        
+        // operator_joystick_.rightBumper().whileTrue(Commands.startEnd(
+        //         () -> MailmanSubsystem.getInstance().setRollerOutput(),
+        //         () -> MailmanSubsystem.getInstance().setRollerStop()
+        //  , MailmanSubsystem.getInstance()));
+         
+        //  operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
+        //         () -> MailmanSubsystem.getInstance().setRollerIntake(),
+        //         () -> MailmanSubsystem.getInstance().setRollerStop()
+        //  , MailmanSubsystem.getInstance()));
       
         driver_joystick_.y().whileTrue(Commands.startEnd(
                 () -> ShooterSubsystem.getInstance().setFlyWheelRPM(-0.1),

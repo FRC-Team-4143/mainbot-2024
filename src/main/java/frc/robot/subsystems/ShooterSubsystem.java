@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,9 +11,9 @@ import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -22,14 +21,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -51,7 +49,7 @@ public class ShooterSubsystem extends Subsystem {
     // initialize motors
     private CANSparkFlex top_flywheel_motor_;
     private CANSparkFlex bot_flywheel_motor_;
-    private CANSparkFlex wrist_motor_;
+    private CANSparkMax wrist_motor_;
     private CANSparkMax roller_motor_;
 
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
@@ -72,9 +70,10 @@ public class ShooterSubsystem extends Subsystem {
     private final InterpolatingDoubleTreeMap distance_to_linear_vel_map = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
 
     SparkPIDController wrist_controller_;
+    SparkAbsoluteEncoder wrist_encoder_;
+
     SparkPIDController top_flywheel_controller_;
     SparkPIDController bot_flywheel_controller_;
-    CANcoder wrist_encoder_;
 
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
@@ -113,16 +112,15 @@ public class ShooterSubsystem extends Subsystem {
         bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
         bot_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D);
 
-        wrist_motor_ = new CANSparkFlex(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        wrist_motor_ = new CANSparkMax(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         wrist_motor_.setInverted(true);
         wrist_motor_.setIdleMode(IdleMode.kBrake);
-        wrist_encoder_ = new CANcoder(ShooterConstants.WRIST_ENCODER_ID, "CANivore");
-        wrist_encoder_.getConfigurator()
-                .apply(new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive));
-        // SparkPIDController wrist_controller_ = wrist_motor_.getPIDController(); TODO:
-        // Wait for REV Through Bore Encoder
-        // wrist_controller_.setFeedbackDevice(wrist_encoder_); TODO: Wait for REV
-        // Through Bore Encoder
+        wrist_encoder_ = wrist_motor_.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        wrist_encoder_.setInverted(true);
+        wrist_controller_ = wrist_motor_.getPIDController();
+        wrist_controller_.setFeedbackDevice(wrist_encoder_);
+        wrist_controller_.setP(ShooterConstants.WRIST_CONTROLLER_P);
+        wrist_controller_.setD(ShooterConstants.WRIST_CONTROLLER_D);
 
         roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         roller_motor_.setInverted(true);
@@ -138,10 +136,14 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public boolean isTargetLocked() {
-        return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, ShooterConstants.WRIST_TOLERANCE)
+        return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, 
+                ShooterConstants.WRIST_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_,
-                        ShooterConstants.FLYWHEEL_TOLERANCE);
+                ShooterConstants.FLYWHEEL_TOLERANCE)
+                &&
+                Util.epislonEquals(io_.target_robot_yaw_.getRadians(), PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(), 
+                ShooterConstants.YAW_TOLERANCE);
     }
 
     public boolean hasNote() {
@@ -149,16 +151,6 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     // set methods
-    public double setWristAngle() {
-        if (Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, 0.01745)) {
-            return 0.0;
-        } else if (io_.current_wrist_angle_ > io_.target_wrist_angle_) {
-            return -0.1;
-        } else {
-            return 0.2;
-        }
-    }
-
     public void setTarget(ShootTarget target) {
         var alliance = DriverStation.getAlliance();
         if (DriverStation.Alliance.Red == alliance.get()) {
@@ -176,6 +168,10 @@ public class ShooterSubsystem extends Subsystem {
         }
     }
 
+    public void setShootMode(ShootMode mode) {
+        io_.target_mode_ = mode;
+    }
+
     public void setRollerFeed() {
         io_.roller_speed_ = ShooterConstants.ROLLER_SPEED;
     }
@@ -188,14 +184,6 @@ public class ShooterSubsystem extends Subsystem {
         io_.roller_speed_ = 0;
     }
 
-    public void setWristSpeed(double wristSpeed) {
-        io_.wrist_speed_ = wristSpeed;
-    }
-
-    public void wristStop() {
-        io_.wrist_speed_ = 0;
-    }
-
     private double lookupFlywheelAngularVelocity(double velocity){
         return linear_to_angular_vel_map.get(velocity);
     }
@@ -203,11 +191,25 @@ public class ShooterSubsystem extends Subsystem {
     public void setFlyWheelRPM(double rpm) {
         top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
         bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
+    // TODO: This method should either be rewritten or only used for manual
+    // overrides
+    // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
+    public void setFlyWheelSpeed(double speed) {
+        io_.target_flywheel_speed_ = speed;
     }
 
     public void flyWheelStop() {
         top_flywheel_controller_.setReference(ShooterConstants.FLYWHEEL_IDLE_VOLTAGE, ControlType.kVoltage);
         bot_flywheel_controller_.setReference(ShooterConstants.FLYWHEEL_IDLE_VOLTAGE, ControlType.kVoltage);
+    }
+
+    public void setWristAngle() {
+        double arb_ff = Math.cos(io_.target_wrist_angle_) * ShooterConstants.WRIST_CONTROLLER_FF;
+        wrist_controller_.setReference((io_.target_wrist_angle_ + ShooterConstants.WRIST_ZERO_ANGLE) / (2*Math.PI), ControlType.kPosition, 0, arb_ff);
+    }
+
+    public void wristStop() {
+        wrist_controller_.setReference(0, ControlType.kVoltage);
     }
 
     private ChassisSpeeds transformChassisVelocity() {
@@ -219,6 +221,7 @@ public class ShooterSubsystem extends Subsystem {
         return new ChassisSpeeds(temp_translation.getX(), temp_translation.getY(), 0.0);
     }
 
+    // Calculate Methods
     public double calculateNoteExitVelocity() {
         return ShooterConstants.NOTE_EXIT_VELOCITY;
     }
@@ -239,7 +242,7 @@ public class ShooterSubsystem extends Subsystem {
         double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
         double result = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
         if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
-            return 0.17450;
+            return ShooterConstants.WRIST_HOME_ANGLE;
         }
         return result;
     }
@@ -248,10 +251,6 @@ public class ShooterSubsystem extends Subsystem {
         Pose2d pose_difference = PoseEstimator.getInstance().getRobotPose().relativeTo(io_.target_.toPose2d());
         return pose_difference.getTranslation().getAngle();
 
-    }
-
-    public void setShootMode(ShootMode mode) {
-        io_.target_mode_ = mode;
     }
 
     @Override
@@ -272,8 +271,7 @@ public class ShooterSubsystem extends Subsystem {
      */
     public void readPeriodicInputs(double timestamp) {
         io_.current_flywheel_speed_ = top_flywheel_motor_.getEncoder().getVelocity();
-        io_.current_wrist_angle_ = wrist_encoder_.getAbsolutePosition().getValueAsDouble() * 2 * 3.14159
-                + ShooterConstants.ZERO_WRIST_ANGLE;
+        io_.current_wrist_angle_ = wrist_encoder_.getPosition() * (2 * Math.PI) - ShooterConstants.WRIST_ZERO_ANGLE;
     }
 
     @Override
@@ -288,11 +286,9 @@ public class ShooterSubsystem extends Subsystem {
         if (io_.target_mode_ == ShootMode.ACTIVETARGETING) {
             io_.target_robot_yaw_ = calculateTargetYaw();
             io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, calculateNoteExitVelocity());
-            io_.wrist_speed_ = setWristAngle();
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
-            io_.target_wrist_angle_ = 0.1745;
-            io_.wrist_speed_ = setWristAngle();
+            io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
         }
     }
 
@@ -306,7 +302,7 @@ public class ShooterSubsystem extends Subsystem {
     public void writePeriodicOutputs(double timestamp) {
         bot_flywheel_motor_.set(io_.target_flywheel_speed_);
         roller_motor_.set(io_.roller_speed_);
-        wrist_motor_.set(io_.wrist_speed_);
+        setWristAngle();
         SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
 
     }
@@ -341,7 +337,6 @@ public class ShooterSubsystem extends Subsystem {
         public ShootMode target_mode_ = ShootMode.IDLE;
         public double roller_speed_;
         public boolean has_note_;
-        public double wrist_speed_ = 0;
         public Rotation2d target_robot_yaw_ = new Rotation2d();
         public double note_travel_time_;
         public Transform3d target_transform_;
