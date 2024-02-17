@@ -66,14 +66,17 @@ public class ShooterSubsystem extends Subsystem {
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
     // Speed maps
-    private final InterpolatingDoubleTreeMap linear_to_angular_vel_map = ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
-    private final InterpolatingDoubleTreeMap distance_to_linear_vel_map = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
+    //private final InterpolatingDoubleTreeMap linear_to_angular_vel_map = ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
+    //private final InterpolatingDoubleTreeMap distance_to_linear_vel_map = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
 
     SparkPIDController wrist_controller_;
     SparkAbsoluteEncoder wrist_encoder_;
 
     SparkPIDController top_flywheel_controller_;
+    RelativeEncoder top_flywheel_encoder_;
+
     SparkPIDController bot_flywheel_controller_;
+    RelativeEncoder bot_flywheel_encoder_;
 
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
@@ -100,17 +103,24 @@ public class ShooterSubsystem extends Subsystem {
      */
     public ShooterSubsystem() {
         io_ = new ShooterPeriodicIo();
+
+        SmartDashboard.putNumber("Flywheel Target", io_.target_flywheel_speed_);
+
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
         top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
+        top_flywheel_encoder_ = top_flywheel_motor_.getEncoder();
+        top_flywheel_controller_.setFeedbackDevice(top_flywheel_encoder_);
         top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
-        top_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D);
+        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF);
 
         bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
         bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
+        bot_flywheel_encoder_ = bot_flywheel_motor_.getEncoder();
+        bot_flywheel_controller_.setFeedbackDevice(bot_flywheel_encoder_);
         bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
-        bot_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D);
+        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF);
 
         wrist_motor_ = new CANSparkMax(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         wrist_motor_.setInverted(true);
@@ -120,7 +130,6 @@ public class ShooterSubsystem extends Subsystem {
         wrist_controller_ = wrist_motor_.getPIDController();
         wrist_controller_.setFeedbackDevice(wrist_encoder_);
         wrist_controller_.setP(ShooterConstants.WRIST_CONTROLLER_P);
-        wrist_controller_.setD(ShooterConstants.WRIST_CONTROLLER_D);
 
         roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         roller_motor_.setInverted(true);
@@ -139,7 +148,10 @@ public class ShooterSubsystem extends Subsystem {
         return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, 
                 ShooterConstants.WRIST_TOLERANCE)
                 &&
-                Util.epislonEquals(io_.current_flywheel_speed_, io_.target_flywheel_speed_,
+                Util.epislonEquals(io_.current_top_flywheel_speed_, io_.target_flywheel_speed_,
+                ShooterConstants.FLYWHEEL_TOLERANCE)
+                &&
+                Util.epislonEquals(io_.current_bot_flywheel_speed_, io_.target_flywheel_speed_,
                 ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.target_robot_yaw_.getRadians(), PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(), 
@@ -184,23 +196,18 @@ public class ShooterSubsystem extends Subsystem {
         io_.roller_speed_ = 0;
     }
 
-    private double lookupFlywheelAngularVelocity(double velocity){
-        return linear_to_angular_vel_map.get(velocity);
-    }
+    // private double lookupFlywheelAngularVelocity(double velocity){
+    //     return linear_to_angular_vel_map.get(velocity);
+    // }
 
     public void setFlyWheelRPM(double rpm) {
         top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
         bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
-    // TODO: This method should either be rewritten or only used for manual
-    // overrides
-    // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-    public void setFlyWheelSpeed(double speed) {
-        io_.target_flywheel_speed_ = speed;
     }
 
     public void flyWheelStop() {
-        top_flywheel_controller_.setReference(ShooterConstants.FLYWHEEL_IDLE_VOLTAGE, ControlType.kVoltage);
-        bot_flywheel_controller_.setReference(ShooterConstants.FLYWHEEL_IDLE_VOLTAGE, ControlType.kVoltage);
+        top_flywheel_controller_.setReference(0, ControlType.kVelocity);
+        bot_flywheel_controller_.setReference(0, ControlType.kVelocity);
     }
 
     public void setWristAngle() {
@@ -270,8 +277,11 @@ public class ShooterSubsystem extends Subsystem {
      * actuators, or any logic within this function.
      */
     public void readPeriodicInputs(double timestamp) {
-        io_.current_flywheel_speed_ = top_flywheel_motor_.getEncoder().getVelocity();
+        io_.current_top_flywheel_speed_ = top_flywheel_encoder_.getVelocity();
+        io_.current_bot_flywheel_speed_ = bot_flywheel_encoder_.getVelocity();
         io_.current_wrist_angle_ = wrist_encoder_.getPosition() * (2 * Math.PI) - ShooterConstants.WRIST_ZERO_ANGLE;
+        io_.target_flywheel_speed_ = SmartDashboard.getNumber("Flywheel Target", 2000);
+
     }
 
     @Override
@@ -289,6 +299,7 @@ public class ShooterSubsystem extends Subsystem {
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
+            io_.target_flywheel_speed_ = 0;
         }
     }
 
@@ -299,9 +310,10 @@ public class ShooterSubsystem extends Subsystem {
      * the PeriodicIO class defined below. There should be little to no logic
      * contained within this function, and no sensors should be read.
      */
+    
     public void writePeriodicOutputs(double timestamp) {
-        bot_flywheel_motor_.set(io_.target_flywheel_speed_);
         roller_motor_.set(io_.roller_speed_);
+        setFlyWheelRPM(io_.target_flywheel_speed_);
         setWristAngle();
         SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
 
@@ -315,12 +327,14 @@ public class ShooterSubsystem extends Subsystem {
      * actuators within this function. Only publish to smartdashboard here.
      */
     public void outputTelemetry(double timestamp) {
-        SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
+        //SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
         target_pub.set(io_.target_);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
         SmartDashboard.putNumber(" Current Wrist Angle", io_.current_wrist_angle_ * 180 / 3.14159);
         SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_ * 180 / 3.14159);
-        SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
+        //SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
+        SmartDashboard.putNumber("Top Flywheel Speed", io_.current_top_flywheel_speed_);
+        SmartDashboard.putNumber("Bot Flywheel Speed", io_.current_bot_flywheel_speed_);
     }
 
     @Override
@@ -331,7 +345,8 @@ public class ShooterSubsystem extends Subsystem {
     public class ShooterPeriodicIo extends LogData {
         public Pose3d target_ = new Pose3d();
         public double target_flywheel_speed_ = 0;
-        public double current_flywheel_speed_ = 0;
+        public double current_top_flywheel_speed_ = 0;
+        public double current_bot_flywheel_speed_ = 0;
         public double target_wrist_angle_ = 0;
         public double current_wrist_angle_ = 0;
         public ShootMode target_mode_ = ShootMode.IDLE;

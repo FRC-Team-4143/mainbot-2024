@@ -59,30 +59,30 @@ public final class Constants {
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 0.1;
     public static final double NOTE_EXIT_VELOCITY = 10.0;
-    public static final double FLYWHEEL_CONTROLLER_P = 0.01;
-    public static final double FLYWHEEL_CONTROLLER_D = 0.0;
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
+    public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
 
-    public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
-      var map = new InterpolatingDoubleTreeMap();
-      map.put(null, null);
-      map.put(null, null);
-      map.put(null, null);
-      map.put(null, null);
-      map.put(null, null);
+    // public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
+    //   var map = new InterpolatingDoubleTreeMap();
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
 
-      return map;
-    }
+    //   return map;
+    // }
 
-    public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
-      var map = new InterpolatingDoubleTreeMap();
-      map.put(null, null);
-      map.put(null, null);
-      map.put(null, null);
-      map.put(null, null);
-      map.put(null, null);
+    // public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
+    //   var map = new InterpolatingDoubleTreeMap();
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
 
-      return map;
-    }
+    //   return map;
+    // }
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
@@ -93,7 +93,7 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = 0.00349;
     public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
-    public static final double WRIST_HOME_ANGLE = 0.78539;
+    public static final double WRIST_HOME_ANGLE = Math.toRadians(10);
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
