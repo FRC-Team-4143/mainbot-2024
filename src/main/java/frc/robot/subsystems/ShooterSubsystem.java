@@ -201,7 +201,8 @@ public class ShooterSubsystem extends Subsystem {
         io_.roller_speed_ = 0;
     }
 
-    public void setFlyWheelRPM(double rpm) {
+    public void setFlyWheelRPM(double rad_per_sec_) {
+        double rpm = rad_per_sec_ * 9.549;
         top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
         bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
 
