@@ -5,11 +5,12 @@
 package frc.robot.subsystems;
 
 import frc.lib.subsystem.Subsystem;
+
+import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
-import com.playingwithfusion.TimeOfFlight;
 
 public class PickupSubsystem extends Subsystem {
 
@@ -40,8 +41,8 @@ public class PickupSubsystem extends Subsystem {
    */
   private PeriodicIo io_;
   private final CANSparkFlex roller_motor_;
-  private final TimeOfFlight tof_sensor_;
   private final PickupSettings settings_;
+  private final TimeOfFlight note_sensor_;
 
   /**
    * Constructor for the example subsystem. The constructor should create all
@@ -54,7 +55,13 @@ public class PickupSubsystem extends Subsystem {
     io_ = new PeriodicIo();
     roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
-    tof_sensor_ = new TimeOfFlight(PickupConstants.TOF_SENSOR_ID_);
+
+    if (settings.PICKUP_NOTE_SENSOR_ID < 0) {
+      note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);
+      note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, PickupConstants.SENSOR_SAMPLE_TIME);
+    } else {
+      note_sensor_ = null;
+    }
   }
 
   @Override
@@ -77,15 +84,11 @@ public class PickupSubsystem extends Subsystem {
    * actuators, or any logic within this function.
    */
   public void readPeriodicInputs(double timestamp) {
-    // TODO Need reciever subsystem to tell if it has a note and know the note
-    // sensor
-    if(tof_sensor_.getRange() < 35.0){
-      io_.has_note_pickup_ = true;
+    if (note_sensor_ != null) {
+      io_.note_sensor_range_ = note_sensor_.getRange();
     } else {
-      io_.has_note_pickup_ = false;
+      io_.note_sensor_range_ = 1000;
     }
-        // System.out.println(io_.has_note_pickup_);
-        // System.out.println(tof_sensor_.getRange());
   }
 
   @Override
@@ -95,6 +98,12 @@ public class PickupSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
+    if (io_.has_note_pickup_ && io_.note_sensor_range_ > PickupConstants.NO_NOTE_RANGE) {
+      io_.has_note_pickup_ = false;
+    } else if (io_.has_note_pickup_ == false && io_.note_sensor_range_ < PickupConstants.HAS_NOTE_RANGE) {
+      io_.has_note_pickup_ = true;
+    }
+
     switch (io_.pickup_mode_) {
       case PICKUP:
         setRollersForward();
@@ -176,10 +185,15 @@ public class PickupSubsystem extends Subsystem {
     io_.pickup_mode_ = PickupMode.CLEAN;
   }
 
+  public boolean hasNote() {
+    return io_.has_note_pickup_;
+  }
+
   public class PeriodicIo extends LogData {
     public boolean has_note_pickup_ = false;
     public boolean has_note_reciever_;
     public double roller_speed_ = 0.0;
     public PickupMode pickup_mode_ = PickupMode.IDLE;
+    public double note_sensor_range_;
   }
 }

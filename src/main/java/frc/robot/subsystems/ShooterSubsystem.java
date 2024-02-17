@@ -29,6 +29,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -49,6 +50,8 @@ public class ShooterSubsystem extends Subsystem {
     private CANSparkFlex bot_flywheel_motor_;
     private CANSparkMax wrist_motor_;
     private CANSparkMax roller_motor_;
+    private TimeOfFlight note_sensor_;
+
 
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
@@ -107,7 +110,7 @@ public class ShooterSubsystem extends Subsystem {
         wrist_controller_ = wrist_motor_.getPIDController();
         wrist_controller_.setFeedbackDevice(wrist_encoder_);
         wrist_controller_.setP(ShooterConstants.WRIST_CONTROLLER_P);
-        wrist_controller_.setD(ShooterConstants.WRIST_CONTROLLER_D);
+      //  wrist_controller_.setD(ShooterConstants.WRIST_CONTROLLER_D);
 
         roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         roller_motor_.setInverted(true);
@@ -115,6 +118,9 @@ public class ShooterSubsystem extends Subsystem {
         target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
         rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
         reset();
+
+        note_sensor_ = new TimeOfFlight(ShooterConstants.NOTE_SENSOR_ID);
+        note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, ShooterConstants.SENSOR_SAMPLE_TIME);
     }
 
     // get methods
@@ -133,9 +139,12 @@ public class ShooterSubsystem extends Subsystem {
                 ShooterConstants.YAW_TOLERANCE);
     }
 
-    public boolean hasNote() {
-        // TODO: not is in holding postion
-        return io_.has_note_;
+    public void hasNote() {
+        if(io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE){
+            io_.has_note_ = false;
+        } else if(io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE){
+            io_.has_note_ = true;
+        }
     }
 
     // set methods
@@ -252,6 +261,8 @@ public class ShooterSubsystem extends Subsystem {
     public void readPeriodicInputs(double timestamp) {
         io_.current_flywheel_speed_ = top_flywheel_motor_.getEncoder().getVelocity();
         io_.current_wrist_angle_ = wrist_encoder_.getPosition() * (2 * Math.PI) - ShooterConstants.WRIST_ZERO_ANGLE;
+        io_.note_sensor_range_ = note_sensor_.getRange();
+
     }
 
     @Override
@@ -270,6 +281,8 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
         }
+
+        hasNote();
     }
 
     @Override
@@ -301,6 +314,8 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber(" Current Wrist Angle", io_.current_wrist_angle_ * 180 / 3.14159);
         SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_ * 180 / 3.14159);
         SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
+        SmartDashboard.putBoolean("Shooter Has Note", io_.has_note_);
+        SmartDashboard.putNumber("Shooter Note Sensor Range", io_.note_sensor_range_);
     }
 
     @Override
@@ -321,5 +336,6 @@ public class ShooterSubsystem extends Subsystem {
         public double note_travel_time_;
         public Transform3d target_transform_;
         public ChassisSpeeds relative_chassis_speed_;
+        public double note_sensor_range_;
     }
 }
