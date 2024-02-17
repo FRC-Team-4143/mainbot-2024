@@ -11,7 +11,6 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
-import frc.robot.Constants.ShooterConstants;
 
 public class PickupSubsystem extends Subsystem {
 
@@ -56,13 +55,13 @@ public class PickupSubsystem extends Subsystem {
     io_ = new PeriodicIo();
     roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
+
     if (settings.PICKUP_NOTE_SENSOR_ID < 0) {
       note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);
       note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, ShooterConstants.SENSOR_SAMPLE_TIME);
     } else {
       note_sensor_ = null;
     }
-
   }
 
   @Override
@@ -99,7 +98,6 @@ public class PickupSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
-
     switch (io_.pickup_mode_) {
       case PICKUP:
         setRollersForward();
@@ -132,7 +130,6 @@ public class PickupSubsystem extends Subsystem {
    */
   public void writePeriodicOutputs(double timestamp) {
     roller_motor_.set(io_.roller_speed_);
-
   }
 
   @Override
