@@ -58,7 +58,7 @@ public class PickupSubsystem extends Subsystem {
 
     if (settings.PICKUP_NOTE_SENSOR_ID < 0) {
       note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);
-      note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, ShooterConstants.SENSOR_SAMPLE_TIME);
+      note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, PickupConstants.SENSOR_SAMPLE_TIME);
     } else {
       note_sensor_ = null;
     }
@@ -98,6 +98,12 @@ public class PickupSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
+    if (io_.has_note_pickup_ && io_.note_sensor_range_ > PickupConstants.NO_NOTE_RANGE) {
+      io_.has_note_pickup_ = false;
+    } else if (io_.has_note_pickup_ == false && io_.note_sensor_range_ < PickupConstants.HAS_NOTE_RANGE) {
+      io_.has_note_pickup_ = true;
+    }
+
     switch (io_.pickup_mode_) {
       case PICKUP:
         setRollersForward();
@@ -179,12 +185,8 @@ public class PickupSubsystem extends Subsystem {
     io_.pickup_mode_ = PickupMode.CLEAN;
   }
 
-  public void hasNote() {
-    if (io_.has_note_pickup_ && io_.note_sensor_range_ > PickupConstants.NO_NOTE_RANGE) {
-      io_.has_note_pickup_ = false;
-    } else if (io_.has_note_pickup_ == false && io_.note_sensor_range_ < PickupConstants.HAS_NOTE_RANGE) {
-      io_.has_note_pickup_ = true;
-    }
+  public boolean hasNote() {
+    return io_.has_note_pickup_;
   }
 
   public class PeriodicIo extends LogData {

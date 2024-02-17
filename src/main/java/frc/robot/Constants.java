@@ -90,6 +90,7 @@ public final class Constants {
     public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, -1);
     public static final double HAS_NOTE_RANGE = 0;
     public static final double NO_NOTE_RANGE = 1;
+    public static final double SENSOR_SAMPLE_TIME = 50.0;
   }
 
   public class PickupSettings {
