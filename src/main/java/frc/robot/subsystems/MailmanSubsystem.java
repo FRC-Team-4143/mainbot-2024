@@ -10,9 +10,12 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants;
+import frc.robot.Constants.MailmanConstants;
+import frc.robot.Constants.ShooterConstants;
 
 public class MailmanSubsystem extends Subsystem {
 
@@ -29,7 +32,7 @@ public class MailmanSubsystem extends Subsystem {
   /**
    * 
    */
-  private MailmanPeriodicIo io;
+  private MailmanPeriodicIo io_;
   private CANSparkFlex elevator_motor_;
   private RelativeEncoder elevator_encoder_;
   private CANSparkFlex dropper_motor_;
@@ -49,7 +52,7 @@ public class MailmanSubsystem extends Subsystem {
    * should be done in the reset() function.
    */
   private MailmanSubsystem() {
-    io = new MailmanPeriodicIo();
+    io_ = new MailmanPeriodicIo();
     elevator_motor_ = new CANSparkFlex(Constants.MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     dropper_motor_ = new CANSparkFlex(Constants.MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     elevator_encoder_ = elevator_motor_.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
@@ -63,7 +66,7 @@ public class MailmanSubsystem extends Subsystem {
    * initializing data members.
    */
   public void reset() {
-    io = new MailmanPeriodicIo();
+    io_ = new MailmanPeriodicIo();
   }
 
   @Override
@@ -73,7 +76,7 @@ public class MailmanSubsystem extends Subsystem {
    * actuators, or any logic within this function.
    */
   public void readPeriodicInputs(double timestamp) {
-    io.current_height_ = elevator_encoder_.getPosition();
+    io_.current_height_ = elevator_encoder_.getPosition();
 
   }
 
@@ -84,7 +87,7 @@ public class MailmanSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
-    io.controller_output_ = heightController.calculate(io.current_height_, io.desired_height_);
+    io_.controller_output_ = heightController.calculate(io_.current_height_, io_.desired_height_);
   }
 
   @Override
@@ -95,8 +98,8 @@ public class MailmanSubsystem extends Subsystem {
    * contained within this function, and no sensors should be read.
    */
   public void writePeriodicOutputs(double timestamp) {
-    elevator_motor_.set(io.controller_output_);
-    dropper_motor_.set(io.roller_speed_);
+    elevator_motor_.set(io_.controller_output_);
+    dropper_motor_.set(io_.roller_speed_);
   }
 
   @Override
@@ -112,33 +115,33 @@ public class MailmanSubsystem extends Subsystem {
 
   @Override
   public LogData getLogger() {
-    return io;
+    return io_;
   }
 
 public boolean atHeight(){
-  return Util.epislonEquals(io.current_height_,io.desired_height_);
+  return Util.epislonEquals(io_.current_height_,io_.desired_height_);
 }
 
 public void setHeight(HeightTarget target){
   if(target==HeightTarget.AMP){
-    io.desired_height_ = Constants.MailmanConstants.AMP_HEIGHT;
+    io_.desired_height_ = Constants.MailmanConstants.AMP_HEIGHT;
   } else if(target==HeightTarget.TRAP){
-    io.desired_height_ = Constants.MailmanConstants.TRAP_HEIGHT;
+    io_.desired_height_ = Constants.MailmanConstants.TRAP_HEIGHT;
   }else{
-    io.desired_height_ = 0.0; //stored elevator height
+    io_.desired_height_ = 0.0; //stored elevator height
   }
 }
 
 public void setRollerIntake(){
-    io.roller_speed_ = Constants.MailmanConstants.DROPPER_IN_SPEED;
+    io_.roller_speed_ = Constants.MailmanConstants.DROPPER_IN_SPEED;
 }
 
 public void setRollerOutput(){
-    io.roller_speed_ = Constants.MailmanConstants.DROPPER_OUT_SPEED;
+    io_.roller_speed_ = Constants.MailmanConstants.DROPPER_OUT_SPEED;
 }
 
 public void setRollerStop(){
-    io.roller_speed_ = 0;
+    io_.roller_speed_ = 0;
 }
 
   public class MailmanPeriodicIo extends LogData {
@@ -149,5 +152,7 @@ public void setRollerStop(){
     public boolean note_wanted_elsewhere_ = false;
     public double controller_output_ = 0.0;
     public double roller_speed_ = 0.0;
+    public boolean has_note_;
+    public double note_sensor_range_;
   }
 }

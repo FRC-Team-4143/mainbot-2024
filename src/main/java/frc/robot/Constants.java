@@ -73,6 +73,12 @@ public final class Constants {
     public static final double ROLLER_SPEED = 1.0;
 
     public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
+
+    // Sensor Constants
+    public static final int NOTE_SENSOR_ID = 0;
+    public static final double SENSOR_SAMPLE_TIME = 50.0;
+    public static final double HAS_NOTE_RANGE = 150.0;
+    public static final double NO_NOTE_RANGE = 350.0;
   }
 
   // IDs Range from 20 - 29
@@ -80,18 +86,22 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true, -1);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, -1);
+    public static final double HAS_NOTE_RANGE = 0;
+    public static final double NO_NOTE_RANGE = 1;
   }
 
   public class PickupSettings {
-    public PickupSettings(int ID, boolean invert) {
+    public PickupSettings(int ID, boolean invert, int SENSE_ID) {
       ROLLER_MOTOR_ID = ID;
       ROLLER_MOTOR_INVERTED = invert;
+      PICKUP_NOTE_SENSOR_ID = SENSE_ID;
     }
 
     public final int ROLLER_MOTOR_ID;
     public final boolean ROLLER_MOTOR_INVERTED;
+    public final int PICKUP_NOTE_SENSOR_ID;
   }
 
   public static class MailmanConstants {
@@ -105,6 +115,5 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
     public static final double DROPPER_IN_SPEED = 0.0;
     public static final double DROPPER_OUT_SPEED = 0.0;
-    
   }
 }
