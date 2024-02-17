@@ -62,28 +62,6 @@ public final class Constants {
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
 
-    // public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
-    //   var map = new InterpolatingDoubleTreeMap();
-    //   map.put(null, null);
-    //   map.put(null, null);
-    //   map.put(null, null);
-    //   map.put(null, null);
-    //   map.put(null, null);
-
-    //   return map;
-    // }
-
-    // public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
-    //   var map = new InterpolatingDoubleTreeMap();
-    //   map.put(null, null);
-    //   map.put(null, null);
-    //   map.put(null, null);
-    //   map.put(null, null);
-    //   map.put(null, null);
-
-    //   return map;
-    // }
-
     public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() { // Shouldn't this be named angular position?
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);

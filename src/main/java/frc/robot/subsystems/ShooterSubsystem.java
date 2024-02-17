@@ -65,8 +65,10 @@ public class ShooterSubsystem extends Subsystem {
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
     // Speed maps
-    //private final InterpolatingDoubleTreeMap linear_to_angular_vel_map = ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
-    //private final InterpolatingDoubleTreeMap distance_to_linear_vel_map = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
+    // private final InterpolatingDoubleTreeMap linear_to_angular_vel_map =
+    // ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
+    // private final InterpolatingDoubleTreeMap distance_to_linear_vel_map =
+    // ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
 
     SparkPIDController wrist_controller_;
     SparkAbsoluteEncoder wrist_encoder_;
@@ -80,8 +82,8 @@ public class ShooterSubsystem extends Subsystem {
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
 
-    private final InterpolatingDoubleTreeMap vel_to_angular_lookup_ =  ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
-    private final InterpolatingDoubleTreeMap dist_to_vel_lookup_ =  ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
+    private final InterpolatingDoubleTreeMap vel_to_angular_lookup_ = ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
+    private final InterpolatingDoubleTreeMap dist_to_vel_lookup_ = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
 
     public enum ShootTarget {
         SPEAKER,
@@ -147,17 +149,18 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public boolean isTargetLocked() {
-        return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_, 
+        return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_,
                 ShooterConstants.WRIST_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.current_top_flywheel_speed_, io_.target_flywheel_speed_,
-                ShooterConstants.FLYWHEEL_TOLERANCE)
+                        ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.current_bot_flywheel_speed_, io_.target_flywheel_speed_,
-                ShooterConstants.FLYWHEEL_TOLERANCE)
+                        ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
-                Util.epislonEquals(io_.target_robot_yaw_.getRadians(), PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(), 
-                ShooterConstants.YAW_TOLERANCE);
+                Util.epislonEquals(io_.target_robot_yaw_.getRadians(),
+                        PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(),
+                        ShooterConstants.YAW_TOLERANCE);
     }
 
     public boolean hasNote() {
@@ -198,15 +201,6 @@ public class ShooterSubsystem extends Subsystem {
         io_.roller_speed_ = 0;
     }
 
-
-    // TODO: This method should either be rewritten or only used for manual
-    // overrides
-    // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-    public void setFlyWheelSpeed(double speed) {
-        //io_.target_flywheel_speed_ = speed;
-        io_.target_flywheel_speed_ = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP().get();
-    }
-
     public void setFlyWheelRPM(double rpm) {
         top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
         bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
@@ -220,7 +214,8 @@ public class ShooterSubsystem extends Subsystem {
 
     public void setWristAngle() {
         double arb_ff = Math.cos(io_.target_wrist_angle_) * ShooterConstants.WRIST_CONTROLLER_FF;
-        wrist_controller_.setReference((io_.target_wrist_angle_ + ShooterConstants.WRIST_ZERO_ANGLE) / (2*Math.PI), ControlType.kPosition, 0, arb_ff);
+        wrist_controller_.setReference((io_.target_wrist_angle_ + ShooterConstants.WRIST_ZERO_ANGLE) / (2 * Math.PI),
+                ControlType.kPosition, 0, arb_ff);
     }
 
     public void wristStop() {
@@ -305,11 +300,12 @@ public class ShooterSubsystem extends Subsystem {
      */
     public void updateLogic(double timestamp) {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
+        double velocity_lookup_ = dist_to_vel_lookup_.get(calculateLinearDist(robot_pose, io_.target_));
 
         if (io_.target_mode_ == ShootMode.ACTIVETARGETING) {
             io_.target_robot_yaw_ = calculateTargetYaw();
-            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, dist_to_vel_lookup_.get(calculateLinearDist(robot_pose, io_.target_)));
-            // io_.target_wrist_angle_= angle_lookup_.get(calculateLinearDist(robot_pose, io_.target_)); // Get target angle from lookup table
+            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, velocity_lookup_);
+            io_.target_flywheel_speed_ = vel_to_angular_lookup_.get(velocity_lookup_);
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
@@ -324,7 +320,7 @@ public class ShooterSubsystem extends Subsystem {
      * the PeriodicIO class defined below. There should be little to no logic
      * contained within this function, and no sensors should be read.
      */
-    
+
     public void writePeriodicOutputs(double timestamp) {
         roller_motor_.set(io_.roller_speed_);
         setFlyWheelRPM(io_.target_flywheel_speed_);
@@ -341,12 +337,12 @@ public class ShooterSubsystem extends Subsystem {
      * actuators within this function. Only publish to smartdashboard here.
      */
     public void outputTelemetry(double timestamp) {
-        //SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
+        // SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
         target_pub.set(io_.target_);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
         SmartDashboard.putNumber(" Current Wrist Angle", io_.current_wrist_angle_ * 180 / 3.14159);
         SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_ * 180 / 3.14159);
-        //SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
+        // SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
         SmartDashboard.putNumber("Top Flywheel Speed", io_.current_top_flywheel_speed_);
         SmartDashboard.putNumber("Bot Flywheel Speed", io_.current_bot_flywheel_speed_);
     }

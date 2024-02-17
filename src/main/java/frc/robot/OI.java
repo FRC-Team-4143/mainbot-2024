@@ -30,34 +30,34 @@ public abstract class OI {
         SmartDashboard.putData("Seed Field Centric",
                 Commands.runOnce(() -> SwerveDrivetrain.getInstance().seedFieldRelative()).ignoringDisable(true));
 
-        driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
-                () -> {
-                    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-                    ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
-                },
-                () -> {
-                    ShooterSubsystem.getInstance().flyWheelStop();
-                    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-                    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-                }));
+        // driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
+        //         () -> {
+        //             ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
+        //             SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+        //             ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
+        //         },
+        //         () -> {
+        //             ShooterSubsystem.getInstance().flyWheelStop();
+        //             SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
+        //             ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
+        //         }));
 
         // TODO: This Command does not use correct ShooterSubsystem Interfacing
         // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
-        driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
-                () -> {
-                    ShooterSubsystem.getInstance().setRollerFeed();
-                    PickupSubsystem.getShooterInstance().setPickupMode();
-                },
-                () -> {
-                    ShooterSubsystem.getInstance().rollerStop();
-                    PickupSubsystem.getShooterInstance().setIdleMode();
-                }));
+        // driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
+        //         () -> {
+        //             ShooterSubsystem.getInstance().setRollerFeed();
+        //             PickupSubsystem.getShooterInstance().setPickupMode();
+        //         },
+        //         () -> {
+        //             ShooterSubsystem.getInstance().rollerStop();
+        //             PickupSubsystem.getShooterInstance().setIdleMode();
+        //         }));
 
         // Backfeed Shooter Feeder
-        driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> ShooterSubsystem.getInstance().setRollerReverse(),
-                () -> ShooterSubsystem.getInstance().rollerStop()));
+        // driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
+        //         () -> ShooterSubsystem.getInstance().setRollerReverse(),
+        //         () -> ShooterSubsystem.getInstance().rollerStop()));
 
         // Run Pickup
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
@@ -86,9 +86,9 @@ public abstract class OI {
         //         () -> MailmanSubsystem.getInstance().setRollerStop()
         //  , MailmanSubsystem.getInstance()));
       
-        driver_joystick_.y().whileTrue(Commands.startEnd(
-                () -> ShooterSubsystem.getInstance().setFlyWheelRPM(-0.1),
-                () -> ShooterSubsystem.getInstance().flyWheelStop()));
+        // driver_joystick_.y().whileTrue(Commands.startEnd(
+        //         () -> ShooterSubsystem.getInstance().setFlyWheelRPM(-0.1),
+        //         () -> ShooterSubsystem.getInstance().flyWheelStop()));
 
     }
 
