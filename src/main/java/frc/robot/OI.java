@@ -25,9 +25,6 @@ public abstract class OI {
 
     public static void configureBindings() {
 
-        SmartDashboard.putNumber("Shooter Speed", 0.75);
-        SmartDashboard.putNumber("Wrist Speed", 0.1);
-
         SmartDashboard.putData("Set Wheel Offsets",
                 Commands.runOnce(() -> SwerveDrivetrain.getInstance().tareEverything()).ignoringDisable(true));
         SmartDashboard.putData("Seed Field Centric",
@@ -35,7 +32,6 @@ public abstract class OI {
 
         driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> {
-                    ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
                     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
                     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
                     ShooterSubsystem.getInstance().setShootMode(ShootMode.ACTIVETARGETING);
@@ -91,7 +87,7 @@ public abstract class OI {
         //  , MailmanSubsystem.getInstance()));
       
         driver_joystick_.y().whileTrue(Commands.startEnd(
-                () -> ShooterSubsystem.getInstance().setFlyWheelSpeed(-0.1),
+                () -> ShooterSubsystem.getInstance().setFlyWheelRPM(-0.1),
                 () -> ShooterSubsystem.getInstance().flyWheelStop()));
 
     }

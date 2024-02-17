@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.interpolation.*;
 /**
@@ -42,20 +44,45 @@ public final class Constants {
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   }
-  
+
   // IDs Range from 10 - 19
-  public static class ShooterConstants { 
+  public static class ShooterConstants {
     public static final double SHOOTER_X_OFFSET = -0.3286; // 12.940 in
     public static final double SHOOTER_Y_OFFSET = 0;
     public static final double SHOOTER_Z_OFFSET = 0.4404; // 17.34 in
-    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); //TODO: figure out constants
+    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET,
+        SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0));
 
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
-    public static final double FLYWHEEL_IDLE_SPEED = 0.0;
+    public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 0.1;
-    public static final double NOTE_EXIT_VELOCITY = 8.0;
+    public static final double NOTE_EXIT_VELOCITY = 10.0;
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
+    public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
+
+    // public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
+    //   var map = new InterpolatingDoubleTreeMap();
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+
+    //   return map;
+    // }
+
+    // public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
+    //   var map = new InterpolatingDoubleTreeMap();
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+    //   map.put(null, null);
+
+    //   return map;
+    // }
 
     public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() { // Shouldn't this be named angular position?
       var map = new InterpolatingDoubleTreeMap();
@@ -88,7 +115,7 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = 0.00349;
     public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
-    public static final double WRIST_HOME_ANGLE = 0.78539;
+    public static final double WRIST_HOME_ANGLE = Math.toRadians(10);
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
@@ -103,7 +130,7 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false);
     public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true);
   }
 
@@ -125,9 +152,10 @@ public final class Constants {
     public static final double HEIGHT_CONTROLLER_P = 0.0;
     public static final double HEIGHT_CONTROLLER_I = 0.0;
     public static final double HEIGHT_CONTROLLER_D = 0.0;
-    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
+    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,
+        0);
     public static final double DROPPER_IN_SPEED = 0.0;
     public static final double DROPPER_OUT_SPEED = 0.0;
-    
+
   }
 }
