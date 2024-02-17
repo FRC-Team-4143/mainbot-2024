@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
+import edu.wpi.first.math.interpolation.*;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -84,6 +84,28 @@ public final class Constants {
     //   return map;
     // }
 
+    public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() { // Shouldn't this be named angular position?
+      var map = new InterpolatingDoubleTreeMap();
+      map.put(0.0, 0.0);
+      map.put(1.0, 0.0);
+      map.put(2.0, 0.0);
+      map.put(3.0, 0.0);
+      map.put(4.0, 0.0);
+
+      return map;
+    }
+
+    public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
+      var map = new InterpolatingDoubleTreeMap();
+      map.put(0.0, 10.0);
+      map.put(1.0, 10.0);
+      map.put(2.0, 10.0);
+      map.put(3.0, 10.0);
+      map.put(4.0, 10.0);
+
+      return map;
+    }
+
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
     public static final int WRIST_ENCODER_ID = 0;
@@ -100,6 +122,7 @@ public final class Constants {
     public static final double ROLLER_SPEED = 1.0;
 
     public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
+
   }
 
   // IDs Range from 20 - 29

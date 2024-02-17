@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -80,6 +79,9 @@ public class ShooterSubsystem extends Subsystem {
 
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
+
+    private final InterpolatingDoubleTreeMap vel_to_angular_lookup_ =  ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
+    private final InterpolatingDoubleTreeMap dist_to_vel_lookup_ =  ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
 
     public enum ShootTarget {
         SPEAKER,
@@ -196,13 +198,19 @@ public class ShooterSubsystem extends Subsystem {
         io_.roller_speed_ = 0;
     }
 
-    // private double lookupFlywheelAngularVelocity(double velocity){
-    //     return linear_to_angular_vel_map.get(velocity);
-    // }
+
+    // TODO: This method should either be rewritten or only used for manual
+    // overrides
+    // THIS IS ONLY FOR PROTOTYPE TESTING!!!!
+    public void setFlyWheelSpeed(double speed) {
+        //io_.target_flywheel_speed_ = speed;
+        io_.target_flywheel_speed_ = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP().get();
+    }
 
     public void setFlyWheelRPM(double rpm) {
         top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
         bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
+
     }
 
     public void flyWheelStop() {
@@ -238,13 +246,18 @@ public class ShooterSubsystem extends Subsystem {
         io_.note_travel_time_ = distance / ShooterConstants.NOTE_EXIT_VELOCITY; // TODO Find the actual exit velocity
     }
 
+    private double calculateLinearDist(Pose2d robot_pose, Pose3d target_pose) {
+        Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
+        double x = Math.abs(shooter_pose.getX() - io_.target_.getX());
+        double y = Math.abs(shooter_pose.getY() - io_.target_.getY());
+        return Math.sqrt((x * x) + (y * y));
+    }
+
     private double calculateWristAngle(Pose2d robot_pose, Pose3d target_pose, double velocity) {
         Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
 
-        double x = Math.abs(shooter_pose.getX() - target_pose.getX());
-        double y = Math.abs(shooter_pose.getY() - target_pose.getY());
         double z = Math.abs(shooter_pose.getZ() - target_pose.getZ());
-        double d = Math.sqrt((x * x) + (y * y));
+        double d = calculateLinearDist(robot_pose, target_pose);
         double G = 9.81;
         double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
         double result = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
@@ -295,7 +308,8 @@ public class ShooterSubsystem extends Subsystem {
 
         if (io_.target_mode_ == ShootMode.ACTIVETARGETING) {
             io_.target_robot_yaw_ = calculateTargetYaw();
-            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, calculateNoteExitVelocity());
+            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, dist_to_vel_lookup_.get(calculateLinearDist(robot_pose, io_.target_)));
+            // io_.target_wrist_angle_= angle_lookup_.get(calculateLinearDist(robot_pose, io_.target_)); // Get target angle from lookup table
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
