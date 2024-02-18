@@ -19,8 +19,8 @@ public class TunerConstants {
     // - VelocityVoltage, if DrivetrainConstants.SupportsPro is false (default)
     // - VelocityTorqueCurrentFOC, if DrivetrainConstants.SupportsPro is true
     private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(0.0).withKI(0).withKD(0)
-        .withKS(0).withKV(0.01).withKA(0);
+        .withKP(7.0).withKI(0.0).withKD(0.0)
+        .withKS(2.4).withKV(0.0).withKA(0.0);
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
@@ -36,9 +36,9 @@ public class TunerConstants {
     
     private static final double kDriveGearRatio = 5.14; // Mk4i: 6.12, Mk4: 5.14 
     private static final double kSteerGearRatio = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
-    private static final double kWheelRadiusInches = 2.167; // Estimated at first, then fudge-factored to make odom match record
+    private static final double kWheelRadiusInches = 1.6090288; //1.59997; // Estimated at first, then fudge-factored to make odom match record
 
-    private static final boolean kSteerMotorReversed = true;
+    private static final boolean kSteerMotorReversed = false;
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = false; //true;
 
@@ -53,7 +53,7 @@ public class TunerConstants {
 
     public static final SwerveDrivetrainConstants DrivetrainConstants = new SwerveDrivetrainConstants()
             .withPigeon2Id(kPigeonId)
-            .withSupportsPro(false);
+            .withSupportsPro(true);
             //.withSupportsPro(true);
 
     private static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()

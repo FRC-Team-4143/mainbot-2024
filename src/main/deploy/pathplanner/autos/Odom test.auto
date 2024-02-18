@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2320437764983934,
-      "y": 4.836575493407763
+      "x": 2.7349016236494026,
+      "y": 6.926593853187707
     },
-    "rotation": 153.97040780848658
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test2"
+            "pathName": "Buzz the stage"
           }
         }
       ]

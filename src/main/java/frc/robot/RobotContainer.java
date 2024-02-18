@@ -23,6 +23,10 @@ public class RobotContainer extends SubsystemManager {
     // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
     subsystems.add(SwerveDrivetrain.getInstance());
     subsystems.add(PoseEstimator.getInstance());
+    subsystems.add(PickupSubsystem.getShooterInstance());
+    subsystems.add(PickupSubsystem.getMailmanInstance());
+    subsystems.add(ShooterSubsystem.getInstance());
+    subsystems.add(MailmanSubsystem.getInstance());
 
 
     // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!

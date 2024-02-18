@@ -9,6 +9,7 @@ import frc.lib.subsystem.Subsystem;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
+import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import frc.robot.Constants.PickupConstants;
@@ -17,7 +18,7 @@ import frc.robot.Constants.PickupSettings;
 public class PickupSubsystem extends Subsystem {
 
   private enum PickupMode {
-    IDLE, PICKUP, TRANSFER
+    IDLE, PICKUP, TRANSFER, CLEAN
   }
 
   // Singleton pattern
@@ -26,14 +27,14 @@ public class PickupSubsystem extends Subsystem {
 
   public static PickupSubsystem getShooterInstance() {
     if (shooterPickupInstance == null) {
-      shooterPickupInstance = new PickupSubsystem(PickupConstants.shooter_pickup);
+      shooterPickupInstance = new PickupSubsystem(PickupConstants.SHOOTER_PICKUP);
     }
     return shooterPickupInstance;
   }
 
   public static PickupSubsystem getMailmanInstance() {
     if (mailmainPickupInstance == null) {
-      mailmainPickupInstance = new PickupSubsystem(PickupConstants.mailman_pickup);
+      mailmainPickupInstance = new PickupSubsystem(PickupConstants.MAILMAN_PICKUP);
     }
     return mailmainPickupInstance;
   }
@@ -41,9 +42,10 @@ public class PickupSubsystem extends Subsystem {
   /**
    * 
    */
-  private PeriodicIoAutoLogged io;
+  private PeriodicIo io_;
   private final CANSparkFlex roller_motor_;
   private final PickupSettings settings_;
+  private final TimeOfFlight note_sensor_;
 
   /**
    * Constructor for the example subsystem. The constructor should create all
@@ -53,9 +55,16 @@ public class PickupSubsystem extends Subsystem {
    */
   private PickupSubsystem(PickupSettings settings) {
     settings_ = settings;
-    io = new PeriodicIoAutoLogged();
+    io_ = new PeriodicIo();
     roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
     reset();
+
+    if (settings.PICKUP_NOTE_SENSOR_ID < 0) {
+      note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);
+      note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, PickupConstants.SENSOR_SAMPLE_TIME);
+    } else {
+      note_sensor_ = null;
+    }
   }
 
   @Override
@@ -65,8 +74,8 @@ public class PickupSubsystem extends Subsystem {
    * initializing data members. pickup_rollers
    */
   public void reset() {
-    io = new PeriodicIoAutoLogged();
-    roller_motor_.setSmartCurrentLimit(PickupConstants.rollerAmpLimit);
+    io_ = new PeriodicIo();
+    roller_motor_.setSmartCurrentLimit(PickupConstants.ROLLER_AMP_LIMIT);
     roller_motor_.setInverted(settings_.ROLLER_MOTOR_INVERTED);
     roller_motor_.burnFlash();
   }
@@ -78,8 +87,11 @@ public class PickupSubsystem extends Subsystem {
    * actuators, or any logic within this function.
    */
   public void readPeriodicInputs(double timestamp) {
-    // TODO Need reciever subsystem to tell if it has a note and know the note
-    // sensor
+    if (note_sensor_ != null) {
+      io_.note_sensor_range_ = note_sensor_.getRange();
+    } else {
+      io_.note_sensor_range_ = 1000;
+    }
   }
 
   @Override
@@ -89,20 +101,28 @@ public class PickupSubsystem extends Subsystem {
    * read from sensors or write to actuators in this function.
    */
   public void updateLogic(double timestamp) {
+    if (io_.has_note_pickup_ && io_.note_sensor_range_ > PickupConstants.NO_NOTE_RANGE) {
+      io_.has_note_pickup_ = false;
+    } else if (io_.has_note_pickup_ == false && io_.note_sensor_range_ < PickupConstants.HAS_NOTE_RANGE) {
+      io_.has_note_pickup_ = true;
+    }
 
-    switch (io.pickup_mode_) {
+    switch (io_.pickup_mode_) {
       case PICKUP:
         setRollersForward();
-        if (io.has_note_pickup_) {
+        if (io_.has_note_pickup_) {
           tellShooterReady();
           setIdleMode();
         }
         break;
       case TRANSFER:
         setRollersForward();
-        if (io.has_note_reciever_) {
+        if (io_.has_note_reciever_) {
           setIdleMode();
         }
+        break;
+      case CLEAN:
+        setRollersBackward();
         break;
       default:
         stopRollers();
@@ -118,8 +138,7 @@ public class PickupSubsystem extends Subsystem {
    * contained within this function, and no sensors should be read.
    */
   public void writePeriodicOutputs(double timestamp) {
-    roller_motor_.set(io.roller_speed_);
-
+    roller_motor_.set(io_.roller_speed_);
   }
 
   @Override
@@ -142,27 +161,35 @@ public class PickupSubsystem extends Subsystem {
   }
 
   public void setRollersForward() {
-    io.roller_speed_ = PickupConstants.rollerForward;
+    io_.roller_speed_ = PickupConstants.ROLLER_FORWARD;
   }
 
   public void setRollersBackward() {
-    io.roller_speed_ = PickupConstants.rollerReverse;
+    io_.roller_speed_ = PickupConstants.ROLLER_REVERSE;
   }
 
   public void stopRollers() {
-    io.roller_speed_ = 0.0;
+    io_.roller_speed_ = 0.0;
   }
 
   public void setPickupMode() {
-    io.pickup_mode_ = PickupMode.PICKUP;
+    io_.pickup_mode_ = PickupMode.PICKUP;
   }
 
   public void setTransferMode() {
-    io.pickup_mode_ = PickupMode.TRANSFER;
+    io_.pickup_mode_ = PickupMode.TRANSFER;
   }
 
   public void setIdleMode() {
-    io.pickup_mode_ = PickupMode.IDLE;
+    io_.pickup_mode_ = PickupMode.IDLE;
+  }
+
+  public void setCleanMode() {
+    io_.pickup_mode_ = PickupMode.CLEAN;
+  }
+
+  public boolean hasNote() {
+    return io_.has_note_pickup_;
   }
 
   @AutoLog
@@ -171,5 +198,6 @@ public class PickupSubsystem extends Subsystem {
     public boolean has_note_reciever_;
     public double roller_speed_ = 0.0;
     public PickupMode pickup_mode_ = PickupMode.IDLE;
+    public double note_sensor_range_;
   }
 }
