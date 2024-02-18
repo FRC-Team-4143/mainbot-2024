@@ -7,7 +7,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import frc.lib.logger.Logable.LogData;
-import frc.lib.logger.ReflectingLogger;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -21,7 +20,6 @@ public abstract class SubsystemManager {
     // Supposedly 1 is a good starting point, but can increase if we have issues
     private static final int START_THREAD_PRIORITY = 99;
 
-    protected ReflectingLogger<LogData> reflectingLogger;
     protected ArrayList<Subsystem> subsystems;
     protected Notifier loopThread;
 
@@ -95,12 +93,9 @@ public abstract class SubsystemManager {
      * @param timestamp the timestamp logging was started at from the FPGA
      */
     protected void runLog(double timestamp) {
-        // Check if the logger is valid first
-        if (reflectingLogger != null) {
-            // If it is valid, collect the subsystem I/Os
-            for (Subsystem subsystem : subsystems) {
-                Logger.processInputs(subsystem.getClass().getCanonicalName(), subsystem.getLogger());
-            }
+        // If it is valid, collect the subsystem I/Os
+        for (Subsystem subsystem : subsystems) {
+            Logger.processInputs(subsystem.getClass().getCanonicalName().replace(".", "_"), subsystem.getLogger());
         }
     }
 
@@ -109,7 +104,6 @@ public abstract class SubsystemManager {
      * capabilities
      */
     public void initLogfile(String ctrl_mode) {
-        Logger.end();
         Logger.recordMetadata("Control Mode", ctrl_mode);
         Logger.start();
     }
@@ -120,7 +114,7 @@ public abstract class SubsystemManager {
      * initLogFile method.
      */
     public void stopLog() {
-        reflectingLogger = null;
+        Logger.end();
     }
 
     /**
