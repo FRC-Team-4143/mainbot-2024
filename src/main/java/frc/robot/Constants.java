@@ -48,7 +48,7 @@ public final class Constants {
     public static final double SHOOTER_X_OFFSET = -0.3286; // 12.940 in
     public static final double SHOOTER_Y_OFFSET = 0;
     public static final double SHOOTER_Z_OFFSET = 0.4404; // 17.34 in
-    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); //TODO: figure out constants
+    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); 
 
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
@@ -66,7 +66,8 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = 0.00349;
     public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
-    public static final double WRIST_HOME_ANGLE = 0.78539;
+    public static final double WRIST_HOME_ANGLE = 0.22689;
+    public static final double WRIST_HANDOFF_ANGLE = 0.1222;
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
@@ -80,7 +81,7 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, true);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false);
     public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true);
   }
 
@@ -94,17 +95,19 @@ public final class Constants {
     public final boolean ROLLER_MOTOR_INVERTED;
   }
 
+  // IDs Range from 30 - 39
   public static class MailmanConstants {
     public static final int ELEVATOR_MOTOR_ID = 31;
     public static final int DROPPER_MOTOR_ID = 32;
-    public static final double AMP_HEIGHT = 0;
+    public static final double AMP_HEIGHT = 63;
+    public static final double HOME_HEIGHT = 0;
     public static final double TRAP_HEIGHT = 0;
-    public static final double HEIGHT_CONTROLLER_P = 0.0;
-    public static final double HEIGHT_CONTROLLER_I = 0.0;
-    public static final double HEIGHT_CONTROLLER_D = 0.0;
-    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
-    public static final double DROPPER_IN_SPEED = 0.0;
-    public static final double DROPPER_OUT_SPEED = 0.0;
+    public static final double ELEVATOR_CONTROLLER_P = 0.5;
+    public static final double ELEVATOR_CONTROLLER_D = 0.0;
+    public static final double ELEVATOR_CONTROLLER_MAX_VEL = 0.0;
+    public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
+    public static final double DROPPER_IN_SPEED = 0.5;
+    public static final double DROPPER_OUT_SPEED = -0.5;
     
   }
 }

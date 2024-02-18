@@ -59,9 +59,9 @@ public class ShooterSubsystem extends Subsystem {
     private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0)); // TODO: figure out
     // transformation
 
-    private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM)
+    private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
+    private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM)
             .transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
-    private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
@@ -107,7 +107,6 @@ public class ShooterSubsystem extends Subsystem {
         wrist_controller_ = wrist_motor_.getPIDController();
         wrist_controller_.setFeedbackDevice(wrist_encoder_);
         wrist_controller_.setP(ShooterConstants.WRIST_CONTROLLER_P);
-        wrist_controller_.setD(ShooterConstants.WRIST_CONTROLLER_D);
 
         roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         roller_motor_.setInverted(true);
@@ -134,7 +133,6 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public boolean hasNote() {
-        // TODO: not is in holding postion
         return io_.has_note_;
     }
 
@@ -269,6 +267,10 @@ public class ShooterSubsystem extends Subsystem {
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
+            io_.target_flywheel_speed_ = 0;        
+        } else if (io_.target_mode_ == ShootMode.TRANSFER){
+            io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
+            io_.target_flywheel_speed_ = 0.1;        
         }
     }
 
