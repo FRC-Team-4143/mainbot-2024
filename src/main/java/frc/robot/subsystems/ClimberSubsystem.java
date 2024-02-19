@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -30,16 +33,10 @@ public class ClimberSubsystem extends Subsystem {
   /**
    * 
    */
-  private ClimberPeriodicIo io_;
+  private ClimberPeriodicIoAutoLogged io_;
 
-  /**
-   * Constructor for the example subsystem. The constructor should create all
-   * instances of the required hardware as well as the PeriodicIO class defined
-   * below. This should not attempt to configure any of the hardware as that
-   * should be done in the reset() function.
-   */
   private ClimberSubsystem() {
-    io_ = new ClimberPeriodicIo();
+    io_ = new ClimberPeriodicIoAutoLogged();
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     left_climber_motor_.setInverted(true);
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
@@ -49,8 +46,6 @@ public class ClimberSubsystem extends Subsystem {
     right_climber_motor_.follow(left_climber_motor_, true);
     right_climber_motor_.setIdleMode(IdleMode.kBrake);
     right_climber_motor_.setSmartCurrentLimit(120);
-
-    reset();
   }
 
   public void setClimbSpeed(double speed) {
@@ -68,7 +63,7 @@ public class ClimberSubsystem extends Subsystem {
    * initializing data members.
    */
   public void reset() {
-    io_ = new ClimberPeriodicIo();
+    io_ = new ClimberPeriodicIoAutoLogged();
   }
 
   @Override
@@ -114,11 +109,12 @@ public class ClimberSubsystem extends Subsystem {
   }
 
   @Override
-  public LogData getLogger() {
+  public LoggableInputs getLogger() {
     return io_;
   }
 
-  public class ClimberPeriodicIo extends LogData {
+  @AutoLog
+  public static class ClimberPeriodicIo extends LogData {
     public double winch_speed_ = 0.0;
   }
 }
