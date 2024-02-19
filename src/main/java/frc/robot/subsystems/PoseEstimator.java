@@ -20,7 +20,6 @@ import frc.lib.subsystem.Subsystem;
 public class PoseEstimator extends Subsystem {
 
     private static PoseEstimator instance;
-    private StructPublisher<Pose2d> pose_pub_;
 
     public static PoseEstimator getInstance() {
         if (instance == null) {
@@ -35,6 +34,7 @@ public class PoseEstimator extends Subsystem {
     private SwerveDrivePoseEstimator vision_filtered_odometry_;
     private ProtobufSubscriber<Pose2d> vision_subsciber_;
     private ProtobufPublisher<Pose2d> odom_publisher_;
+    private ProtobufPublisher<Pose2d> robot_pose_publisher_;
 
     PoseEstimator() {
         NetworkTable table = NetworkTableInstance.getDefault().getTable("WarVision");
@@ -42,8 +42,11 @@ public class PoseEstimator extends Subsystem {
         io_ = new PeriodicIo();
         var field_pose_topic = table.getProtobufTopic("vision/pose", Pose2d.proto);
         var robot_odom_topic = table.getProtobufTopic("vision/odom", Pose2d.proto);
+        var robot_pose_topic = table.getProtobufTopic("robot/pose", Pose2d.proto);
+
         vision_subsciber_ = field_pose_topic.subscribe(new Pose2d());
         odom_publisher_ = robot_odom_topic.publish();
+        robot_pose_publisher_ = robot_pose_topic.publish();
     }
 
     @Override
@@ -72,7 +75,7 @@ public class PoseEstimator extends Subsystem {
     public void outputTelemetry(double timestamp) {
         field_.setRobotPose(io_.vision_filtered_pose_);
         SmartDashboard.putData("Field", field_);
-        pose_pub_.set(io_.vision_filtered_pose_);
+        robot_pose_publisher_.set(io_.vision_filtered_pose_);
     }
 
     @Override

@@ -83,7 +83,8 @@ public class ShooterSubsystem extends Subsystem {
         ACTIVETARGETING,
         IDLE,
         READY,
-        TRANSFER
+        TRANSFER,
+        CLIMB
     }
 
     private ShooterPeriodicIo io_;
@@ -283,6 +284,9 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.TRANSFER){
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
             io_.target_flywheel_speed_ = 0.1;        
+        } else if (io_.target_mode_ == ShootMode.CLIMB) {
+            io_.target_wrist_angle_ = ShooterConstants.WRIST_CLIMB_ANGLE;
+            io_.target_flywheel_speed_ = 0;           
         }
 
         hasNote();
@@ -298,7 +302,7 @@ public class ShooterSubsystem extends Subsystem {
     public void writePeriodicOutputs(double timestamp) {
         bot_flywheel_motor_.set(io_.target_flywheel_speed_);
         roller_motor_.set(io_.roller_speed_);
-        setWristAngle();
+        // setWristAngle();
         SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
 
     }

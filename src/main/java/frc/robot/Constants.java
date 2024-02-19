@@ -68,6 +68,8 @@ public final class Constants {
     public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
     public static final double WRIST_HOME_ANGLE = 0.22689;
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
+    public static final double WRIST_CLIMB_ANGLE = 1.5708;
+    
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
@@ -112,7 +114,7 @@ public final class Constants {
     public static final int DROPPER_MOTOR_ID = 32;
     public static final double AMP_HEIGHT = 63;
     public static final double HOME_HEIGHT = 0;
-    public static final double TRAP_HEIGHT = 0;
+    public static final double TRAP_HEIGHT = 105;
     public static final double ELEVATOR_CONTROLLER_P = 0.5;
     public static final double ELEVATOR_CONTROLLER_D = 0.0;
     public static final double ELEVATOR_CONTROLLER_MAX_VEL = 0.0;

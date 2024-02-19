@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
@@ -103,14 +104,29 @@ public abstract class OI {
         // FOR PRACTICE MODE ONLY
         // Load Shooter
         operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> {
-                    ShooterSubsystem.getInstance().setRollerFeed();
-                    PickupSubsystem.getShooterInstance().setPickupMode();
-                },
-                () -> {
-                    ShooterSubsystem.getInstance().rollerStop();
-                    PickupSubsystem.getShooterInstance().setIdleMode();
-                }));
+            () -> {
+                ShooterSubsystem.getInstance().setRollerFeed();
+                PickupSubsystem.getShooterInstance().setPickupMode();
+            },
+            () -> {
+                ShooterSubsystem.getInstance().rollerStop();
+                PickupSubsystem.getShooterInstance().setIdleMode();
+            }));
+
+        operator_joystick_.leftTrigger(0.1).whileTrue(Commands.startEnd(
+            () -> ClimberSubsystem.getInstance().setClimbSpeed(-0.4 * operator_joystick_.getLeftTriggerAxis()),
+            () -> ClimberSubsystem.getInstance().stopClimb()));
+
+        operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
+            () -> ClimberSubsystem.getInstance().setClimbSpeed(0.4 * operator_joystick_.getRightTriggerAxis()),
+            () -> ClimberSubsystem.getInstance().stopClimb()));
+
+        operator_joystick_.start().whileTrue(Commands.runOnce(
+            () -> ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB)));
+
+        // Set Elevator to Amp Target
+        operator_joystick_.back().whileTrue(Commands.runOnce(
+            () -> MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP)));
     }
 
     static public double getDriverJoystickLeftX() {
