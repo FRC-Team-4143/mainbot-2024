@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
@@ -14,20 +13,18 @@ import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 
-/** Add your docs here. */
 public abstract class OI {
 
     // Sets up both controllers
     static CommandXboxController driver_joystick_ = new CommandXboxController(0);
     static CommandXboxController operator_joystick_ = new CommandXboxController(1);
-    // static CommandXboxController operator_joystick_ = new
-    // CommandXboxController(1);
 
     static ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
     static PickupSubsystem pickup_front_ = PickupSubsystem.getMailmanInstance();
     static PickupSubsystem pickup_rear_ = PickupSubsystem.getShooterInstance();
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
     static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
+    static ClimberSubsystem climber_ = ClimberSubsystem.getInstance();
 
     public static void configureBindings() {
 
@@ -40,47 +37,47 @@ public abstract class OI {
 
         // Enagage Targeting
         driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
-                () -> {
-                    shooter_.setFlyWheelSpeed(0.75);
-                    shooter_.setTarget(ShootTarget.SPEAKER);
-                    swerve_drivetrain_.setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-                    shooter_.setShootMode(ShootMode.ACTIVETARGETING);
-                },
-                () -> {
-                    shooter_.flyWheelStop();
-                    swerve_drivetrain_.setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-                    shooter_.setShootMode(ShootMode.IDLE);
-                }));
+            () -> {
+                shooter_.setFlyWheelSpeed(0.75);
+                shooter_.setTarget(ShootTarget.SPEAKER);
+                swerve_drivetrain_.setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+                shooter_.setShootMode(ShootMode.ACTIVETARGETING);
+            },
+            () -> {
+                shooter_.flyWheelStop();
+                swerve_drivetrain_.setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
+                shooter_.setShootMode(ShootMode.IDLE);
+            }));
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerOutput(),
-                () -> mailman_.setRollerStop()));
+            () -> mailman_.setRollerOutput(),
+            () -> mailman_.setRollerStop()));
 
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
-                () -> pickup_rear_.setPickupMode(PickupMode.PICKUP),
-                () -> pickup_rear_.setPickupMode(PickupMode.IDLE)));
+            () -> pickup_rear_.setPickupMode(PickupMode.PICKUP),
+            () -> pickup_rear_.setPickupMode(PickupMode.IDLE)));
 
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> pickup_front_.setPickupMode(PickupMode.PICKUP),
-                () -> pickup_front_.setPickupMode(PickupMode.IDLE)));
+            () -> pickup_front_.setPickupMode(PickupMode.PICKUP),
+            () -> pickup_front_.setPickupMode(PickupMode.IDLE)));
 
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerOutput(),
-                () -> mailman_.setRollerStop()));
+            () -> mailman_.setRollerOutput(),
+            () -> mailman_.setRollerStop()));
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerIntake(),
-                () -> mailman_.setRollerStop()));
+            () -> mailman_.setRollerIntake(),
+            () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
         operator_joystick_.y().whileTrue(Commands.runOnce(
-                () -> mailman_.setHeight(HeightTarget.AMP)));
+            () -> mailman_.setHeight(HeightTarget.AMP)));
 
         // Set Elevator to Home Target
         operator_joystick_.a().whileTrue(Commands.runOnce(
@@ -103,7 +100,7 @@ public abstract class OI {
             }));
 
         // FOR PRACTICE MODE ONLY
-        // Load Shooter
+        // Feed Shooter
         operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
             () -> {
                 shooter_.setRollerFeed();
@@ -114,20 +111,23 @@ public abstract class OI {
                 pickup_rear_.setPickupMode(PickupMode.IDLE);
             }));
 
+        // Climb
         operator_joystick_.leftTrigger(0.1).whileTrue(Commands.startEnd(
-            () -> ClimberSubsystem.getInstance().setClimbSpeed(-0.4 * operator_joystick_.getLeftTriggerAxis()),
-            () -> ClimberSubsystem.getInstance().stopClimb()));
+            () -> climber_.setClimbSpeed(-0.4 * operator_joystick_.getLeftTriggerAxis()),
+            () -> climber_.stopClimb()));
 
+        // Reverse Climb
         operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
-            () -> ClimberSubsystem.getInstance().setClimbSpeed(0.4 * operator_joystick_.getRightTriggerAxis()),
-            () -> ClimberSubsystem.getInstance().stopClimb()));
+            () -> climber_.setClimbSpeed(0.4 * operator_joystick_.getRightTriggerAxis()),
+            () -> climber_.stopClimb()));
 
+        // Set Wrsit to Hook Position
         operator_joystick_.start().whileTrue(Commands.runOnce(
-            () -> ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB)));
+            () -> shooter_.setShootMode(ShootMode.CLIMB)));
 
-        // Set Elevator to Amp Target
+        // Set Elevator to Trap Target
         operator_joystick_.back().whileTrue(Commands.runOnce(
-            () -> MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP)));
+            () -> mailman_.setHeight(HeightTarget.TRAP)));
          
     }
 
