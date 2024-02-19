@@ -1,5 +1,7 @@
 package frc.lib.subsystem;
 
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logger.Logable;
 
@@ -33,5 +35,5 @@ public abstract class Subsystem extends SubsystemBase implements Logable  {
     /**
      * Called to get access to all of the periodic class data
      */
-    public abstract LogData getLogger();
+    public abstract LoggableInputs getLogger();
 }

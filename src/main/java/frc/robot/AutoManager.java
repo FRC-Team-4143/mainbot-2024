@@ -5,18 +5,17 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ExampleSubsystem;
 
 public class AutoManager {
 
     // Singleton pattern
-    private static AutoManager exampleInstance = null;
+    private static AutoManager autoManagerInstance = null;
 
     public static AutoManager getInstance() {
-        if (exampleInstance == null) {
-            exampleInstance = new AutoManager();
+        if (autoManagerInstance == null) {
+            autoManagerInstance = new AutoManager();
         }
-        return exampleInstance;
+        return autoManagerInstance;
     }
 
     private final SendableChooser<Command> autoChooser;

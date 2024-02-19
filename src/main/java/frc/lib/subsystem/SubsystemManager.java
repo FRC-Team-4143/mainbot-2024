@@ -2,19 +2,24 @@ package frc.lib.subsystem;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import frc.lib.logger.Logable.LogData;
-import frc.lib.logger.ReflectingLogger;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
+
 
 public abstract class SubsystemManager {
 
     // Supposedly 1 is a good starting point, but can increase if we have issues
     private static final int START_THREAD_PRIORITY = 99;
 
-    protected ReflectingLogger<LogData> reflectingLogger;
     protected ArrayList<Subsystem> subsystems;
     protected Notifier loopThread;
 
@@ -26,6 +31,10 @@ public abstract class SubsystemManager {
         // the robot program can properly stop
         loopThread = new Notifier(this::doControlLoop);
         // loopThread.setDaemon(true);
+
+        // Logger
+        Logger.recordMetadata("ProjectName", "mainbot-2024"); // Set a metadata value
+        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
     }
 
     private void doControlLoop() {
@@ -84,16 +93,9 @@ public abstract class SubsystemManager {
      * @param timestamp the timestamp logging was started at from the FPGA
      */
     protected void runLog(double timestamp) {
-        // Check if the logger is valid first
-        if (reflectingLogger != null) {
-            // If it is valid, collect the subsystem I/Os
-            ArrayList<LogData> logs = new ArrayList<>();
-            for (Subsystem subsystem : subsystems) {
-                logs.add(subsystem.getLogger());
-            }
-
-            // Log the data
-            reflectingLogger.update(logs, timestamp);
+        // If it is valid, collect the subsystem I/Os
+        for (Subsystem subsystem : subsystems) {
+            Logger.processInputs(subsystem.getClass().getCanonicalName().replace(".", "_"), subsystem.getLogger());
         }
     }
 
@@ -101,12 +103,9 @@ public abstract class SubsystemManager {
      * Once the subsystems have been registered, call this function to init logging
      * capabilities
      */
-    public void initLogfile() {
-        ArrayList<LogData> logs = new ArrayList<>();
-        for (Subsystem subsystem : subsystems) {
-            logs.add(subsystem.getLogger());
-        }
-        reflectingLogger = new ReflectingLogger<>(logs);
+    public void initLogfile(String ctrl_mode) {
+        Logger.recordMetadata("Control Mode", ctrl_mode);
+        Logger.start();
     }
 
     /**
@@ -115,7 +114,7 @@ public abstract class SubsystemManager {
      * initLogFile method.
      */
     public void stopLog() {
-        reflectingLogger = null;
+        Logger.end();
     }
 
     /**
