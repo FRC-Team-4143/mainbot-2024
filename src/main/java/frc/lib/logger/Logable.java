@@ -1,5 +1,7 @@
 package frc.lib.logger;
 
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 /**
  * A base level class for inheritance to allow for the creation
  * of a list of loggable classes.
@@ -14,5 +16,5 @@ public interface Logable {
 
     }
 
-    public abstract LogData getLogger();
+    public abstract LoggableInputs getLogger();
 }

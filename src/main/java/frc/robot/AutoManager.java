@@ -12,16 +12,17 @@ import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.commands.*;
 
 
+
 public class AutoManager {
 
     // Singleton pattern
-    private static AutoManager exampleInstance = null;
+    private static AutoManager autoManagerInstance = null;
 
     public static AutoManager getInstance() {
-        if (exampleInstance == null) {
-            exampleInstance = new AutoManager();
+        if (autoManagerInstance == null) {
+            autoManagerInstance = new AutoManager();
         }
-        return exampleInstance;
+        return autoManagerInstance;
     }
 
     private final SendableChooser<Command> autoChooser;

@@ -5,14 +5,15 @@
 package frc.robot;
 
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import org.littletonrobotics.junction.LoggedRobot;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
@@ -23,7 +24,6 @@ public class Robot extends TimedRobot {
     AutoManager.getInstance();
     OI.configureBindings();
 
-    // SignalLogger.start();
   }
 
   @Override
@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    // m_robotContainer.stopLog();
+    m_robotContainer.stopLog();
   }
 
   @Override
@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // // m_robotContainer.initLogfile();
+    m_robotContainer.initLogfile("AUTO");
 
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.AUTONOMOUS);
 
@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    // m_robotContainer.initLogfile();
+    m_robotContainer.initLogfile("TELE-OP");
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

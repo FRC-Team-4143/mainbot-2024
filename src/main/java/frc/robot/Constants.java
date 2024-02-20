@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -60,18 +59,29 @@ public final class Constants {
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
-    public static final int WRIST_ENCODER_ID = 12;
+    public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double WRIST_CONTROLLER_P = 0.0;
-    public static final double WRIST_CONTROLLER_I = 0.0;
-    public static final double WRIST_CONTROLLER_D = 0.0;
+    public static final double WRIST_CONTROLLER_P = 13.0;
+    public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = 0.00349;
-    public static final double ZERO_WRIST_ANGLE = 1.04719;
+    public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
+    public static final double WRIST_HOME_ANGLE = 0.22689;
+    public static final double WRIST_HANDOFF_ANGLE = 0.1222;
+    public static final double WRIST_CLIMB_ANGLE = 1.5708;
+    
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 1.0;
+
+    public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
+
+    // Sensor Constants
+    public static final int NOTE_SENSOR_ID = 0;
+    public static final double SENSOR_SAMPLE_TIME = 50.0;
+    public static final double HAS_NOTE_RANGE = 150.0;
+    public static final double NO_NOTE_RANGE = 350.0;
   }
 
   // IDs Range from 20 - 29
@@ -79,32 +89,44 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, -1);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, -1);
+    public static final double HAS_NOTE_RANGE = 0;
+    public static final double NO_NOTE_RANGE = 1;
+    public static final double SENSOR_SAMPLE_TIME = 50.0;
   }
 
   public class PickupSettings {
-    public PickupSettings(int ID, boolean invert) {
+    public PickupSettings(int ID, boolean invert, int SENSE_ID) {
       ROLLER_MOTOR_ID = ID;
       ROLLER_MOTOR_INVERTED = invert;
+      PICKUP_NOTE_SENSOR_ID = SENSE_ID;
     }
 
     public final int ROLLER_MOTOR_ID;
     public final boolean ROLLER_MOTOR_INVERTED;
+    public final int PICKUP_NOTE_SENSOR_ID;
   }
 
-
+  // IDs Range from 30 - 39
   public static class MailmanConstants {
-    public static final int ELEVATOR_MOTOR_ID = 0;
-    public static final int DROPPER_MOTOR_ID = 0;
-    public static final double AMP_HEIGHT = 0;
-    public static final double TRAP_HEIGHT = 0;
-    public static final double HEIGHT_CONTROLLER_P = 0.0;
-    public static final double HEIGHT_CONTROLLER_I = 0.0;
-    public static final double HEIGHT_CONTROLLER_D = 0.0;
-    public static final TrapezoidProfile.Constraints HEIGHT_CONTROLLER_CONSTRAINT = new TrapezoidProfile.Constraints(0,0);
-    public static final double DROPPER_IN_SPEED = 0.0;
-    public static final double DROPPER_OUT_SPEED = 0.0;
+    public static final int ELEVATOR_MOTOR_ID = 31;
+    public static final int DROPPER_MOTOR_ID = 32;
+    public static final double AMP_HEIGHT = 63;
+    public static final double HOME_HEIGHT = 0;
+    public static final double TRAP_HEIGHT = 105;
+    public static final double ELEVATOR_CONTROLLER_P = 0.5;
+    public static final double ELEVATOR_CONTROLLER_D = 0.0;
+    public static final double ELEVATOR_CONTROLLER_MAX_VEL = 0.0;
+    public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
+    public static final double DROPPER_IN_SPEED = 0.5;
+    public static final double DROPPER_OUT_SPEED = -0.5;
     
+  }
+
+  // IDs range from 40 - 49
+  public static class ClimberConstants {
+    public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
+    public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
   }
 }
