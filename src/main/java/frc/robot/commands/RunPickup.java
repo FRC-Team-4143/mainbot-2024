@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.PickupSubsystem;
+import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
 public class RunPickup extends Command {
   /** Creates a new RunPickup. */
@@ -17,7 +18,7 @@ public class RunPickup extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    PickupSubsystem.getShooterInstance().setPickupMode();
+    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -27,7 +28,7 @@ public class RunPickup extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    PickupSubsystem.getShooterInstance().setIdleMode();
+    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
   }
 
   // Returns true when the command should end.

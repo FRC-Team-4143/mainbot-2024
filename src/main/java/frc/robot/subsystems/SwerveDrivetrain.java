@@ -363,7 +363,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public Optional<Rotation2d> getAutoTargetRotation() {
-        if(drive_mode == DriveMode.AUTONOMOUS_TARGET) {
+        if(io_.drive_mode_ == DriveMode.AUTONOMOUS_TARGET) {
             return Optional.of(io_.target_rotation_);
         }
         return Optional.empty();

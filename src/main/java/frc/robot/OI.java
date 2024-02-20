@@ -38,18 +38,8 @@ public abstract class OI {
             .ignoringDisable(true));
 
         // Enagage Targeting
-        driver_joystick_.rightTrigger(0.5).whileTrue(Commands.startEnd(
-            () -> {
-                shooter_.setFlyWheelSpeed(0.75);
-                shooter_.setTarget(ShootTarget.SPEAKER);
-                swerve_drivetrain_.setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-                shooter_.setShootMode(ShootMode.ACTIVETARGETING);
-            },
-            () -> {
-                shooter_.flyWheelStop();
-                swerve_drivetrain_.setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-                shooter_.setShootMode(ShootMode.IDLE);
-            }));
+        driver_joystick_.rightTrigger(0.5).whileTrue(Commands.run(
+            () -> new ShootAtTarget(ShootTarget.SPEAKER)));
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(

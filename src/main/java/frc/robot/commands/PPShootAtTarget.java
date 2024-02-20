@@ -11,6 +11,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
 public class PPShootAtTarget extends Command {
   /** Creates a new PPShootAtTarget. */
@@ -36,7 +37,7 @@ public class PPShootAtTarget extends Command {
   public void execute() {
     if (ShooterSubsystem.getInstance().isTargetLocked()){
       ShooterSubsystem.getInstance().setRollerFeed();
-      PickupSubsystem.getShooterInstance().setPickupMode();
+      PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     }
   }
 
@@ -47,7 +48,7 @@ public class PPShootAtTarget extends Command {
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
-    PickupSubsystem.getShooterInstance().setIdleMode();
+    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
   }
 
   // Returns true when the command should end.

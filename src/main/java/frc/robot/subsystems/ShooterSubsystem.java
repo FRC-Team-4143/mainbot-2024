@@ -133,7 +133,7 @@ public class ShooterSubsystem extends Subsystem {
     public void updateLogic(double timestamp) {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
 
-        if (io_.target_mode_ == ShootMode.ACTIVETARGETING) {
+        if (io_.target_mode_ == ShootMode.TARGET) {
             io_.target_robot_yaw_ = calculateTargetYaw();
             io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, calculateNoteExitVelocity());
             io_.relative_chassis_speed_ = transformChassisVelocity();
