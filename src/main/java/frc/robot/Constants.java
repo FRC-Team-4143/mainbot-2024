@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -73,13 +72,13 @@ public final class Constants {
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
-    public static final double ROLLER_SPEED = 1.0;
+    public static final double ROLLER_SPEED = 0.40;
 
     public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
 
     // Sensor Constants
     public static final int NOTE_SENSOR_ID = 0;
-    public static final double SENSOR_SAMPLE_TIME = 50.0;
+    public static final double SENSOR_SAMPLE_TIME = 24.0;
     public static final double HAS_NOTE_RANGE = 150.0;
     public static final double NO_NOTE_RANGE = 350.0;
   }

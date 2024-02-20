@@ -148,14 +148,14 @@ public class ShooterSubsystem extends Subsystem {
             io_.target_flywheel_speed_ = 0;           
         }
 
-        hasNote();
+        io_.has_note_ = hasNote();
     }
 
     @Override
     public void writePeriodicOutputs(double timestamp) {
         bot_flywheel_motor_.set(io_.target_flywheel_speed_);
         roller_motor_.set(io_.roller_speed_);
-        // setWristAngle();
+        setWristAngle();
         SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
 
     }
@@ -188,12 +188,13 @@ public class ShooterSubsystem extends Subsystem {
                 ShooterConstants.YAW_TOLERANCE);
     }
 
-    public void hasNote() {
+    public boolean hasNote() {
         if(io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE){
-            io_.has_note_ = false;
+            return false;
         } else if(io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE){
-            io_.has_note_ = true;
+            return true;
         }
+        return false;
     }
 
     // set methods
