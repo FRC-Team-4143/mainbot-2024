@@ -80,7 +80,7 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public enum ShootMode {
-        ACTIVETARGETING,
+        TARGET,
         IDLE,
         READY,
         TRANSFER,
@@ -289,6 +289,7 @@ public class ShooterSubsystem extends Subsystem {
         Pose2d pose_difference = PoseEstimator.getInstance().getRobotPose().relativeTo(io_.target_.toPose2d());
         return pose_difference.getTranslation().getAngle();
     }
+
 
     @AutoLog
     public static class ShooterPeriodicIo extends LogData {

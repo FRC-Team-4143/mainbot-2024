@@ -6,6 +6,7 @@
  */
 package frc.robot.subsystems;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLog;
@@ -16,6 +17,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -78,7 +80,8 @@ public class SwerveDrivetrain extends Subsystem {
         ROBOT_CENTRIC,
         FIELD_CENTRIC,
         TARGET,
-        AUTONOMOUS
+        AUTONOMOUS,
+        AUTONOMOUS_TARGET
     }
 
     private SwerveRequest.FieldCentric field_centric;
@@ -176,8 +179,6 @@ public class SwerveDrivetrain extends Subsystem {
         BaseStatusSignal[] imuSignals = { pigeon_imu.getYaw() };
         BaseStatusSignal.setUpdateFrequencyForAll(100, imuSignals);
         pigeon_imu.optimizeBusUtilization();
-
-        configurePathPlanner();
     }
 
     @Override
@@ -260,7 +261,7 @@ public class SwerveDrivetrain extends Subsystem {
     /**
      * Configures the PathPlanner AutoBuilder
      */
-    private void configurePathPlanner() {
+    public void configurePathPlanner() {
         double driveBaseRadius = 0;
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
@@ -291,6 +292,7 @@ public class SwerveDrivetrain extends Subsystem {
                     return false;
                 },
                 this); // Subsystem for requirements
+                PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -356,9 +358,15 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public void setTargetRotation(Rotation2d target_angle_) {
-        // io_.target_rotation_ = target_angle_.rotateBy(io_.field_relative_offset);
         io_.target_rotation_ = target_angle_;
 
+    }
+
+    public Optional<Rotation2d> getAutoTargetRotation() {
+        if(drive_mode == DriveMode.AUTONOMOUS_TARGET) {
+            return Optional.of(io_.target_rotation_);
+        }
+        return Optional.empty();
     }
 
     /**
