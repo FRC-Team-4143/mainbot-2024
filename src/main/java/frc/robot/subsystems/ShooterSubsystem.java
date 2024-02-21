@@ -14,12 +14,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkFlex;
@@ -94,7 +96,8 @@ public class ShooterSubsystem extends Subsystem {
         ACTIVETARGETING,
         IDLE,
         READY,
-        TRANSFER
+        TRANSFER,
+        PROFILE
     }
 
     private ShooterPeriodicIo io_;
@@ -112,6 +115,8 @@ public class ShooterSubsystem extends Subsystem {
 
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
+        top_flywheel_motor_.setSmartCurrentLimit(40);
+        top_flywheel_motor_.setInverted(true);
         top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
         top_flywheel_encoder_ = top_flywheel_motor_.getEncoder();
         top_flywheel_controller_.setFeedbackDevice(top_flywheel_encoder_);
@@ -120,6 +125,8 @@ public class ShooterSubsystem extends Subsystem {
 
         bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
+        bot_flywheel_motor_.setSmartCurrentLimit(40);
+        bot_flywheel_motor_.setInverted(false);
         bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
         bot_flywheel_encoder_ = bot_flywheel_motor_.getEncoder();
         bot_flywheel_controller_.setFeedbackDevice(bot_flywheel_encoder_);
@@ -311,6 +318,11 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
             io_.target_flywheel_speed_ = 0;
+        } else if (io_.target_mode_ == ShootMode.PROFILE) {
+            Pose2d wing_line_pose = BLUE_SPEAKER.toPose2d()
+                    .transformBy(new Transform2d(new Translation2d(-5.872, 0), new Rotation2d()));
+            io_.target_wrist_angle_ = calculateWristAngle(wing_line_pose, io_.target_, velocity_lookup_);
+            io_.target_flywheel_speed_ = 580;
         }
     }
 
