@@ -77,7 +77,7 @@ public final class Constants {
     public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
 
     // Sensor Constants
-    public static final int NOTE_SENSOR_ID = 0;
+    public static final int NOTE_SENSOR_ID = 1;
     public static final double SENSOR_SAMPLE_TIME = 24.0;
     public static final double HAS_NOTE_RANGE = 150.0;
     public static final double NO_NOTE_RANGE = 350.0;

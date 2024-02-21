@@ -19,7 +19,11 @@ public class RunPickup extends Command {
   @Override
   public void initialize() {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
-    ShooterSubsystem.getInstance().setRollerFeed();
+
+    if (!ShooterSubsystem.getInstance().hasNote()) {
+      ShooterSubsystem.getInstance().setRollerFeed();
+    }
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.

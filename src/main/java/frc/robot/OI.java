@@ -45,14 +45,18 @@ public abstract class OI {
                 () -> mailman_.setRollerStop()));
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
-                () -> pickup_rear_.setPickupMode(PickupMode.PICKUP),
-                () -> pickup_rear_.setPickupMode(PickupMode.IDLE)));
+        driver_joystick_.rightBumper().whileTrue(new RunPickup());
 
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> pickup_front_.setPickupMode(PickupMode.PICKUP),
-                () -> pickup_front_.setPickupMode(PickupMode.IDLE)));
+                () -> {
+                        pickup_front_.setPickupMode(PickupMode.PICKUP);
+                        mailman_.setRollerIntake();
+                },
+                () -> {
+                        pickup_front_.setPickupMode(PickupMode.IDLE);
+                        mailman_.setRollerStop();
+                }));
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
@@ -77,7 +81,7 @@ public abstract class OI {
                 () -> {
                     mailman_.setHeight(HeightTarget.HOME);
                     shooter_.setShootMode(ShootMode.TRANSFER);
-                    mailman_.setRollerOutput();
+                    mailman_.setRollerRecieve();
                     pickup_rear_.setPickupMode(PickupMode.PICKUP);
                     shooter_.setRollerFeed();
                 },
