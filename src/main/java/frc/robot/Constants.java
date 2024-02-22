@@ -57,7 +57,7 @@ public final class Constants {
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
-    public static final double FLYWHEEL_TOLERANCE = 0.1;
+    public static final double FLYWHEEL_TOLERANCE = 5;
     public static final double NOTE_EXIT_VELOCITY = 10.0;
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
@@ -102,7 +102,7 @@ public final class Constants {
     // Sensor Constants
     public static final int NOTE_SENSOR_ID = 1;
     public static final double SENSOR_SAMPLE_TIME = 24.0;
-    public static final double HAS_NOTE_RANGE = 150.0;
+    public static final double HAS_NOTE_RANGE = 200.0;
     public static final double NO_NOTE_RANGE = 350.0;
   }
 

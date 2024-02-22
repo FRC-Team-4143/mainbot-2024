@@ -106,12 +106,12 @@ public abstract class OI {
 
         // Climb
         operator_joystick_.leftTrigger(0.1).whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(-0.4 * operator_joystick_.getLeftTriggerAxis()),
+                () -> climber_.setClimbSpeed(-0.6 * operator_joystick_.getLeftTriggerAxis()),
                 () -> climber_.stopClimb()));
 
         // Reverse Climb
         operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(0.4 * operator_joystick_.getRightTriggerAxis()),
+                () -> climber_.setClimbSpeed(0.6 * operator_joystick_.getRightTriggerAxis()),
                 () -> climber_.stopClimb()));
 
         // Set Wrsit to Hook Position

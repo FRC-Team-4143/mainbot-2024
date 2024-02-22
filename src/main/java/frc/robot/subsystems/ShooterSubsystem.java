@@ -170,7 +170,7 @@ public class ShooterSubsystem extends Subsystem {
         if (io_.target_mode_ == ShootMode.TARGET) {
             io_.target_robot_yaw_ = calculateTargetYaw();
             io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, velocity_lookup_);
-            io_.target_flywheel_speed_ = vel_to_angular_lookup_.get(velocity_lookup_);
+            io_.target_flywheel_speed_ = 580; //vel_to_angular_lookup_.get(velocity_lookup_);
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
