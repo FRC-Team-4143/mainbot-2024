@@ -6,7 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.interpolation.*;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -41,20 +44,40 @@ public final class Constants {
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
 
   }
-  
+
   // IDs Range from 10 - 19
-  public static class ShooterConstants { 
+  public static class ShooterConstants {
     public static final double SHOOTER_X_OFFSET = -0.3286; // 12.940 in
     public static final double SHOOTER_Y_OFFSET = 0;
     public static final double SHOOTER_Z_OFFSET = 0.4404; // 17.34 in
-    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET, SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0)); 
+    public static final Transform3d SHOOTER_OFFSET = new Transform3d(SHOOTER_X_OFFSET, SHOOTER_Y_OFFSET,
+        SHOOTER_Z_OFFSET, new Rotation3d(0, 0, 0));
 
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
-    public static final double FLYWHEEL_IDLE_SPEED = 0.0;
+    public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 0.1;
-    public static final double NOTE_EXIT_VELOCITY = 8.0;
+    public static final double NOTE_EXIT_VELOCITY = 10.0;
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
+    public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
+
+    public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
+      var map = new InterpolatingDoubleTreeMap();
+      map.put(0.0, 0.0);
+      map.put(10.0, 98.425);
+
+      return map;
+    }
+
+    public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
+      var map = new InterpolatingDoubleTreeMap();
+      map.put(0.0, 10.0);
+      map.put(3.0, 10.0);
+      map.put(6.0, 10.0);
+
+      return map;
+    }
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
