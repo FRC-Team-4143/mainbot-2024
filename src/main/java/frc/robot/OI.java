@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
@@ -27,6 +28,7 @@ public abstract class OI {
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
     static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
     static ClimberSubsystem climber_ = ClimberSubsystem.getInstance();
+    static Trigger crawlTrigger;
 
     public static void configureBindings() {
 
@@ -56,6 +58,9 @@ public abstract class OI {
             () -> pickup_front_.setPickupMode(PickupMode.PICKUP),
             () -> pickup_front_.setPickupMode(PickupMode.IDLE)));
 
+        // Crawl
+        crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
+        crawlTrigger.whileTrue(new RobotCentricCrawl());
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
@@ -142,5 +147,9 @@ public abstract class OI {
         double output = val * val;
         output = Math.copySign(output, val);
         return output;
+    }
+
+    static public double getDriverJoystickPOVangle() {
+        return driver_joystick_.getHID().getPOV();
     }
 }
