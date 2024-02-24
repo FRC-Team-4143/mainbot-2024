@@ -37,7 +37,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
-    m_robotContainer.stopLog();
+    // m_robotContainer.stopLog();
   }
 
   @Override
@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_robotContainer.initLogfile("AUTO");
+    // m_robotContainer.initLogfile("AUTO");
 
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.AUTONOMOUS);
 
@@ -64,7 +64,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    m_robotContainer.initLogfile("TELE-OP");
+    // m_robotContainer.initLogfile("TELE-OP");
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

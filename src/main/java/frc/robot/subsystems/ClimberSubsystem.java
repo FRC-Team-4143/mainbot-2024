@@ -40,12 +40,13 @@ public class ClimberSubsystem extends Subsystem {
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     left_climber_motor_.setInverted(true);
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
-    left_climber_motor_.setSmartCurrentLimit(120);
+    left_climber_motor_.setSmartCurrentLimit(150);
 
     right_climber_motor_ = new CANSparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     right_climber_motor_.follow(left_climber_motor_, true);
     right_climber_motor_.setIdleMode(IdleMode.kBrake);
-    right_climber_motor_.setSmartCurrentLimit(120);
+    
+    right_climber_motor_.setSmartCurrentLimit(150);
   }
 
   public void setClimbSpeed(double speed) {

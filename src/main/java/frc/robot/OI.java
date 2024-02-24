@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
@@ -30,97 +29,102 @@ public abstract class OI {
 
     public static void configureBindings() {
 
-        SmartDashboard.putData("Set Wheel Offsets",Commands.runOnce(
-            () -> swerve_drivetrain_.tareEverything())
-            .ignoringDisable(true));
+        SmartDashboard.putData("Set Wheel Offsets", Commands.runOnce(
+                () -> swerve_drivetrain_.tareEverything())
+                .ignoringDisable(true));
         SmartDashboard.putData("Seed Field Centric", Commands.runOnce(
-            () -> swerve_drivetrain_.seedFieldRelative())
-            .ignoringDisable(true));
+                () -> swerve_drivetrain_.seedFieldRelative())
+                .ignoringDisable(true));
 
         // Enagage Targeting
-        driver_joystick_.rightTrigger(0.5).whileTrue(Commands.run(
-            () -> new ShootAtTarget(ShootTarget.SPEAKER)));
+        driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtTarget(ShootTarget.SPEAKER));
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
-            () -> mailman_.setRollerOutput(),
-            () -> mailman_.setRollerStop()));
+                () -> mailman_.setRollerOutput(),
+                () -> mailman_.setRollerStop()));
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(Commands.startEnd(
-            () -> pickup_rear_.setPickupMode(PickupMode.PICKUP),
-            () -> pickup_rear_.setPickupMode(PickupMode.IDLE)));
+        driver_joystick_.rightBumper().whileTrue(new RunPickup());
 
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-            () -> pickup_front_.setPickupMode(PickupMode.PICKUP),
-            () -> pickup_front_.setPickupMode(PickupMode.IDLE)));
-
+                () -> {
+                        pickup_front_.setPickupMode(PickupMode.PICKUP);
+                        mailman_.setRollerIntake();
+                },
+                () -> {
+                        pickup_front_.setPickupMode(PickupMode.IDLE);
+                        mailman_.setRollerStop();
+                }));
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
-            () -> mailman_.setRollerOutput(),
-            () -> mailman_.setRollerStop()));
+                () -> mailman_.setRollerOutput(),
+                () -> mailman_.setRollerStop()));
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-            () -> mailman_.setRollerIntake(),
-            () -> mailman_.setRollerStop()));
+                () -> mailman_.setRollerIntake(),
+                () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
         operator_joystick_.y().whileTrue(Commands.runOnce(
-            () -> mailman_.setHeight(HeightTarget.AMP)));
+                () -> mailman_.setHeight(HeightTarget.AMP)));
 
         // Set Elevator to Home Target
         operator_joystick_.a().whileTrue(Commands.runOnce(
-            () -> mailman_.setHeight(HeightTarget.HOME)));
+                () -> mailman_.setHeight(HeightTarget.HOME)));
 
         // Handoff from shooter to Mailman
         operator_joystick_.rightBumper().whileTrue(Commands.startEnd(
-            () -> {
-                mailman_.setHeight(HeightTarget.HOME);
-                shooter_.setShootMode(ShootMode.TRANSFER);
-                mailman_.setRollerOutput();
-                pickup_rear_.setPickupMode(PickupMode.PICKUP);
-                shooter_.setRollerFeed();
-            },
-            () -> {
-                shooter_.setShootMode(ShootMode.IDLE);
-                shooter_.rollerStop();
-                mailman_.setRollerStop();
-                pickup_rear_.setPickupMode(PickupMode.IDLE);
-            }));
+                () -> {
+                    mailman_.setHeight(HeightTarget.HOME);
+                    shooter_.setShootMode(ShootMode.TRANSFER);
+                    mailman_.setRollerRecieve();
+                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
+                    shooter_.setRollerFeed();
+                },
+                () -> {
+                    shooter_.setShootMode(ShootMode.IDLE);
+                    shooter_.rollerStop();
+                    mailman_.setRollerStop();
+                    pickup_rear_.setPickupMode(PickupMode.IDLE);
+                }));
 
         // FOR PRACTICE MODE ONLY
         // Feed Shooter
         operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
-            () -> {
-                shooter_.setRollerFeed();
-                pickup_rear_.setPickupMode(PickupMode.PICKUP);
-            },
-            () -> {
-                shooter_.rollerStop();
-                pickup_rear_.setPickupMode(PickupMode.IDLE);
-            }));
+                () -> {
+                    shooter_.setRollerFeed();
+                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
+                },
+                () -> {
+                    shooter_.rollerStop();
+                    pickup_rear_.setPickupMode(PickupMode.IDLE);
+                }));
 
         // Climb
         operator_joystick_.leftTrigger(0.1).whileTrue(Commands.startEnd(
-            () -> climber_.setClimbSpeed(-0.4 * operator_joystick_.getLeftTriggerAxis()),
-            () -> climber_.stopClimb()));
+                () -> climber_.setClimbSpeed(-0.6 * operator_joystick_.getLeftTriggerAxis()),
+                () -> climber_.stopClimb()));
 
         // Reverse Climb
         operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
-            () -> climber_.setClimbSpeed(0.4 * operator_joystick_.getRightTriggerAxis()),
-            () -> climber_.stopClimb()));
+                () -> climber_.setClimbSpeed(0.6 * operator_joystick_.getRightTriggerAxis()),
+                () -> climber_.stopClimb()));
 
         // Set Wrsit to Hook Position
         operator_joystick_.start().whileTrue(Commands.runOnce(
-            () -> shooter_.setShootMode(ShootMode.CLIMB)));
+                () -> shooter_.setShootMode(ShootMode.CLIMB)));
 
         // Set Elevator to Trap Target
         operator_joystick_.back().whileTrue(Commands.runOnce(
-            () -> mailman_.setHeight(HeightTarget.TRAP)));
-         
+                () -> mailman_.setHeight(HeightTarget.TRAP)));
+
+        // Test buttons
+        operator_joystick_.povUp().onTrue(new RunPickup());
+
     }
 
     static public double getDriverJoystickLeftX() {

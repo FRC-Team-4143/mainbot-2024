@@ -27,7 +27,6 @@ public class ShootAtTarget extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
     ShooterSubsystem.getInstance().setTarget(target);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
@@ -55,6 +54,6 @@ public class ShootAtTarget extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return !ShooterSubsystem.getInstance().hasNote();
   }
 }

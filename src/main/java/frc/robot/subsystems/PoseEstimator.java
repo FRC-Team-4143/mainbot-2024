@@ -6,7 +6,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.ProtobufSubscriber;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.TimestampedObject;
 
 import org.littletonrobotics.junction.AutoLog;

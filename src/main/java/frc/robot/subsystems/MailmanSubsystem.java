@@ -113,6 +113,10 @@ public class MailmanSubsystem extends Subsystem {
         io_.roller_speed_ = 0;
     }
 
+    public void setRollerRecieve() {
+        io_.roller_speed_ = -0.15;
+    }
+
     @AutoLog
     public static class MailmanPeriodicIo extends LogData {
         public double current_height_ = 0.0;
