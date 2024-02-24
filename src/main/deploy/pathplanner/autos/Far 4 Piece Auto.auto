@@ -1,0 +1,68 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3842846515935527,
+      "y": 3.8879977331994606
+    },
+    "rotation": 123.8482358116484
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootAtSpeaker"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Far 4 Piece 1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootAtSpeaker"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Far 4 Piece 2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootAtSpeaker"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Far 4 Piece 3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootAtSpeaker"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

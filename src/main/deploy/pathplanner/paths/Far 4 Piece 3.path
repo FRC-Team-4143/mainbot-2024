@@ -1,0 +1,92 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.61,
+        "y": 2.27
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.902340061090378,
+        "y": 4.303448834817898
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.919431907239883,
+        "y": 4.092954054853979
+      },
+      "prevControl": {
+        "x": 5.662154872571218,
+        "y": 4.092954054853979
+      },
+      "nextControl": {
+        "x": 8.799431907239885,
+        "y": 4.092954054853979
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.61,
+        "y": 2.27
+      },
+      "prevControl": {
+        "x": 4.282549875641061,
+        "y": 4.899850711382335
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 178.46565850029927,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.85,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "RunPickup"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 135.42714404325628,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Far 4 piece",
+  "previewStartingState": {
+    "rotation": 133.63296994414054,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
