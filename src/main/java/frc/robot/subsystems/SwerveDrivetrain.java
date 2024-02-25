@@ -81,7 +81,8 @@ public class SwerveDrivetrain extends Subsystem {
         FIELD_CENTRIC,
         TARGET,
         AUTONOMOUS,
-        AUTONOMOUS_TARGET
+        AUTONOMOUS_TARGET,
+        CRAWL
     }
 
     private SwerveRequest.FieldCentric field_centric;
@@ -229,6 +230,12 @@ public class SwerveDrivetrain extends Subsystem {
                         //
                         .withTargetDirection(io_.target_rotation_));
                 break;
+            case CRAWL:
+                setControl(robot_centric
+                        .withVelocityX(-io_.driver_POVy * Constants.DrivetrainConstants.CrawlSpeed)
+                        .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CrawlSpeed)
+                        .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MaxAngularRate));
+                break;
             default:
                 // yes these dont do anything for auto...
                 break;
@@ -359,7 +366,11 @@ public class SwerveDrivetrain extends Subsystem {
 
     public void setTargetRotation(Rotation2d target_angle_) {
         io_.target_rotation_ = target_angle_;
+    }
 
+    public void setCrabRequest(Rotation2d target_angle_) {
+        io_.driver_POVy = target_angle_.getCos();
+        io_.driver_POVx = target_angle_.getSin();
     }
 
     public Optional<Rotation2d> getAutoTargetRotation() {
@@ -401,5 +412,7 @@ public class SwerveDrivetrain extends Subsystem {
         public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
         public Rotation2d target_rotation_ = new Rotation2d();
         public DriveMode drive_mode_ = DriveMode.FIELD_CENTRIC;
+        public double driver_POVx = 0.0;
+        public double driver_POVy = 0.0;
     }
 }
