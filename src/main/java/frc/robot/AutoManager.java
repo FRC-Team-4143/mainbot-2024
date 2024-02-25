@@ -28,7 +28,7 @@ public class AutoManager {
     private final SendableChooser<Command> autoChooser;
 
     private AutoManager() {
-        NamedCommands.registerCommand("ShootAtSpeaker", new PPShootAtTarget(ShootTarget.SPEAKER));
+        NamedCommands.registerCommand("ShootAtSpeaker", new PPShootAtTarget(ShootTarget.SPEAKER).withTimeout(2));
         NamedCommands.registerCommand("RunPickup", new RunPickup());
         NamedCommands.registerCommand("LaunchNote", new LaunchNote());
         SwerveDrivetrain.getInstance().configurePathPlanner();

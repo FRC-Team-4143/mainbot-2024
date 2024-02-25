@@ -27,19 +27,18 @@ public class ShootAtTarget extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
     ShooterSubsystem.getInstance().setTarget(target);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    //SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.PROFILE);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (ShooterSubsystem.getInstance().isTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
-      PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
-    }
+    // if (ShooterSubsystem.getInstance().isTargetLocked()){
+    //   ShooterSubsystem.getInstance().setRollerFeed();
+    //   PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
+    // }
   }
 
   // Called once the command ends or is interrupted.

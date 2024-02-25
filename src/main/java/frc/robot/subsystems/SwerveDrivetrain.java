@@ -282,7 +282,7 @@ public class SwerveDrivetrain extends Subsystem {
                                                                               // robot
                 new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
                         new PIDConstants(10, 0, 0),
-                        5,
+                        3,
                         driveBaseRadius,
                         new ReplanningConfig(false, false),
                         0.008), // faster period than default

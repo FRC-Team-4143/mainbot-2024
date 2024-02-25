@@ -1,0 +1,76 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.882905765811533,
+        "y": 4.145636137206654
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.932905765811533,
+        "y": 4.145636137206654
+      },
+      "isLocked": false,
+      "linkedName": "Note 1 end"
+    },
+    {
+      "anchor": {
+        "x": 2.882905765811533,
+        "y": 5.527514849606139
+      },
+      "prevControl": {
+        "x": 0.5524492932010125,
+        "y": 5.468960666877231
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Note 2 end"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.5,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "RunPickup"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "4 Piece",
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

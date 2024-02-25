@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import javax.management.timer.Timer;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.PickupSubsystem;
@@ -14,6 +16,9 @@ import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
 public class PPShootAtTarget extends Command {
+
+  double delayTimer;
+
   /** Creates a new PPShootAtTarget. */
   ShootTarget target;
   public PPShootAtTarget(ShootTarget targetRequest) {
@@ -26,19 +31,20 @@ public class PPShootAtTarget extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setFlyWheelSpeed(SmartDashboard.getNumber("Shooter Speed", 0.75));
     ShooterSubsystem.getInstance().setTarget(target);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS_TARGET);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    delayTimer = 50;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (ShooterSubsystem.getInstance().isTargetLocked()){
+    if (delayTimer <= 0){
       ShooterSubsystem.getInstance().setRollerFeed();
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     }
+    delayTimer--;
   }
 
   // Called once the command ends or is interrupted.
@@ -54,6 +60,6 @@ public class PPShootAtTarget extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return !ShooterSubsystem.getInstance().hasNote() && delayTimer < 0;
   }
 }
