@@ -37,7 +37,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
-    // m_robotContainer.stopLog();
+    m_robotContainer.stopLog();
   }
 
   @Override

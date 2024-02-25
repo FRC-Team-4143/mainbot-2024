@@ -28,17 +28,17 @@ public class ShootAtTarget extends Command {
   @Override
   public void initialize() {
     ShooterSubsystem.getInstance().setTarget(target);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    //SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.PROFILE);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (ShooterSubsystem.getInstance().isTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
-      PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
-    }
+    // if (ShooterSubsystem.getInstance().isTargetLocked()){
+    //   ShooterSubsystem.getInstance().setRollerFeed();
+    //   PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
+    // }
   }
 
   // Called once the command ends or is interrupted.
@@ -54,6 +54,6 @@ public class ShootAtTarget extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !ShooterSubsystem.getInstance().hasNote();
+    return false;
   }
 }

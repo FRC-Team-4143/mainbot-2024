@@ -43,7 +43,7 @@ public class ShooterSubsystem extends Subsystem {
     // Singleton pattern
     private static ShooterSubsystem shooterInstance = null;
 
-    public static ShooterSubsystem getInstance() {
+    public static synchronized ShooterSubsystem getInstance() {
         if (shooterInstance == null) {
             shooterInstance = new ShooterSubsystem();
         }
@@ -176,9 +176,7 @@ public class ShooterSubsystem extends Subsystem {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
             io_.target_flywheel_speed_ = 0;
         } else if (io_.target_mode_ == ShootMode.PROFILE) {
-            Pose2d wing_line_pose = BLUE_SPEAKER.toPose2d()
-                    .transformBy(new Transform2d(new Translation2d(-5.872, 0), new Rotation2d()));
-            io_.target_wrist_angle_ = calculateWristAngle(wing_line_pose, io_.target_, velocity_lookup_);
+            io_.target_wrist_angle_ = Math.toRadians(25);
             io_.target_flywheel_speed_ = 580;
         } else if (io_.target_mode_ == ShootMode.TRANSFER) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
@@ -188,7 +186,15 @@ public class ShooterSubsystem extends Subsystem {
             io_.target_flywheel_speed_ = 0;
         }
 
-        io_.has_note_ = hasNote();
+        if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
+            io_.has_note_ = false;
+        } else if (io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE) {
+            io_.has_note_ = true;
+        }
+    }
+
+    public boolean hasNote(){
+        return io_.has_note_;
     }
 
     @Override
@@ -234,14 +240,6 @@ public class ShooterSubsystem extends Subsystem {
                         ShooterConstants.YAW_TOLERANCE);
     }
 
-    public boolean hasNote() {
-        if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
-            return false;
-        } else if (io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE) {
-            return true;
-        }
-        return false;
-    }
 
     // set methods
     public void setTarget(ShootTarget target) {

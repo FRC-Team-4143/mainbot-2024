@@ -10,14 +10,12 @@ import frc.robot.subsystems.*;
 
 public class RobotContainer extends SubsystemManager {
   private static RobotContainer instance;
-  public static RobotContainer getInstance() {
+  public static synchronized RobotContainer getInstance() {
         if (instance == null) {
             instance = new RobotContainer();
         }
         return instance;
     }
-
-
   
   public RobotContainer() {
     // !!!!!! ALL SUBSYSTEMS MUST BE REGISTERED HERE TO RUN !!!!!!!
