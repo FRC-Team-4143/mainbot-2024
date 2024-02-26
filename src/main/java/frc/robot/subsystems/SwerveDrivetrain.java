@@ -232,7 +232,7 @@ public class SwerveDrivetrain extends Subsystem {
                 break;
             case CRAWL:
                 setControl(robot_centric
-                        .withVelocityX(-io_.driver_POVy * Constants.DrivetrainConstants.CrawlSpeed)
+                        .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CrawlSpeed)
                         .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CrawlSpeed)
                         .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MaxAngularRate));
                 break;
