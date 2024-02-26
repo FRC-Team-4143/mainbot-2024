@@ -232,7 +232,7 @@ public class SwerveDrivetrain extends Subsystem {
                 break;
             case CRAWL:
                 setControl(robot_centric
-                        .withVelocityX(-io_.driver_POVy * Constants.DrivetrainConstants.CrawlSpeed)
+                        .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CrawlSpeed)
                         .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CrawlSpeed)
                         .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MaxAngularRate));
                 break;
@@ -263,6 +263,10 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Yaw", io_.robot_yaw_.getDegrees());
         SmartDashboard.putNumber("Field relative offset", io_.field_relative_offset_.getDegrees());
+    }
+
+    public Rotation2d getRobotRotation(){
+       return (new Pose2d(0, 0, io_.robot_yaw_).relativeTo(new Pose2d(0, 0, io_.field_relative_offset_))).getRotation();
     }
 
     /**

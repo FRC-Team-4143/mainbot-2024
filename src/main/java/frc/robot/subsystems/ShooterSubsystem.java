@@ -60,7 +60,7 @@ public class ShooterSubsystem extends Subsystem {
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
     // TODO: figure out transformation
-    private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0.05, 0, 0.65, new Rotation3d(0, 0, 0));
+    private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 0.65, new Rotation3d(0, 0, 0));
     private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0));
 
     // Target positions
@@ -101,6 +101,7 @@ public class ShooterSubsystem extends Subsystem {
         IDLE,
         READY,
         TRANSFER,
+        RECEIVE,
         CLIMB,
         PROFILE
     }
@@ -155,8 +156,8 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void readPeriodicInputs(double timestamp) {
-        io_.current_top_flywheel_speed_ = top_flywheel_encoder_.getVelocity();
-        io_.current_bot_flywheel_speed_ = bot_flywheel_encoder_.getVelocity();
+        io_.current_top_flywheel_speed_ = top_flywheel_encoder_.getVelocity() / 9.5492;
+        io_.current_bot_flywheel_speed_ = bot_flywheel_encoder_.getVelocity() / 9.5492;
         io_.current_wrist_angle_ = wrist_encoder_.getPosition() * (2 * Math.PI) - ShooterConstants.WRIST_ZERO_ANGLE;
         io_.note_sensor_range_ = note_sensor_.getRange();
 
@@ -175,15 +176,18 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
             io_.target_flywheel_speed_ = 0;
-        } else if (io_.target_mode_ == ShootMode.PROFILE) {
-            io_.target_wrist_angle_ = Math.toRadians(25);
-            io_.target_flywheel_speed_ = 580;
         } else if (io_.target_mode_ == ShootMode.TRANSFER) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
             io_.target_flywheel_speed_ = 50;
         } else if (io_.target_mode_ == ShootMode.CLIMB) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_CLIMB_ANGLE;
             io_.target_flywheel_speed_ = 0;
+        } else if (io_.target_mode_ == ShootMode.RECEIVE){
+            io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
+            io_.target_flywheel_speed_ = -50;
+        } else if (io_.target_mode_ == ShootMode.PROFILE) {
+            io_.target_wrist_angle_ = Math.toRadians(35);
+            io_.target_flywheel_speed_ = 580;
         }
 
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
@@ -211,13 +215,25 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
         target_pub.set(io_.target_);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
-        SmartDashboard.putNumber(" Current Wrist Angle", io_.current_wrist_angle_ * 180 / 3.14159);
-        SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_ * 180 / 3.14159);
+    
         SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
         SmartDashboard.putBoolean("Shooter Has Note", io_.has_note_);
         SmartDashboard.putNumber("Shooter Note Sensor Range", io_.note_sensor_range_);
-        SmartDashboard.putNumber("Top Flywheel Speed", io_.current_top_flywheel_speed_);
-        SmartDashboard.putNumber("Bot Flywheel Speed", io_.current_bot_flywheel_speed_);
+        
+        // Target Locked Tests
+        SmartDashboard.putBoolean("Target Locked", this.isTargetLocked());
+
+        SmartDashboard.putNumber("Target Flywheel Speed", io_.target_flywheel_speed_); //* 9.549);
+        SmartDashboard.putNumber("Current Top Flywheel Speed", io_.current_top_flywheel_speed_); //* 9.549);
+        SmartDashboard.putNumber("Current Bot Flywheel Speed", io_.current_bot_flywheel_speed_); //* 9.549);
+
+        SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_); //* 180 / 3.14159);
+        SmartDashboard.putNumber("Current Wrist Angle", io_.current_wrist_angle_); //* 180 / 3.14159);
+
+        SmartDashboard.putNumber("Target Robot Yaw", io_.target_robot_yaw_.getRadians());
+        SmartDashboard.putNumber("Current Robot Yaw", PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
+
+        
     }
 
     // get methods
@@ -236,7 +252,7 @@ public class ShooterSubsystem extends Subsystem {
                         ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.target_robot_yaw_.getRadians(),
-                        PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(),
+                        SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
                         ShooterConstants.YAW_TOLERANCE);
     }
 

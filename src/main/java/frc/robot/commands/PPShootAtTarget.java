@@ -20,46 +20,39 @@ public class PPShootAtTarget extends Command {
   double delayTimer;
 
   /** Creates a new PPShootAtTarget. */
-  ShootTarget target;
-  public PPShootAtTarget(ShootTarget targetRequest) {
-    target = targetRequest;
-    addRequirements(ShooterSubsystem.getInstance());
-    addRequirements(PickupSubsystem.getShooterInstance());
+  public PPShootAtTarget() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setTarget(target);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS_TARGET);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
-    delayTimer = 50;
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (delayTimer <= 0){
+    if (!ShooterSubsystem.getInstance().hasNote()) {
       ShooterSubsystem.getInstance().setRollerFeed();
-      PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
+    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { 
+      ShooterSubsystem.getInstance().setRollerFeed();
+    } else {
+      ShooterSubsystem.getInstance().rollerStop();
+      SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     }
-    delayTimer--;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ShooterSubsystem.getInstance().flyWheelStop();
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
-    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !ShooterSubsystem.getInstance().hasNote() && delayTimer < 0;
+    return false;
   }
 }
