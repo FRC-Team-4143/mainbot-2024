@@ -4,41 +4,40 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.PickupSubsystem;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
-import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
-public class ShootAtTarget extends Command {
+public class ShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
-  ShootTarget target;
-  public ShootAtTarget(ShootTarget targetRequest) {
-    target = targetRequest;
+  boolean shot_note_;
+  public ShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
-    addRequirements(PickupSubsystem.getShooterInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setTarget(target);
-    //SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.PROFILE);
+    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    shot_note_ = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // if (ShooterSubsystem.getInstance().isTargetLocked()){
-    //   ShooterSubsystem.getInstance().setRollerFeed();
-    //   PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
-    // }
+    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
+      CommandScheduler.getInstance().schedule(new TeleRearPickup());
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
+      ShooterSubsystem.getInstance().setRollerFeed();
+      shot_note_ = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -48,7 +47,6 @@ public class ShootAtTarget extends Command {
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
-    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
   }
 
   // Returns true when the command should end.

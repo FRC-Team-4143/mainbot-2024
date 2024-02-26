@@ -12,7 +12,6 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.commands.*;
 
 public abstract class OI {
@@ -39,7 +38,7 @@ public abstract class OI {
                 .ignoringDisable(true));
 
         // Enagage Targeting
-        driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtTarget(ShootTarget.SPEAKER));
+        driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtSpeaker());
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
@@ -47,7 +46,7 @@ public abstract class OI {
                 () -> mailman_.setRollerStop()));
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(new RunPickup());
+        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
 
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
@@ -120,7 +119,6 @@ public abstract class OI {
                 () -> mailman_.setHeight(HeightTarget.TRAP)));
 
         // Test buttons
-        operator_joystick_.povUp().onTrue(new RunPickup());
 
     }
 
