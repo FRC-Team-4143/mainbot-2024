@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 
-
 public abstract class SubsystemManager {
 
     // Supposedly 1 is a good starting point, but can increase if we have issues
@@ -22,6 +21,7 @@ public abstract class SubsystemManager {
 
     protected ArrayList<Subsystem> subsystems;
     protected Notifier loopThread;
+    protected boolean log_init = false;
 
     public SubsystemManager() {
         // Initialize the subsystem list
@@ -75,8 +75,9 @@ public abstract class SubsystemManager {
         }
 
         // Run the logger!
-        runLog(Timer.getFPGATimestamp());
-
+        if (log_init) {
+            // runLog(Timer.getFPGATimestamp());
+        }
     }
 
     /**
@@ -95,8 +96,13 @@ public abstract class SubsystemManager {
     protected void runLog(double timestamp) {
         // If it is valid, collect the subsystem I/Os
         for (Subsystem subsystem : subsystems) {
-            Logger.processInputs(subsystem.getClass().getCanonicalName().replace(".", "_"), subsystem.getLogger());
+            try {
+                Logger.processInputs(subsystem.getClass().getCanonicalName().replace(".", "_"), subsystem.getLogger());
+            } catch (Exception e) {
+                DataLogManager.log(subsystem.getClass().getCanonicalName() + "failed to log io");
+            }
         }
+
     }
 
     /**
@@ -106,6 +112,7 @@ public abstract class SubsystemManager {
     public void initLogfile(String ctrl_mode) {
         Logger.recordMetadata("Control Mode", ctrl_mode);
         Logger.start();
+        log_init = true;
     }
 
     /**
@@ -115,6 +122,7 @@ public abstract class SubsystemManager {
      */
     public void stopLog() {
         Logger.end();
+        log_init = false;
     }
 
     /**

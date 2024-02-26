@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2.7349016236494026,
-      "y": 6.926593853187707
+      "x": 1.4324651726226545,
+      "y": 1.4701744788104976
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Buzz the stage"
+            "pathName": "Simple Leave"
           }
         }
       ]

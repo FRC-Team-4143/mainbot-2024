@@ -4,32 +4,36 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.PickupSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.PickupSubsystem.PickupMode;
+import frc.robot.OI;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
+import frc.robot.subsystems.SwerveDrivetrain;
 
-public class LaunchNote extends Command {
-  /** Creates a new LaunchNote. */
-  public LaunchNote() {
-    // Use addRequirements() here to declare subsystem dependencies.
+public class RobotCentricCrawl extends Command {
+  static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
+  
+  public RobotCentricCrawl() {
+    addRequirements(SwerveDrivetrain.getInstance());
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ShooterSubsystem.getInstance().setRollerFeed();
-    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
+    swerve_drivetrain_.setDriveMode(DriveMode.CRAWL);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    Rotation2d r2 = Rotation2d.fromDegrees(OI.getDriverJoystickPOVangle());
+    swerve_drivetrain_.setCrabRequest(r2);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
+    swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
   }
 
   // Returns true when the command should end.

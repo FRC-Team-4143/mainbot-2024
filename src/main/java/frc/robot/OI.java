@@ -7,11 +7,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.commands.*;
 
 public abstract class OI {
@@ -26,6 +26,7 @@ public abstract class OI {
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
     static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
     static ClimberSubsystem climber_ = ClimberSubsystem.getInstance();
+    static Trigger crawlTrigger;
 
     public static void configureBindings() {
 
@@ -37,7 +38,7 @@ public abstract class OI {
                 .ignoringDisable(true));
 
         // Enagage Targeting
-        driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtTarget(ShootTarget.SPEAKER));
+        driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtSpeaker());
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
@@ -45,7 +46,7 @@ public abstract class OI {
                 () -> mailman_.setRollerStop()));
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(new RunPickup());
+        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
 
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
@@ -57,6 +58,10 @@ public abstract class OI {
                         pickup_front_.setPickupMode(PickupMode.IDLE);
                         mailman_.setRollerStop();
                 }));
+
+        // Crawl
+        crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
+        crawlTrigger.whileTrue(new RobotCentricCrawl());
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
@@ -76,25 +81,16 @@ public abstract class OI {
         operator_joystick_.a().whileTrue(Commands.runOnce(
                 () -> mailman_.setHeight(HeightTarget.HOME)));
 
-        // Handoff from shooter to Mailman
-        operator_joystick_.rightBumper().whileTrue(Commands.startEnd(
-                () -> {
-                    mailman_.setHeight(HeightTarget.HOME);
-                    shooter_.setShootMode(ShootMode.TRANSFER);
-                    mailman_.setRollerRecieve();
-                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
-                    shooter_.setRollerFeed();
-                },
-                () -> {
-                    shooter_.setShootMode(ShootMode.IDLE);
-                    shooter_.rollerStop();
-                    mailman_.setRollerStop();
-                    pickup_rear_.setPickupMode(PickupMode.IDLE);
-                }));
+        // Handoff from Shooter to Mailman
+        operator_joystick_.rightBumper().whileTrue(new HandoffToMailman());
+
+        // Handoff from Mailman to Shooter
+        operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
+
 
         // FOR PRACTICE MODE ONLY
         // Feed Shooter
-        operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
+        operator_joystick_.leftStick().whileTrue(Commands.startEnd(
                 () -> {
                     shooter_.setRollerFeed();
                     pickup_rear_.setPickupMode(PickupMode.PICKUP);
@@ -123,7 +119,6 @@ public abstract class OI {
                 () -> mailman_.setHeight(HeightTarget.TRAP)));
 
         // Test buttons
-        operator_joystick_.povUp().onTrue(new RunPickup());
 
     }
 
@@ -146,5 +141,9 @@ public abstract class OI {
         double output = val * val;
         output = Math.copySign(output, val);
         return output;
+    }
+
+    static public double getDriverJoystickPOVangle() {
+        return driver_joystick_.getHID().getPOV();
     }
 }

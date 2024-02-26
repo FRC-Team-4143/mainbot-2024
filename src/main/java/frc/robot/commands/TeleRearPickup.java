@@ -9,9 +9,8 @@ import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
-public class RunPickup extends Command {
-  /** Creates a new RunPickup. */
-  public RunPickup() {
+public class TeleRearPickup extends Command {
+  public TeleRearPickup() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 

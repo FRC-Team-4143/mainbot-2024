@@ -42,6 +42,7 @@ public final class Constants {
     public static final int backRightEncoder = 3;
     public static final double MaxSpeed = 6; // 6 meters per second desired top speed
     public static final double MaxAngularRate = Math.PI * 2; // Half a rotation per second max angular velocity
+    public static final double CrawlSpeed = 0.4;
 
   }
 
@@ -57,7 +58,7 @@ public final class Constants {
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
-    public static final double FLYWHEEL_TOLERANCE = 5;
+    public static final double FLYWHEEL_TOLERANCE = 30; // TODO: Tune for new PID controller
     public static final double NOTE_EXIT_VELOCITY = 10.0;
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
@@ -86,24 +87,24 @@ public final class Constants {
     public static final double WRIST_ANGLE_MIN = 0;
     public static final double WRIST_CONTROLLER_P = 13.0;
     public static final double WRIST_CONTROLLER_FF = 0.2;
-    public static final double WRIST_TOLERANCE = 0.00349;
+    public static final double WRIST_TOLERANCE = Math.toRadians(4);
     public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
     public static final double WRIST_HOME_ANGLE = 0.22689;
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
-    public static final double WRIST_CLIMB_ANGLE = 1.5708;
+    public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
     
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
 
-    public static final double YAW_TOLERANCE = 0.034; // 2 Degress for Testing
+    public static final double YAW_TOLERANCE = Math.toRadians(15);
 
     // Sensor Constants
     public static final int NOTE_SENSOR_ID = 1;
     public static final double SENSOR_SAMPLE_TIME = 24.0;
     public static final double HAS_NOTE_RANGE = 150.0;
-    public static final double NO_NOTE_RANGE = 350.0;
+    public static final double NO_NOTE_RANGE = 200.0;
   }
 
   // IDs Range from 20 - 29
@@ -136,7 +137,7 @@ public final class Constants {
     public static final int DROPPER_MOTOR_ID = 32;
     public static final double AMP_HEIGHT = 63;
     public static final double HOME_HEIGHT = 0;
-    public static final double TRAP_HEIGHT = 105;
+    public static final double TRAP_HEIGHT = 120;
     public static final double ELEVATOR_CONTROLLER_P = 0.5;
     public static final double ELEVATOR_CONTROLLER_D = 0.0;
     public static final double ELEVATOR_CONTROLLER_MAX_VEL = 0.0;
