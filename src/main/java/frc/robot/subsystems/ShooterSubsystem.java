@@ -101,6 +101,7 @@ public class ShooterSubsystem extends Subsystem {
         IDLE,
         READY,
         TRANSFER,
+        RECEIVE,
         CLIMB,
         PROFILE
     }
@@ -175,15 +176,18 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
             io_.target_flywheel_speed_ = 0;
-        } else if (io_.target_mode_ == ShootMode.PROFILE) {
-            io_.target_wrist_angle_ = Math.toRadians(25);
-            io_.target_flywheel_speed_ = 580;
         } else if (io_.target_mode_ == ShootMode.TRANSFER) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
             io_.target_flywheel_speed_ = 50;
         } else if (io_.target_mode_ == ShootMode.CLIMB) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_CLIMB_ANGLE;
             io_.target_flywheel_speed_ = 0;
+        } else if (io_.target_mode_ == ShootMode.RECEIVE){
+            io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
+            io_.target_flywheel_speed_ = -50;
+        } else if (io_.target_mode_ == ShootMode.PROFILE) {
+            io_.target_wrist_angle_ = Math.toRadians(35);
+            io_.target_flywheel_speed_ = 580;
         }
 
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
@@ -229,7 +233,7 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber("Target Robot Yaw", io_.target_robot_yaw_.getRadians());
         SmartDashboard.putNumber("Current Robot Yaw", PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
 
-
+        
     }
 
     // get methods

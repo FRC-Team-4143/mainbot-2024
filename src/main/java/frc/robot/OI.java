@@ -82,25 +82,16 @@ public abstract class OI {
         operator_joystick_.a().whileTrue(Commands.runOnce(
                 () -> mailman_.setHeight(HeightTarget.HOME)));
 
-        // Handoff from shooter to Mailman
-        operator_joystick_.rightBumper().whileTrue(Commands.startEnd(
-                () -> {
-                    mailman_.setHeight(HeightTarget.HOME);
-                    shooter_.setShootMode(ShootMode.TRANSFER);
-                    mailman_.setRollerRecieve();
-                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
-                    shooter_.setRollerFeed();
-                },
-                () -> {
-                    shooter_.setShootMode(ShootMode.IDLE);
-                    shooter_.rollerStop();
-                    mailman_.setRollerStop();
-                    pickup_rear_.setPickupMode(PickupMode.IDLE);
-                }));
+        // Handoff from Shooter to Mailman
+        operator_joystick_.rightBumper().whileTrue(new HandoffToMailman());
+
+        // Handoff from Mailman to Shooter
+        operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
+
 
         // FOR PRACTICE MODE ONLY
         // Feed Shooter
-        operator_joystick_.leftBumper().whileTrue(Commands.startEnd(
+        operator_joystick_.leftStick().whileTrue(Commands.startEnd(
                 () -> {
                     shooter_.setRollerFeed();
                     pickup_rear_.setPickupMode(PickupMode.PICKUP);
