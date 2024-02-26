@@ -12,45 +12,65 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ShootAtSpeaker"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "4 Front Note 1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootAtSpeaker"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "4 Front Note 2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootAtSpeaker"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "4 Front Note 3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootAtSpeaker"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoEnableDefaults"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "PPShootAtTarget"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "4 Front Note 1"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "PPShootAtTarget"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "4 Front Note 2"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "PPShootAtTarget"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "4 Front Note 3"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "PPShootAtTarget"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
