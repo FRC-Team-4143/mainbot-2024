@@ -74,8 +74,9 @@ public final class Constants {
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 10.0);
-      map.put(3.0, 10.0);
-      map.put(6.0, 10.0);
+      map.put(1.0, 10.0);
+      map.put(2.0, 14.0);
+      map.put(6.0, 15.0);
 
       return map;
     }
