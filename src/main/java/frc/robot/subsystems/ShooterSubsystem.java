@@ -88,8 +88,8 @@ public class ShooterSubsystem extends Subsystem {
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
 
-    private final InterpolatingDoubleTreeMap vel_to_angular_lookup_ = ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
-    private final InterpolatingDoubleTreeMap dist_to_vel_lookup_ = ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
+    private final InterpolatingDoubleTreeMap angular_to_vel_lookup_ = ShooterConstants.ANGULAR_TO_LINEAR_VEL_MAP();
+    private final InterpolatingDoubleTreeMap dist_to_angle_offset_lookup_ = ShooterConstants.DISTANCE_TO_TARGET_OFFSET_MAP();
 
     public enum ShootTarget {
         SPEAKER,
@@ -166,12 +166,12 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void updateLogic(double timestamp) {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
-        double velocity_lookup_ = dist_to_vel_lookup_.get(calculateLinearDist(robot_pose, io_.target_));
+        io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(calculateLinearDist(robot_pose, io_.target_));
 
         if (io_.target_mode_ == ShootMode.TARGET) {
             io_.target_robot_yaw_ = calculateTargetYaw();
-            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, velocity_lookup_);
-            io_.target_flywheel_speed_ = 580; //vel_to_angular_lookup_.get(velocity_lookup_);
+            io_.target_flywheel_speed_ = 580; // TODO: set ideal shooter rads/s
+            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, angular_to_vel_lookup_.get(io_.target_flywheel_speed_););
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
@@ -356,7 +356,7 @@ public class ShooterSubsystem extends Subsystem {
     private double calculateWristAngle(Pose2d robot_pose, Pose3d target_pose, double velocity) {
         Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
 
-        double z = Math.abs(shooter_pose.getZ() - target_pose.getZ());
+        double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) + io_.target_offset_lookup_;
         double d = calculateLinearDist(robot_pose, target_pose);
         double G = 9.81;
         double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
@@ -388,6 +388,7 @@ public class ShooterSubsystem extends Subsystem {
         public Transform3d target_transform_ = new Transform3d();
         public ChassisSpeeds relative_chassis_speed_ = new ChassisSpeeds();
         public double note_sensor_range_ = 0.0;
+        public double target_offset_lookup_ = 0.0;
     }
 
     @Override

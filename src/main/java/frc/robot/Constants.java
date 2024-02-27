@@ -59,11 +59,11 @@ public final class Constants {
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30; // TODO: Tune for new PID controller
-    public static final double NOTE_EXIT_VELOCITY = 10.0;
+    public static final double NOTE_EXIT_VELOCITY = (4.0*25.4*Math.PI/1000.0)/(5538.0/60.0);
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
 
-    public static final InterpolatingDoubleTreeMap LINEAR_TO_ANGULAR_VEL_MAP() {
+    public static final InterpolatingDoubleTreeMap ANGULAR_TO_LINEAR_VEL_MAP() {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);
       map.put(10.0, 98.425);
@@ -71,12 +71,11 @@ public final class Constants {
       return map;
     }
 
-    public static final InterpolatingDoubleTreeMap DISTANCE_TO_EXIT_VEL_MAP() {
+    public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 10.0);
-      map.put(1.0, 10.0);
-      map.put(2.0, 14.0);
-      map.put(6.0, 15.0);
+      map.put(0.0, 0.0);
+      map.put(3.0, 0.0);
+      map.put(6.0, 0.0);
 
       return map;
     }
