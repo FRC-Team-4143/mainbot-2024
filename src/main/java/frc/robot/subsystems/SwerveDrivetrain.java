@@ -266,7 +266,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public Rotation2d getRobotRotation(){
-       return (new Pose2d(0, 0, io_.robot_yaw_).relativeTo(new Pose2d(0, 0, io_.field_relative_offset_))).getRotation();
+       return (new Pose2d(0, 0, io_.robot_yaw_).getRotation());//.relativeTo(new Pose2d(0, 0, io_.field_relative_offset_))).getRotation();
     }
 
     /**

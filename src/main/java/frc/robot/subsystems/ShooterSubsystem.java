@@ -242,6 +242,11 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public boolean isTargetLocked() {
+
+        if(io_.target_flywheel_speed_ == 0){
+            return false;
+        }
+
         return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_,
                 ShooterConstants.WRIST_TOLERANCE)
                 &&
@@ -251,9 +256,18 @@ public class ShooterSubsystem extends Subsystem {
                 Util.epislonEquals(io_.current_bot_flywheel_speed_, io_.target_flywheel_speed_,
                         ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
-                Util.epislonEquals(io_.target_robot_yaw_.getRadians(),
+                ((Util.epislonEquals(io_.target_robot_yaw_.getRadians(),
                         SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
-                        ShooterConstants.YAW_TOLERANCE);
+                        ShooterConstants.YAW_TOLERANCE))
+                ||
+                (Util.epislonEquals(io_.target_robot_yaw_.getRadians() + Math.toRadians(180),
+                        SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
+                        ShooterConstants.YAW_TOLERANCE))
+                ||
+                (Util.epislonEquals(io_.target_robot_yaw_.getRadians() - Math.toRadians(180),
+                        SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
+                        ShooterConstants.YAW_TOLERANCE))
+                );
     }
 
 

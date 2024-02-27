@@ -17,8 +17,6 @@ import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
 public class PPShootAtTarget extends Command {
 
-  double delayTimer;
-
   /** Creates a new PPShootAtTarget. */
   public PPShootAtTarget() {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -39,7 +37,6 @@ public class PPShootAtTarget extends Command {
       ShooterSubsystem.getInstance().setRollerFeed();
     } else {
       ShooterSubsystem.getInstance().rollerStop();
-      SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     }
   }
 

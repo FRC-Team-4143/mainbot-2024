@@ -41,9 +41,7 @@ public abstract class OI {
         driver_joystick_.rightTrigger(0.5).whileTrue(new ShootAtSpeaker());
 
         // Deliver the Mail
-        driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerOutput(),
-                () -> mailman_.setRollerStop()));
+        driver_joystick_.leftTrigger(0.5).whileTrue(new ScoreMailman());
 
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());

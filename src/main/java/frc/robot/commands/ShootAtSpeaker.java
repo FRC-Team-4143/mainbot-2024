@@ -24,8 +24,8 @@ public class ShootAtSpeaker extends Command {
   @Override
   public void initialize() {
     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     shot_note_ = false;
   }
 
