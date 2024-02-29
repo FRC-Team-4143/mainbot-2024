@@ -110,8 +110,30 @@ public class ShooterSubsystem extends Subsystem {
 
     public ShooterSubsystem() {
         io_ = new ShooterPeriodicIoAutoLogged();
+        
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
+        bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
+                CANSparkLowLevel.MotorType.kBrushless);
+        
+
+        wrist_motor_ = new CANSparkMax(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        
+        roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+
+        note_sensor_ = new TimeOfFlight(ShooterConstants.NOTE_SENSOR_ID);
+        note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, ShooterConstants.SENSOR_SAMPLE_TIME);
+
+        target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
+        rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
+        
+    }
+
+    @Override
+    public void reset() {
+        io_ = new ShooterPeriodicIoAutoLogged();
+
+        // Top flywheel motor configuration
         top_flywheel_motor_.setSmartCurrentLimit(40);
         top_flywheel_motor_.setInverted(true);
         top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
@@ -121,9 +143,9 @@ public class ShooterSubsystem extends Subsystem {
         top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
         top_flywheel_controller_.setP(0.0001, 1);
         top_flywheel_controller_.setFF(0, 1);
+        top_flywheel_motor_.burnFlash();
 
-        bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
-                CANSparkLowLevel.MotorType.kBrushless);
+        // Bottom flywheel motor configuration
         bot_flywheel_motor_.setSmartCurrentLimit(40);
         bot_flywheel_motor_.setInverted(false);
         bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
@@ -133,8 +155,9 @@ public class ShooterSubsystem extends Subsystem {
         bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
         bot_flywheel_controller_.setP(0.0001, 1);
         bot_flywheel_controller_.setFF(0, 1);
+        bot_flywheel_motor_.burnFlash();
 
-        wrist_motor_ = new CANSparkMax(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        // Wrist motor configuration
         wrist_motor_.setInverted(true);
         wrist_motor_.setIdleMode(IdleMode.kBrake);
         wrist_encoder_ = wrist_motor_.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
@@ -142,20 +165,12 @@ public class ShooterSubsystem extends Subsystem {
         wrist_controller_ = wrist_motor_.getPIDController();
         wrist_controller_.setFeedbackDevice(wrist_encoder_);
         wrist_controller_.setP(ShooterConstants.WRIST_CONTROLLER_P);
+        wrist_motor_.burnFlash();
 
-        roller_motor_ = new CANSparkMax(ShooterConstants.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        // Roller motor configuration
         roller_motor_.setInverted(true);
+        roller_motor_.burnFlash();
 
-        target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
-        rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
-
-        note_sensor_ = new TimeOfFlight(ShooterConstants.NOTE_SENSOR_ID);
-        note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, ShooterConstants.SENSOR_SAMPLE_TIME);
-    }
-
-    @Override
-    public void reset() {
-        io_ = new ShooterPeriodicIoAutoLogged();
     }
 
     @Override
