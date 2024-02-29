@@ -246,7 +246,7 @@ public class SwerveModule {
         if (cosineScalar < 0.0) {
             cosineScalar = 0.0;
         }
-        // velocityToSet *= cosineScalar;
+        velocityToSet *= cosineScalar;
 
         // Back out the expected shimmy the drive motor will see. Find the angular rate
         // to determine what to back out

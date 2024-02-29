@@ -88,8 +88,8 @@ public class ShooterSubsystem extends Subsystem {
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
 
-    private final InterpolatingDoubleTreeMap angular_to_vel_lookup_ = ShooterConstants.ANGULAR_TO_LINEAR_VEL_MAP();
-    private final InterpolatingDoubleTreeMap dist_to_angle_offset_lookup_ = ShooterConstants.DISTANCE_TO_TARGET_OFFSET_MAP();
+    private final InterpolatingDoubleTreeMap dist_to_angle_offset_lookup_ = ShooterConstants
+            .DISTANCE_TO_TARGET_OFFSET_MAP();
 
     public enum ShootTarget {
         SPEAKER,
@@ -117,8 +117,10 @@ public class ShooterSubsystem extends Subsystem {
         top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
         top_flywheel_encoder_ = top_flywheel_motor_.getEncoder();
         top_flywheel_controller_.setFeedbackDevice(top_flywheel_encoder_);
-        top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
-        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF);
+        top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);
+        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
+        top_flywheel_controller_.setP(0.0001, 1);
+        top_flywheel_controller_.setFF(0, 1);
 
         bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID,
                 CANSparkLowLevel.MotorType.kBrushless);
@@ -127,8 +129,10 @@ public class ShooterSubsystem extends Subsystem {
         bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
         bot_flywheel_encoder_ = bot_flywheel_motor_.getEncoder();
         bot_flywheel_controller_.setFeedbackDevice(bot_flywheel_encoder_);
-        bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P);
-        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF);
+        bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);
+        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
+        bot_flywheel_controller_.setP(0.0001, 1);
+        bot_flywheel_controller_.setFF(0, 1);
 
         wrist_motor_ = new CANSparkMax(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         wrist_motor_.setInverted(true);
@@ -166,12 +170,13 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void updateLogic(double timestamp) {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
-        io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(calculateLinearDist(robot_pose, io_.target_));
+        io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_);
+        io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
         if (io_.target_mode_ == ShootMode.TARGET) {
-            io_.target_robot_yaw_ = calculateTargetYaw();
-            io_.target_flywheel_speed_ = 580; // TODO: set ideal shooter rads/s
-            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, angular_to_vel_lookup_.get(io_.target_flywheel_speed_););
+            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_);
+            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, ShooterConstants.NOTE_EXIT_VELOCITY);
+            io_.target_flywheel_speed_ = 550; // TODO: set ideal shooter rads/s
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
@@ -182,7 +187,7 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.CLIMB) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_CLIMB_ANGLE;
             io_.target_flywheel_speed_ = 0;
-        } else if (io_.target_mode_ == ShootMode.RECEIVE){
+        } else if (io_.target_mode_ == ShootMode.RECEIVE) {
             io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
             io_.target_flywheel_speed_ = -50;
         } else if (io_.target_mode_ == ShootMode.PROFILE) {
@@ -197,7 +202,7 @@ public class ShooterSubsystem extends Subsystem {
         }
     }
 
-    public boolean hasNote(){
+    public boolean hasNote() {
         return io_.has_note_;
     }
 
@@ -215,25 +220,26 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
         target_pub.set(io_.target_);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
-    
+
         SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
         SmartDashboard.putBoolean("Shooter Has Note", io_.has_note_);
         SmartDashboard.putNumber("Shooter Note Sensor Range", io_.note_sensor_range_);
-        
+
         // Target Locked Tests
         SmartDashboard.putBoolean("Target Locked", this.isTargetLocked());
 
-        SmartDashboard.putNumber("Target Flywheel Speed", io_.target_flywheel_speed_); //* 9.549);
-        SmartDashboard.putNumber("Current Top Flywheel Speed", io_.current_top_flywheel_speed_); //* 9.549);
-        SmartDashboard.putNumber("Current Bot Flywheel Speed", io_.current_bot_flywheel_speed_); //* 9.549);
+        SmartDashboard.putNumber("Target Flywheel Speed", io_.target_flywheel_speed_); // * 9.549);
+        SmartDashboard.putNumber("Current Top Flywheel Speed", io_.current_top_flywheel_speed_); // * 9.549);
+        SmartDashboard.putNumber("Current Bot Flywheel Speed", io_.current_bot_flywheel_speed_); // * 9.549);
 
-        SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_); //* 180 / 3.14159);
-        SmartDashboard.putNumber("Current Wrist Angle", io_.current_wrist_angle_); //* 180 / 3.14159);
+        SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_); // * 180 / 3.14159);
+        SmartDashboard.putNumber("Current Wrist Angle", io_.current_wrist_angle_); // * 180 / 3.14159);
 
         SmartDashboard.putNumber("Target Robot Yaw", io_.target_robot_yaw_.getRadians());
-        SmartDashboard.putNumber("Current Robot Yaw", PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
+        SmartDashboard.putNumber("Current Robot Yaw",
+                PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
+        SmartDashboard.putNumber("Target Distance", io_.target_distance_);
 
-        
     }
 
     // get methods
@@ -243,33 +249,25 @@ public class ShooterSubsystem extends Subsystem {
 
     public boolean isTargetLocked() {
 
-        if(io_.target_flywheel_speed_ == 0){
+        if (io_.target_flywheel_speed_ == 0) {
             return false;
         }
 
         return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_,
                 ShooterConstants.WRIST_TOLERANCE)
                 &&
-                Util.epislonEquals(io_.current_top_flywheel_speed_, io_.target_flywheel_speed_,
+                Util.epislonEquals(io_.current_top_flywheel_speed_,
+                        io_.target_flywheel_speed_,
                         ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
-                Util.epislonEquals(io_.current_bot_flywheel_speed_, io_.target_flywheel_speed_,
+                Util.epislonEquals(io_.current_bot_flywheel_speed_,
+                        io_.target_flywheel_speed_,
                         ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
-                ((Util.epislonEquals(io_.target_robot_yaw_.getRadians(),
-                        SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
-                        ShooterConstants.YAW_TOLERANCE))
-                ||
-                (Util.epislonEquals(io_.target_robot_yaw_.getRadians() + Math.toRadians(180),
-                        SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
-                        ShooterConstants.YAW_TOLERANCE))
-                ||
-                (Util.epislonEquals(io_.target_robot_yaw_.getRadians() - Math.toRadians(180),
-                        SwerveDrivetrain.getInstance().getRobotRotation().getRadians(),
-                        ShooterConstants.YAW_TOLERANCE))
-                );
+                Util.epislonEquals(io_.target_robot_yaw_,
+                        SwerveDrivetrain.getInstance().getRobotRotation(),
+                        ShooterConstants.YAW_TOLERANCE);
     }
-
 
     // set methods
     public void setTarget(ShootTarget target) {
@@ -307,14 +305,17 @@ public class ShooterSubsystem extends Subsystem {
 
     public void setFlyWheelRPM(double rad_per_sec_) {
         double rpm = rad_per_sec_ * 9.549;
-        top_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
-        bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity);
-
+        if (rpm == 0) {
+            flyWheelStop();
+        } else {
+            top_flywheel_controller_.setReference(rpm, ControlType.kVelocity, 0);
+            bot_flywheel_controller_.setReference(rpm, ControlType.kVelocity, 0);
+        }
     }
 
     public void flyWheelStop() {
-        top_flywheel_controller_.setReference(0, ControlType.kVelocity);
-        bot_flywheel_controller_.setReference(0, ControlType.kVelocity);
+        top_flywheel_controller_.setReference(0, ControlType.kVelocity, 1);
+        bot_flywheel_controller_.setReference(0, ControlType.kVelocity, 1);
     }
 
     public void setWristAngle() {
@@ -367,8 +368,8 @@ public class ShooterSubsystem extends Subsystem {
         return result;
     }
 
-    private Rotation2d calculateTargetYaw() {
-        Pose2d pose_difference = PoseEstimator.getInstance().getRobotPose().relativeTo(io_.target_.toPose2d());
+    private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target) {
+        Pose2d pose_difference = robot_pose.relativeTo(target.toPose2d());
         return pose_difference.getTranslation().getAngle();
     }
 
@@ -389,6 +390,7 @@ public class ShooterSubsystem extends Subsystem {
         public ChassisSpeeds relative_chassis_speed_ = new ChassisSpeeds();
         public double note_sensor_range_ = 0.0;
         public double target_offset_lookup_ = 0.0;
+        public double target_distance_ = 0.0;
     }
 
     @Override

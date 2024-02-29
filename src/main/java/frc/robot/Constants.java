@@ -7,9 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.interpolation.*;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -59,30 +57,23 @@ public final class Constants {
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30; // TODO: Tune for new PID controller
-    public static final double NOTE_EXIT_VELOCITY = (4.0*25.4*Math.PI/1000.0)/(5538.0/60.0);
-    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
+    public static final double FLYWHEEL_CONTROLLER_P = 0.001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
-
-    public static final InterpolatingDoubleTreeMap ANGULAR_TO_LINEAR_VEL_MAP() {
-      var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 0.0);
-      map.put(10.0, 98.425);
-
-      return map;
-    }
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);
-      map.put(3.0, 0.0);
-      map.put(6.0, 0.0);
+      map.put(1.6, 0.2);
+      map.put(3.0, 0.2); // 0.2
+      map.put(6.0, 0.45); // 0.6
 
       return map;
     }
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
-    public static final int WRIST_ENCODER_ID = 0;
+    public static final int WRIST_ENCODER_ID = 0;    
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
     public static final double WRIST_CONTROLLER_P = 13.0;
@@ -92,7 +83,6 @@ public final class Constants {
     public static final double WRIST_HOME_ANGLE = 0.22689;
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
-    
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
@@ -120,10 +110,10 @@ public final class Constants {
   }
 
   public class PickupSettings {
-    public PickupSettings(int ID, boolean invert, int SENSE_ID) {
-      ROLLER_MOTOR_ID = ID;
+    public PickupSettings(int id, boolean invert, int sense_id) {
+      ROLLER_MOTOR_ID = id;
       ROLLER_MOTOR_INVERTED = invert;
-      PICKUP_NOTE_SENSOR_ID = SENSE_ID;
+      PICKUP_NOTE_SENSOR_ID = sense_id;
     }
 
     public final int ROLLER_MOTOR_ID;
@@ -144,7 +134,7 @@ public final class Constants {
     public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
     public static final double DROPPER_IN_SPEED = 0.5;
     public static final double DROPPER_OUT_SPEED = -0.5;
-    
+
   }
 
   // IDs range from 40 - 49
