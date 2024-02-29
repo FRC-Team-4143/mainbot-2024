@@ -17,7 +17,7 @@ import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
 public class PPShootAtTarget extends Command {
 
-  int cycle_count_ = 0;
+  boolean has_shot_note_ = false;
 
   /** Creates a new PPShootAtTarget. */
   public PPShootAtTarget() {
@@ -28,7 +28,7 @@ public class PPShootAtTarget extends Command {
   @Override
   public void initialize() {
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
-    cycle_count_ = 0;
+    has_shot_note_ = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -38,7 +38,7 @@ public class PPShootAtTarget extends Command {
       ShooterSubsystem.getInstance().setRollerFeed();
     } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { 
       ShooterSubsystem.getInstance().setRollerFeed();
-      cycle_count_ ++;
+      has_shot_note_ = true;
     } else {
       ShooterSubsystem.getInstance().rollerStop();
     }
@@ -54,6 +54,6 @@ public class PPShootAtTarget extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return cycle_count_ > 30;
+    return has_shot_note_ && !ShooterSubsystem.getInstance().hasNote();
   }
 }
