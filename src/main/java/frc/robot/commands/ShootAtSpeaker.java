@@ -37,6 +37,8 @@ public class ShootAtSpeaker extends Command {
     } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
+    } else {
+      ShooterSubsystem.getInstance().rollerStop();
     }
   }
 

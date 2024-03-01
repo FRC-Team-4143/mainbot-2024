@@ -88,7 +88,7 @@ public final class Constants {
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
 
-    public static final double YAW_TOLERANCE = Math.toRadians(15);
+    public static final double YAW_TOLERANCE = Math.toRadians(5);
 
     // Sensor Constants
     public static final int NOTE_SENSOR_ID = 1;

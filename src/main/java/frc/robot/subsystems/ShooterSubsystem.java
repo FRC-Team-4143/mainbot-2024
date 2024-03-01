@@ -71,10 +71,8 @@ public class ShooterSubsystem extends Subsystem {
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
     // Speed maps
-    // private final InterpolatingDoubleTreeMap linear_to_angular_vel_map =
-    // ShooterConstants.LINEAR_TO_ANGULAR_VEL_MAP();
-    // private final InterpolatingDoubleTreeMap distance_to_linear_vel_map =
-    // ShooterConstants.DISTANCE_TO_EXIT_VEL_MAP();
+    private final InterpolatingDoubleTreeMap dist_to_angle_offset_lookup_ = ShooterConstants
+            .DISTANCE_TO_TARGET_OFFSET_MAP();
 
     SparkPIDController wrist_controller_;
     SparkAbsoluteEncoder wrist_encoder_;
@@ -87,9 +85,6 @@ public class ShooterSubsystem extends Subsystem {
 
     private StructPublisher<Pose3d> target_pub;
     private StructPublisher<Pose2d> rot_pub;
-
-    private final InterpolatingDoubleTreeMap dist_to_angle_offset_lookup_ = ShooterConstants
-            .DISTANCE_TO_TARGET_OFFSET_MAP();
 
     public enum ShootTarget {
         SPEAKER,
@@ -185,12 +180,15 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void updateLogic(double timestamp) {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
-        io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_);
+        io_.target_offset_pose = io_.target_.transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
+        io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
+        io_.note_travel_time_ = calculateNoteTravelTime(robot_pose, io_.target_offset_pose);
         io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
+
         if (io_.target_mode_ == ShootMode.TARGET) {
-            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_);
-            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_, ShooterConstants.NOTE_EXIT_VELOCITY);
+            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY);
             io_.target_flywheel_speed_ = 550; // TODO: set ideal shooter rads/s
             io_.relative_chassis_speed_ = transformChassisVelocity();
         } else if (io_.target_mode_ == ShootMode.IDLE) {
@@ -233,7 +231,7 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void outputTelemetry(double timestamp) {
         SmartDashboard.putNumber("Target Yaw", io_.target_robot_yaw_.getDegrees());
-        target_pub.set(io_.target_);
+        target_pub.set(io_.target_offset_pose);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
 
         SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
@@ -357,9 +355,9 @@ public class ShooterSubsystem extends Subsystem {
         return ShooterConstants.NOTE_EXIT_VELOCITY;
     }
 
-    private void calculateNoteTravelTime(Pose2d robot_pose, Pose3d target_pose) {
+    private double calculateNoteTravelTime(Pose2d robot_pose, Pose3d target_pose) {
         double distance = (new Pose3d(robot_pose)).getTranslation().getDistance(target_pose.getTranslation());
-        io_.note_travel_time_ = distance / ShooterConstants.NOTE_EXIT_VELOCITY; // TODO Find the actual exit velocity
+        return distance / ShooterConstants.NOTE_EXIT_VELOCITY;
     }
 
     private double calculateLinearDist(Pose2d robot_pose, Pose3d target_pose) {
@@ -383,9 +381,15 @@ public class ShooterSubsystem extends Subsystem {
         return result;
     }
 
-    private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target) {
-        Pose2d pose_difference = robot_pose.relativeTo(target.toPose2d());
+    private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target_pose) {
+        Pose2d pose_difference = robot_pose.relativeTo(target_pose.toPose2d());
         return pose_difference.getTranslation().getAngle();
+    }
+
+    private Transform3d calculateMovingTargetOffset(ChassisSpeeds chassis_speeds, double travel_time){
+        double horizontal_offset = -chassis_speeds.vyMetersPerSecond * travel_time;
+        double vertical_offset = -chassis_speeds.vxMetersPerSecond * travel_time;
+        return new Transform3d(new Translation3d(horizontal_offset, vertical_offset, 0), new Rotation3d());
     }
 
     @AutoLog
@@ -406,6 +410,7 @@ public class ShooterSubsystem extends Subsystem {
         public double note_sensor_range_ = 0.0;
         public double target_offset_lookup_ = 0.0;
         public double target_distance_ = 0.0;
+        public Pose3d target_offset_pose = new Pose3d();
     }
 
     @Override
