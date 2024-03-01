@@ -2,59 +2,72 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3842846515935527,
-      "y": 3.8879977331994606
+      "x": 0.7987428243044774,
+      "y": 4.555515416309007
     },
-    "rotation": 123.8482358116484
+    "rotation": 121.42956561483855
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "sequential",
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "ShootAtSpeaker"
+                  "name": "AutoEnableDefaults"
                 }
               },
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "Far 4 Piece 1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ShootAtSpeaker"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Far 4 Piece 2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ShootAtSpeaker"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Far 4 Piece 3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ShootAtSpeaker"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AutoShootAtSpeaker"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Far 4 Piece 1"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AutoShootAtSpeaker"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Far 4 Piece 2"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AutoShootAtSpeaker"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Far 4 Piece 3"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AutoShootAtSpeaker"
+                      }
+                    }
+                  ]
                 }
               }
             ]

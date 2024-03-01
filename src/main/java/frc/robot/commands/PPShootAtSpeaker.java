@@ -15,19 +15,19 @@ import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
-public class PPShootAtTarget extends Command {
+public class PPShootAtSpeaker extends Command {
 
   boolean has_shot_note_ = false;
 
-  /** Creates a new PPShootAtTarget. */
-  public PPShootAtTarget() {
+  /** Creates a new PPShootAtSpeaker. */
+  public PPShootAtSpeaker() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS_TARGET);
     has_shot_note_ = false;
   }
 

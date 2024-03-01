@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.61,
-        "y": 2.27
+        "x": 4.300282951493148,
+        "y": 4.930262185774015
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.902340061090378,
-        "y": 4.303448834817898
+        "x": 6.4316552028253815,
+        "y": 3.1033716846320987
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Shoot Point"
     },
     {
       "anchor": {
-        "x": 7.919431907239883,
-        "y": 4.092954054853979
+        "x": 8.235124030875737,
+        "y": 4.11050362756931
       },
       "prevControl": {
-        "x": 5.662154872571218,
-        "y": 4.092954054853979
+        "x": 7.381635348344957,
+        "y": 4.569094561466447
       },
       "nextControl": {
-        "x": 8.799431907239885,
-        "y": 4.092954054853979
+        "x": 9.019750079443096,
+        "y": 3.688913511921175
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.61,
-        "y": 2.27
+        "x": 4.300282951493148,
+        "y": 4.930262185774015
       },
       "prevControl": {
-        "x": 4.282549875641061,
-        "y": 4.899850711382335
+        "x": 5.90401115355726,
+        "y": 2.976454772510115
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Shoot Point"
     }
   ],
   "rotationTargets": [
@@ -54,7 +54,7 @@
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "New Event Marker",
+      "name": "Run Pickup Note 3",
       "waypointRelativePos": 0.85,
       "command": {
         "type": "parallel",
@@ -63,7 +63,41 @@
             {
               "type": "named",
               "data": {
-                "name": "RunPickup"
+                "name": null
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Duck Note 3 ",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Duck"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Enable Targeting Note 3",
+      "waypointRelativePos": 1.9,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoEnableDefaults"
               }
             }
           ]
@@ -72,20 +106,20 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 135.42714404325628,
+    "rotation": 168.7908811102348,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Far 4 Piece",
   "previewStartingState": {
-    "rotation": 133.63296994414054,
+    "rotation": 169.18426843403407,
     "velocity": 0
   },
   "useDefaultConstraints": true

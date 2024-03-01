@@ -64,7 +64,7 @@ public class SwerveModuleConstants {
     public Slot0Configs DriveMotorGains = new Slot0Configs();
 
     /** The maximum amount of stator current the drive motors can apply without slippage. */
-    public double SlipCurrent = 400;
+    public double SlipCurrent = 10;
 
     /** True if the steering motor is reversed from the CANcoder. */
     public boolean SteerMotorInverted = false;

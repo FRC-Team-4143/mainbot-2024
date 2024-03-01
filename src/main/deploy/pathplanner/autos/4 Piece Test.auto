@@ -28,7 +28,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "PPShootAtTarget"
+                        "name": "AutoShootAtSpeaker"
                       }
                     },
                     {
@@ -40,7 +40,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "PPShootAtTarget"
+                        "name": "AutoShootAtSpeaker"
                       }
                     },
                     {
@@ -52,7 +52,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "PPShootAtTarget"
+                        "name": "AutoShootAtSpeaker"
                       }
                     },
                     {
@@ -64,7 +64,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "PPShootAtTarget"
+                        "name": "AutoShootAtSpeaker"
                       }
                     }
                   ]
