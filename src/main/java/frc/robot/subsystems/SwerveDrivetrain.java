@@ -33,19 +33,20 @@ import edu.wpi.first.math.MathUtil;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.lib.subsystem.Subsystem;
 import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
-import frc.lib.swerve.generated.TunerConstants;
 import frc.robot.Constants;
 import frc.robot.OI;
+import frc.robot.Constants.DrivetrainConstants;
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -69,8 +70,8 @@ public class SwerveDrivetrain extends Subsystem {
 
     public static SwerveDrivetrain getInstance() {
         if (instance == null) {
-            instance = new SwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft,
-                    TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
+            instance = new SwerveDrivetrain(DrivetrainConstants.FrontLeft,
+                    DrivetrainConstants.FrontRight, DrivetrainConstants.BackLeft, DrivetrainConstants.BackRight);
         }
         return instance;
     }
@@ -105,6 +106,11 @@ public class SwerveDrivetrain extends Subsystem {
     private SwerveRequest request_to_apply;
     private SwerveControlRequestParameters request_parameters;
 
+    /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
+    public final Rotation2d blueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
+    /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
+    public final Rotation2d redAlliancePerspectiveRotation = Rotation2d.fromDegrees(180);
+
     // NT publishers
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
 
@@ -115,18 +121,15 @@ public class SwerveDrivetrain extends Subsystem {
      * the devices themselves. If they need the devices, they can access them
      * through getters in the classes.
      *
-     * @param driveTrainConstants Drivetrain-wide constants for the swerve drive
      * @param modules             Constants for each specific module
      */
-    public SwerveDrivetrain(
-            SwerveDrivetrainConstants driveTrainConstants,
-            SwerveModuleConstants... modules) {
+    public SwerveDrivetrain(SwerveModuleConstants... modules) {
 
         // make new io instance
         io_ = new SwerveDriverainPeriodicIoAutoLogged();
 
         // Setup the Pigeon IMU
-        pigeon_imu = new Pigeon2(driveTrainConstants.Pigeon2Id, driveTrainConstants.CANbusName[0]);
+        pigeon_imu = new Pigeon2(DrivetrainConstants.Pigeon2Id, DrivetrainConstants.CANbusName[0]);
         pigeon_imu.optimizeBusUtilization();
 
         // Begin configuring swerve modules
@@ -139,24 +142,29 @@ public class SwerveDrivetrain extends Subsystem {
         // Construct the swerve modules
         for (int i = 0; i < modules.length; i++) {
             SwerveModuleConstants module = modules[i];
-            swerve_modules[i] = new SwerveModule(module, driveTrainConstants.CANbusName[i],
-                    driveTrainConstants.SupportsPro);
+            swerve_modules[i] = new SwerveModule(module, DrivetrainConstants.CANbusName[i]);
             module_locations[i] = new Translation2d(module.LocationX, module.LocationY);
             io_.module_positions[i] = swerve_modules[i].getPosition(true);
             io_.current_module_states_[i] = swerve_modules[i].getCurrentState();
-            io_.requested_module_states_[i] = swerve_modules[i].getRequestedState();
+            io_.requested_module_states_[i] = swerve_modules[i].getTargetState();
 
         }
         kinematics = new SwerveDriveKinematics(module_locations);
 
         // Drive mode requests
-        field_centric = new SwerveRequest.FieldCentric().withIsOpenLoop(false)
+        field_centric = new SwerveRequest.FieldCentric()
+                .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
-        robot_centric = new SwerveRequest.RobotCentric().withIsOpenLoop(false)
+        robot_centric = new SwerveRequest.RobotCentric()
+                .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
-        target_facing = new SwerveRequest.FieldCentricFacingAngle().withIsOpenLoop(false)
+        target_facing = new SwerveRequest.FieldCentricFacingAngle()
+                .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
                 .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
         auto_request = new SwerveRequest.ApplyChassisSpeeds();
@@ -187,7 +195,7 @@ public class SwerveDrivetrain extends Subsystem {
         for (int i = 0; i < swerve_modules.length; ++i) {
             io_.module_positions[i] = swerve_modules[i].getPosition(true);
             io_.current_module_states_[i] = swerve_modules[i].getCurrentState();
-            io_.requested_module_states_[i] = swerve_modules[i].getRequestedState();
+            io_.requested_module_states_[i] = swerve_modules[i].getTargetState();
         }
         io_.driver_joystick_leftX_ = OI.getDriverJoystickLeftX();
         io_.driver_joystick_leftY_ = OI.getDriverJoystickLeftY();
@@ -248,6 +256,7 @@ public class SwerveDrivetrain extends Subsystem {
         request_parameters.swervePositions = module_locations;
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
         request_parameters.timestamp = timestamp;
+        request_parameters.operatorForwardDirection = io_.drivers_station_perspective_;
     }
 
     @Override
@@ -394,6 +403,10 @@ public class SwerveDrivetrain extends Subsystem {
         io_.drive_mode_ = mode;
     }
 
+    public void setDriverPrespective(Rotation2d prespective){
+        io_.drivers_station_perspective_ = prespective;
+    }
+
     @Override
     public LoggableInputs getLogger() {
         return io_;
@@ -418,5 +431,6 @@ public class SwerveDrivetrain extends Subsystem {
         public DriveMode drive_mode_ = DriveMode.FIELD_CENTRIC;
         public double driver_POVx = 0.0;
         public double driver_POVy = 0.0;
+        public Rotation2d drivers_station_perspective_ = new Rotation2d();
     }
 }

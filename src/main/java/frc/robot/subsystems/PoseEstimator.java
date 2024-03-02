@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.TimestampedObject;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.opencv.dnn.Net;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 
@@ -38,12 +39,13 @@ public class PoseEstimator extends Subsystem {
     private ProtobufPublisher<Pose2d> pose_publisher_;
 
     PoseEstimator() {
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("WarVision");
+        NetworkTableInstance nti = NetworkTableInstance.getDefault();
+        //NetworkTable table = NetworkTableInstance.getDefault().getTable("WarVision");
         io_ = new PoseEstimatorPeriodicIoAutoLogged();
         field_ = new Field2d();
-        var field_pose_topic = table.getProtobufTopic("vision/pose", Pose2d.proto);
-        var robot_odom_topic = table.getProtobufTopic("vision/odom", Pose2d.proto);
-        var robot_pose_topic = table.getProtobufTopic("vision/odom", Pose2d.proto);
+        var field_pose_topic = nti.getProtobufTopic("vision/pose", Pose2d.proto);
+        var robot_odom_topic = nti.getProtobufTopic("vision/odom", Pose2d.proto);
+        var robot_pose_topic = nti.getProtobufTopic("robotpose", Pose2d.proto);
 
         vision_subsciber_ = field_pose_topic.subscribe(new Pose2d());
         odom_publisher_ = robot_odom_topic.publish();

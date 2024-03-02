@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
@@ -118,6 +121,13 @@ public abstract class OI {
 
         // Test buttons
 
+
+
+        /* When we get alliance data from Driver Station, select what perspective is forward for operator control */
+        new Trigger(() -> DriverStation.getAlliance().isPresent())
+        .whileTrue(new RunCommand(() ->  swerve_drivetrain_.setDriverPrespective(
+                DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
+                : swerve_drivetrain_.blueAlliancePerspectiveRotation)));
     }
 
     static public double getDriverJoystickLeftX() {

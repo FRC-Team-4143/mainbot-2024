@@ -5,6 +5,7 @@
  * an issue tracker at https://github.com/CrossTheRoadElec/Phoenix-Releases
  */
 package frc.lib.swerve;
+import frc.lib.swerve.SwerveModule.ClosedLoopOutputType;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 
@@ -12,12 +13,17 @@ import com.ctre.phoenix6.configs.Slot0Configs;
  * All constants for a swerve module.
  */
 public class SwerveModuleConstants {
-    public enum SwerveModuleSteerFeedbackType {
+    /**
+     * Supported feedback sensors for the steer motors.
+     */
+    public enum SteerFeedbackType {
         RemoteCANcoder,
+        /** Requires Pro */
         FusedCANcoder,
+        /** Requires Pro */
         SyncCANcoder,
         AnalogEncoder,
-	None,
+	    None,
     }
 
     /** CAN ID of the drive motor. */
@@ -58,10 +64,26 @@ public class SwerveModuleConstants {
      */
     public double LocationY = 0;
 
-    /** The steer motor closed-loop gains. */
+    /**
+     * The steer motor closed-loop gains.
+     * <p>
+     * The steer motor uses the control ouput type specified by
+     * {@link #SteerMotorClosedLoopOutput} and any {@link SwerveModule.SteerRequestType}.
+     */
     public Slot0Configs SteerMotorGains = new Slot0Configs();
-    /** The drive motor closed-loop gains. */
+    /**
+     * The drive motor closed-loop gains.
+     * <p>
+     * When using closed-loop control, the drive motor uses the control output
+     * type specified by {@link #DriveMotorClosedLoopOutput} and any closed-loop
+     * {@link SwerveModule.DriveRequestType}.
+     */
     public Slot0Configs DriveMotorGains = new Slot0Configs();
+
+    /** The closed-loop output type to use for the steer motors. */
+    public ClosedLoopOutputType SteerMotorClosedLoopOutput = ClosedLoopOutputType.Voltage;
+    /** The closed-loop output type to use for the drive motors. */
+    public ClosedLoopOutputType DriveMotorClosedLoopOutput = ClosedLoopOutputType.Voltage;
 
     /** The maximum amount of stator current the drive motors can apply without slippage. */
     public double SlipCurrent = 400;
@@ -81,9 +103,13 @@ public class SwerveModuleConstants {
 
     /** Sim-specific constants **/
     /** Simulated azimuthal inertia in kilogram meters squared. */
-    public double SteerInertia = 0.001;
+    public double SteerInertia = 0.00001;
     /** Simulated drive inertia in kilogram meters squared. */
     public double DriveInertia = 0.001;
+/** Simulated steer voltage required to overcome friction. */
+    public double SteerFrictionVoltage = 0.25;
+    /** Simulated drive voltage required to overcome friction. */
+    public double DriveFrictionVoltage = 0.25;
 
     /**
      * Choose how the feedback sensors should be configured.
@@ -92,7 +118,7 @@ public class SwerveModuleConstants {
      * Otherwise, users have the option to use either FusedCANcoder or SyncCANcoder depending
      * on if there is a risk that the CANcoder can fail in a way to provide "good" data.
      */
-    public SwerveModuleSteerFeedbackType FeedbackSource = SwerveModuleSteerFeedbackType.AnalogEncoder;
+    public SteerFeedbackType FeedbackSource = SteerFeedbackType.RemoteCANcoder;
 
     /**
      * Sets the CAN ID of the drive motor.
@@ -213,6 +239,9 @@ public class SwerveModuleConstants {
 
     /**
      * Sets the steer motor closed-loop gains.
+* <p>
+     * The steer motor uses the control ouput type specified by
+     * {@link #SteerMotorClosedLoopOutput} and any {@link SwerveModule.SteerRequestType}.
      *
      * @param gains Steer motor closed-loop gains
      * @return this object
@@ -224,12 +253,38 @@ public class SwerveModuleConstants {
 
     /**
      * Sets the drive motor closed-loop gains.
+* <p>
+     * When using closed-loop control, the drive motor uses the control output
+     * type specified by {@link #DriveMotorClosedLoopOutput} and any closed-loop
+     * {@link SwerveModule.DriveRequestType}.
      *
      * @param gains Drive motor closed-loop gains
      * @return this object
      */
     public SwerveModuleConstants withDriveMotorGains(Slot0Configs gains) {
         this.DriveMotorGains = gains;
+        return this;
+    }
+
+    /**
+     * Sets closed-loop output type to use for the steer motors.
+     *
+     * @param outputType Closed-loop output type to use for the steer motors
+     * @return this object
+     */
+    public SwerveModuleConstants withSteerMotorClosedLoopOutput(ClosedLoopOutputType outputType) {
+        this.SteerMotorClosedLoopOutput = outputType;
+        return this;
+    }
+
+    /**
+     * Sets closed-loop output type to use for the drive motors.
+     *
+     * @param outputType Closed-loop output type to use for the drive motors
+     * @return this object
+     */
+    public SwerveModuleConstants withDriveMotorClosedLoopOutput(ClosedLoopOutputType outputType) {
+        this.DriveMotorClosedLoopOutput = outputType;
         return this;
     }
 
@@ -287,7 +342,7 @@ public class SwerveModuleConstants {
      * @param steerInertia Azimuthal inertia in kilogram meters squared
      * @return this object
      */
-    public SwerveModuleConstants withSimulationSteerInertia(double steerInertia) {
+    public SwerveModuleConstants withSteerInertia(double steerInertia) {
         this.SteerInertia = steerInertia;
         return this;
     }
@@ -298,8 +353,30 @@ public class SwerveModuleConstants {
      * @param driveInertia Drive inertia in kilogram meters squared
      * @return this object
      */
-    public SwerveModuleConstants withSimulationDriveInertia(double driveInertia) {
+    public SwerveModuleConstants withDriveInertia(double driveInertia) {
         this.DriveInertia = driveInertia;
+        return this;
+    }
+
+    /**
+     * Sets the simulated steer voltage required to overcome friction.
+     *
+     * @param voltage Steer voltage required to overcome friction
+     * @return this object
+     */
+    public SwerveModuleConstants withSteerFrictionVoltage(double voltage) {
+        this.SteerFrictionVoltage = voltage;
+        return this;
+    }
+
+    /**
+     * Sets the simulated drive voltage required to overcome friction.
+     *
+     * @param voltage Drive voltage required to overcome friction
+     * @return this object
+     */
+    public SwerveModuleConstants withDriveFrictionVoltage(double voltage) {
+        this.DriveFrictionVoltage = voltage;
         return this;
     }
 
@@ -313,7 +390,7 @@ public class SwerveModuleConstants {
      * @param source The feedback sensor source
      * @return this object
      */
-    public SwerveModuleConstants withFeedbackSource(SwerveModuleSteerFeedbackType source) {
+    public SwerveModuleConstants withFeedbackSource(SteerFeedbackType source) {
         this.FeedbackSource = source;
         return this;
     }
