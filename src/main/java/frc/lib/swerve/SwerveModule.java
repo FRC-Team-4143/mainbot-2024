@@ -244,6 +244,9 @@ public class SwerveModule {
 
         /* Get the expected speed when applying 12 volts */
         m_speedAt12VoltsMps = constants.SpeedAt12VoltsMps;
+
+        /* Set Field Centric for Analog Encoder */
+        resetToAbsolute();
     }
 
     /**
@@ -510,7 +513,6 @@ public class SwerveModule {
         m_angle_offset = m_analogEncoder.getAbsolutePosition() * 360.0;
         Preferences.setDouble("Module" + m_encoder_id, m_angle_offset);
         resetToAbsolute();
-
     }
 
     /**

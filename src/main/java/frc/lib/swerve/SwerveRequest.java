@@ -383,7 +383,7 @@ public interface SwerveRequest {
          * This PID controller operates on heading radians and outputs a target
          * rotational rate in radians per second.
          */
-        public PhoenixPIDController HeadingController = new PhoenixPIDController(0, 0, 0);
+        public PhoenixPIDController HeadingController = new PhoenixPIDController(5.0, 0, 0);
 
         /**
          * The perspective to use when determining which direction is forward.
@@ -394,6 +394,7 @@ public interface SwerveRequest {
             double toApplyX = VelocityX;
             double toApplyY = VelocityY;
             Rotation2d angleToFace = TargetDirection;
+            HeadingController.enableContinuousInput(0, 2*Math.PI);
             if (ForwardReference == SwerveRequest.ForwardReference.OperatorPerspective) {
                 /* If we're operator perspective, modify the X/Y translation by the angle */
                 Translation2d tmp = new Translation2d(toApplyX, toApplyY);
