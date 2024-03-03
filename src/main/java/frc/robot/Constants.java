@@ -54,7 +54,7 @@ public final class Constants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final double kSlipCurrentA = 80.0;
+    private static final double kSlipCurrentA = 60.0;
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot
@@ -156,8 +156,8 @@ public final class Constants {
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30; // TODO: Tune for new PID controller
     public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
-    public static final double FLYWHEEL_CONTROLLER_P = 0.001;
-    public static final double FLYWHEEL_CONTROLLER_FF = 0.00015;
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
+    public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();

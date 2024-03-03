@@ -24,8 +24,8 @@ public class TeleShootAtSpeaker extends Command {
   @Override
   public void initialize() {
     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.PROFILE);
-    //SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     shot_note_ = false;
   }
 
@@ -38,7 +38,7 @@ public class TeleShootAtSpeaker extends Command {
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
     } else {
-      ShooterSubsystem.getInstance().rollerStop();
+      //ShooterSubsystem.getInstance().rollerStop();
     }
   }
 

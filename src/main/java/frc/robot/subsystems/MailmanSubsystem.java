@@ -91,6 +91,11 @@ public class MailmanSubsystem extends Subsystem {
         return Util.epislonEquals(io_.current_height_, io_.target_height_);
     }
 
+    /**
+     * Sets the height to move the mailman to, like HeightTarget.AMP
+     * @param target The target height
+     * @see HeightTarget
+     */
     public void setHeight(HeightTarget target) {
         if (target == HeightTarget.AMP) {
             io_.target_height_ = MailmanConstants.AMP_HEIGHT;
@@ -101,18 +106,30 @@ public class MailmanSubsystem extends Subsystem {
         }
     }
 
+    /**
+     * Turns the rollers on
+     */
     public void setRollerIntake() {
         io_.roller_speed_ = MailmanConstants.DROPPER_IN_SPEED;
     }
 
+    /**
+     * Reverses the rollers
+     */
     public void setRollerOutput() {
         io_.roller_speed_ = MailmanConstants.DROPPER_OUT_SPEED;
     }
 
+    /**
+     * Stops the rollers
+     */
     public void setRollerStop() {
         io_.roller_speed_ = 0;
     }
 
+    /**
+     * Runs the rollers slowly, to recieve from the shooter handoff
+     */
     public void setRollerRecieve() {
         io_.roller_speed_ = -0.15;
     }

@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMax;
 
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class PickupSubsystem extends Subsystem {
 
@@ -128,22 +129,39 @@ public class PickupSubsystem extends Subsystem {
     public void tellShooterReady() {
     }
 
+    /**
+     * Runs the rollers forward
+     */
     public void setRollersForward() {
         io_.roller_speed_ = PickupConstants.ROLLER_FORWARD;
     }
 
+    /**
+     * Runs the rollers backward
+     */
     public void setRollersBackward() {
         io_.roller_speed_ = PickupConstants.ROLLER_REVERSE;
     }
 
+    /**
+     * Stops the rollers
+     */
     public void stopRollers() {
         io_.roller_speed_ = 0.0;
     }
-
+/**
+     * Sets the mode of the pickup subsystem enum, like PickupMode.PICKUP
+     * @see PickupMode
+     * @param mode The mode to change the PickupSubsystem to
+     */
     public void setPickupMode(PickupMode mode) {
         io_.pickup_mode_ = mode;
     }
 
+    /**
+     * Returns true if the pickup has a note
+     * @return If the pickup has a note
+     */
     public boolean hasNote() {
         return io_.has_note_pickup_;
     }
