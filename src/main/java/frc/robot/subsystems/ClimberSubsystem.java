@@ -39,14 +39,13 @@ public class ClimberSubsystem extends Subsystem {
   private ClimberSubsystem() {
     io_ = new ClimberPeriodicIoAutoLogged();
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
-    left_climber_motor_.setInverted(true);
+    left_climber_motor_.setInverted(false);
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
     left_climber_motor_.setSmartCurrentLimit(150);
 
     right_climber_motor_ = new CANSparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
-    right_climber_motor_.follow(left_climber_motor_, true);
+    right_climber_motor_.setInverted(false);
     right_climber_motor_.setIdleMode(IdleMode.kBrake);
-    
     right_climber_motor_.setSmartCurrentLimit(150);
   }
 
@@ -97,6 +96,7 @@ public class ClimberSubsystem extends Subsystem {
    */
   public void writePeriodicOutputs(double timestamp) {
     left_climber_motor_.set(io_.winch_speed_);
+    right_climber_motor_.set(io_.winch_speed_);
   }
 
   @Override
