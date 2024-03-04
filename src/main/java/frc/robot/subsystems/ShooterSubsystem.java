@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -162,7 +163,12 @@ public class ShooterSubsystem extends Subsystem {
         wrist_motor_.burnFlash();
 
         // Roller motor configuration
-        roller_motor_.setInverted(true);
+        if(Constants.COMP_BOT){
+            roller_motor_.setInverted(false);
+
+        } else {
+            roller_motor_.setInverted(true);
+        }
         roller_motor_.burnFlash();
 
     }
@@ -181,8 +187,7 @@ public class ShooterSubsystem extends Subsystem {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
         io_.note_travel_time_ = calculateNoteTravelTime(robot_pose, io_.target_offset_pose);
         io_.relative_chassis_speed_ = transformChassisVelocity();
-        io_.target_offset_pose = io_.target_
-                .transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
+        io_.target_offset_pose = io_.target_.transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
         io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
         io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
@@ -220,7 +225,7 @@ public class ShooterSubsystem extends Subsystem {
     public void writePeriodicOutputs(double timestamp) {
         roller_motor_.set(io_.roller_speed_);
         setFlyWheelRPM(io_.target_flywheel_speed_);
-        setWristAngle();
+        setWristAngle(io_.target_wrist_angle_);
         SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
     }
 
@@ -248,6 +253,8 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber("Current Robot Yaw",
                 PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
         SmartDashboard.putNumber("Target Distance", io_.target_distance_);
+
+        SmartDashboard.putNumber("Wrist Encoder Value", wrist_encoder_.getPosition());
 
     }
 
@@ -368,9 +375,9 @@ public class ShooterSubsystem extends Subsystem {
         bot_flywheel_controller_.setReference(0, ControlType.kVelocity, 1);
     }
 
-    public void setWristAngle() {
-        double arb_ff = Math.cos(io_.target_wrist_angle_) * ShooterConstants.WRIST_CONTROLLER_FF;
-        wrist_controller_.setReference((io_.target_wrist_angle_ + ShooterConstants.WRIST_ZERO_ANGLE) / (2 * Math.PI),
+    public void setWristAngle(double angle) {
+        double arb_ff = Math.cos(angle) * ShooterConstants.WRIST_CONTROLLER_FF;
+        wrist_controller_.setReference((angle + ShooterConstants.WRIST_ZERO_ANGLE) / (2 * Math.PI),
                 ControlType.kPosition, 0, arb_ff);
     }
 
