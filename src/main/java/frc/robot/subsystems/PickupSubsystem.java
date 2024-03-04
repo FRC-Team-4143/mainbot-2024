@@ -10,10 +10,12 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.playingwithfusion.TimeOfFlight;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 
+import frc.robot.Constants;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -49,14 +51,18 @@ public class PickupSubsystem extends Subsystem {
      * Class Members
      */
     private PickupPeriodicIoAutoLogged io_;
-    private final CANSparkMax roller_motor_;
+    private final CANSparkBase roller_motor_;
     private final PickupSettings settings_;
     private final TimeOfFlight note_sensor_;
 
     private PickupSubsystem(PickupSettings settings) {
         settings_ = settings;
         io_ = new PickupPeriodicIoAutoLogged();
-        roller_motor_ = new CANSparkMax(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        if (Constants.COMP_BOT){
+            roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        } else {
+            roller_motor_ = new CANSparkMax(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        }
 
         if (settings.PICKUP_NOTE_SENSOR_ID < 0) {
             note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);

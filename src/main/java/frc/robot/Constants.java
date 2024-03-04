@@ -29,6 +29,8 @@ import frc.lib.swerve.SwerveModuleConstants;
  */
 public final class Constants {
 
+  public static boolean COMP_BOT = true; 
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
@@ -177,7 +179,7 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_P = 13.0;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
-    public static final double WRIST_ZERO_ANGLE = 0.2768 * (2 * Math.PI);
+    public static final double WRIST_ZERO_ANGLE = 0.2910 * (2 * Math.PI); // 0.2768 for Practice Bot // 0.2910 for Comp Bot
     public static final double WRIST_HOME_ANGLE = 0.22689;
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
