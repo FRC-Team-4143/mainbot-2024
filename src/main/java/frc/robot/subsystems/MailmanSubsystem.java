@@ -58,7 +58,7 @@ public class MailmanSubsystem extends Subsystem {
         elevator_controller_.setSmartMotionMaxAccel(MailmanConstants.ELEVATOR_CONTROLLER_MAX_ACC, 0);
 
         dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-
+        dropper_motor_.setSmartCurrentLimit(80);
     }
 
     @Override
