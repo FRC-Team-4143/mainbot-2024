@@ -18,7 +18,6 @@ import com.revrobotics.CANSparkMax;
 import frc.robot.Constants;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
-import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class PickupSubsystem extends Subsystem {
 
@@ -51,14 +50,14 @@ public class PickupSubsystem extends Subsystem {
      * Class Members
      */
     private PickupPeriodicIoAutoLogged io_;
-    private final CANSparkBase roller_motor_;
-    private final PickupSettings settings_;
-    private final TimeOfFlight note_sensor_;
+    private CANSparkBase roller_motor_;
+    private PickupSettings settings_;
+    private TimeOfFlight note_sensor_;
 
     private PickupSubsystem(PickupSettings settings) {
         settings_ = settings;
         io_ = new PickupPeriodicIoAutoLogged();
-        if (Constants.COMP_BOT){
+        if(Constants.IS_COMP_BOT){
             roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         } else {
             roller_motor_ = new CANSparkMax(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);

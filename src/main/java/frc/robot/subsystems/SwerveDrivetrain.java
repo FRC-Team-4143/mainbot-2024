@@ -66,8 +66,8 @@ public class SwerveDrivetrain extends Subsystem {
 
     public static SwerveDrivetrain getInstance() {
         if (instance == null) {
-            instance = new SwerveDrivetrain(DrivetrainConstants.FrontLeft,
-                    DrivetrainConstants.FrontRight, DrivetrainConstants.BackLeft, DrivetrainConstants.BackRight);
+            instance = new SwerveDrivetrain(DrivetrainConstants.FL_MODULE_CONSTANTS,
+                    DrivetrainConstants.FR_MODULE_CONSTANTS, DrivetrainConstants.BL_MODULE_CONSTANTS, DrivetrainConstants.BR_MODULE_CONSTANTS);
         }
         return instance;
     }
@@ -125,7 +125,7 @@ public class SwerveDrivetrain extends Subsystem {
         io_ = new SwerveDriverainPeriodicIoAutoLogged();
 
         // Setup the Pigeon IMU
-        pigeon_imu = new Pigeon2(DrivetrainConstants.Pigeon2Id, DrivetrainConstants.CANbusName[0]);
+        pigeon_imu = new Pigeon2(DrivetrainConstants.PIGEON2_ID, DrivetrainConstants.MODULE_CANBUS_NAME[0]);
         pigeon_imu.optimizeBusUtilization();
 
         // Begin configuring swerve modules
@@ -138,7 +138,7 @@ public class SwerveDrivetrain extends Subsystem {
         // Construct the swerve modules
         for (int i = 0; i < modules.length; i++) {
             SwerveModuleConstants module = modules[i];
-            swerve_modules[i] = new SwerveModule(module, DrivetrainConstants.CANbusName[i]);
+            swerve_modules[i] = new SwerveModule(module, DrivetrainConstants.MODULE_CANBUS_NAME[i]);
             module_locations[i] = new Translation2d(module.LocationX, module.LocationY);
             io_.module_positions[i] = swerve_modules[i].getPosition(true);
             io_.current_module_states_[i] = swerve_modules[i].getCurrentState();
@@ -151,18 +151,18 @@ public class SwerveDrivetrain extends Subsystem {
         field_centric = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                 .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
-                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
-                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
+                .withDeadband(Constants.DrivetrainConstants.MAX_DRIVE_SPEED * 0.01)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
         robot_centric = new SwerveRequest.RobotCentric()
                 .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                 .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
-                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
-                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
+                .withDeadband(Constants.DrivetrainConstants.MAX_DRIVE_SPEED * 0.01)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
         target_facing = new SwerveRequest.FieldCentricFacingAngle()
                 .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
                 .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
-                .withDeadband(Constants.DrivetrainConstants.MaxSpeed * 0.01)
-                .withRotationalDeadband(Constants.DrivetrainConstants.MaxAngularRate * 0.01);
+                .withDeadband(Constants.DrivetrainConstants.MAX_DRIVE_SPEED * 0.01)
+                .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
         auto_request = new SwerveRequest.ApplyChassisSpeeds();
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
@@ -208,37 +208,37 @@ public class SwerveDrivetrain extends Subsystem {
             case ROBOT_CENTRIC:
                 setControl(robot_centric
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MaxSpeed)
+                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MaxSpeed)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive counterclockwise with negative X (left)
                         .withRotationalRate(
-                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MaxAngularRate));
+                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case FIELD_CENTRIC:
                 setControl(field_centric
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MaxSpeed)
+                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MaxSpeed)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive counterclockwise with negative X (left)
                         .withRotationalRate(
-                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MaxAngularRate));
+                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MaxSpeed)
+                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MaxSpeed)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         //
                         .withTargetDirection(io_.target_rotation_));
                 break;
             case CRAWL:
                 setControl(robot_centric
-                        .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CrawlSpeed)
-                        .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CrawlSpeed)
-                        .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MaxAngularRate));
+                        .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
+                        .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
+                        .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             default:
                 // yes these dont do anything for auto...
