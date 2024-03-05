@@ -13,6 +13,7 @@ import com.revrobotics.SparkPIDController;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
+import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,6 +41,7 @@ public class MailmanSubsystem extends Subsystem {
     private RelativeEncoder elevator_encoder_;
     private CANSparkFlex dropper_motor_;
     private SparkPIDController elevator_controller_;
+    private TimeOfFlight note_sensor_;
 
     public enum HeightTarget {
         AMP,
@@ -48,31 +50,40 @@ public class MailmanSubsystem extends Subsystem {
     }
 
     private MailmanSubsystem() {
-        io_ = new MailmanPeriodicIoAutoLogged();
         elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        note_sensor_ = new TimeOfFlight(MailmanConstants.NOTE_SENSOR_ID);
+        note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, MailmanConstants.SENSOR_SAMPLE_TIME);
+        reset();
+    }
+
+    @Override
+    public void reset() {
+        io_ = new MailmanPeriodicIoAutoLogged();
+
         elevator_encoder_ = elevator_motor_.getEncoder();
         elevator_controller_ = elevator_motor_.getPIDController();
         elevator_controller_.setFeedbackDevice(elevator_encoder_);
         elevator_controller_.setP(MailmanConstants.ELEVATOR_CONTROLLER_P);
         elevator_controller_.setSmartMotionMaxVelocity(MailmanConstants.ELEVATOR_CONTROLLER_MAX_VEL, 0);
         elevator_controller_.setSmartMotionMaxAccel(MailmanConstants.ELEVATOR_CONTROLLER_MAX_ACC, 0);
-
-        dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         dropper_motor_.setSmartCurrentLimit(80);
-    }
-
-    @Override
-    public void reset() {
-        io_ = new MailmanPeriodicIoAutoLogged();
     }
 
     @Override
     public void readPeriodicInputs(double timestamp) {
         io_.current_height_ = elevator_encoder_.getPosition();
+        io_.note_sensor_range_ = note_sensor_.getRange();
+
     }
 
     @Override
     public void updateLogic(double timestamp) {
+        if (io_.has_note_ && io_.note_sensor_range_ > MailmanConstants.NO_NOTE_RANGE) {
+            io_.has_note_ = false;
+        } else if (io_.has_note_ == false && io_.note_sensor_range_ < MailmanConstants.HAS_NOTE_RANGE) {
+            io_.has_note_ = true;
+        }
     }
 
     @Override
