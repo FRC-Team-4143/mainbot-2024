@@ -124,9 +124,9 @@ public class PoseEstimator extends Subsystem {
      */
     public void setRobotOdometry(Pose2d pose) {
         var drive = SwerveDrivetrain.getInstance();
+        SwerveDrivetrain.getInstance().seedFieldRelative(pose.getRotation());
         odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
         vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
-        SwerveDrivetrain.getInstance().seedFieldRelative(pose.getRotation());
     }
 
     @AutoLog
