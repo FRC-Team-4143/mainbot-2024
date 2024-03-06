@@ -107,9 +107,12 @@ public abstract class OI {
                 () -> climber_.stopClimb()));
 
         // Reverse Climb
-        operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(0.6 * operator_joystick_.getRightTriggerAxis()),
-                () -> climber_.stopClimb()));
+        // operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
+        //         () -> climber_.setClimbSpeed(0.6 * operator_joystick_.getRightTriggerAxis()),
+        //         () -> climber_.stopClimb()));
+
+        // Manual Shoot
+        operator_joystick_.rightTrigger(0.1).whileTrue(new OverrideShootAtSpeaker());
 
         // Set Wrsit to Hook Position
         operator_joystick_.start().whileTrue(Commands.runOnce(
@@ -124,7 +127,7 @@ public abstract class OI {
 
 
         /* When we get alliance data from Driver Station, select what perspective is forward for operator control */
-        new Trigger(() -> DriverStation.getAlliance().isPresent())
+        new Trigger(() -> DriverStation.getAlliance().isPresent() && DriverStation.isDisabled())
         .whileTrue(new RunCommand(() ->  swerve_drivetrain_.setDriverPrespective(
                 DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
                 : swerve_drivetrain_.blueAlliancePerspectiveRotation)));

@@ -9,19 +9,16 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
-import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
@@ -71,8 +68,8 @@ public class ShooterSubsystem extends Subsystem {
 
     // Target positions
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
-    private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM)
-            .transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
+    private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
+            //.transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
     private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
 
@@ -191,7 +188,7 @@ public class ShooterSubsystem extends Subsystem {
             io_.target_flywheel_speed_ = -50;
         } else if (io_.target_mode_ == ShootMode.PROFILE) {
             io_.target_wrist_angle_ = Math.toRadians(35);
-            io_.target_flywheel_speed_ = 580;
+            io_.target_flywheel_speed_ = 550;
         }
 
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
@@ -284,6 +281,34 @@ public class ShooterSubsystem extends Subsystem {
                 Util.epislonEquals(io_.target_robot_yaw_,
                         SwerveDrivetrain.getInstance().getRobotRotation(),
                         ShooterConstants.YAW_TOLERANCE);
+    }
+
+    /**
+     * Returns true if the robot is locked onto the target and ready to shoot. This
+     * method will return true if the flywheel speed, shooter angle
+     * is all correct within a certain tolerance.
+     * 
+     * Ignores the Yaw Lineup for Loss of Vision
+     * Ignores the Note Sensor Check for Loss of TOF
+     * 
+     * @return True if the target is locked, otherwise return false.
+     */
+    public boolean isOverrideTargetLocked() {
+
+        if (io_.target_flywheel_speed_ == 0) {
+            return false;
+        }
+
+        return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_,
+                ShooterConstants.WRIST_TOLERANCE)
+                &&
+                Util.epislonEquals(io_.current_top_flywheel_speed_,
+                        io_.target_flywheel_speed_,
+                        ShooterConstants.FLYWHEEL_TOLERANCE)
+                &&
+                Util.epislonEquals(io_.current_bot_flywheel_speed_,
+                        io_.target_flywheel_speed_,
+                        ShooterConstants.FLYWHEEL_TOLERANCE);
     }
 
     /**
@@ -408,7 +433,7 @@ public class ShooterSubsystem extends Subsystem {
 
     private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target_pose) {
         Pose2d pose_difference = robot_pose.relativeTo(target_pose.toPose2d());
-        return pose_difference.getTranslation().getAngle();
+        return pose_difference.getTranslation().getAngle().rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective().rotateBy(Rotation2d.fromDegrees(180)));
     }
 
     private Transform3d calculateMovingTargetOffset(ChassisSpeeds chassis_speeds, double travel_time) {

@@ -7,18 +7,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.MailmanSubsystem;
+import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
-import frc.robot.subsystems.SwerveDrivetrain;
-import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 
-public class TeleShootAtSpeaker extends Command {
+public class OverrideShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
-  public TeleShootAtSpeaker() {
+  public OverrideShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
-    addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -28,29 +26,21 @@ public class TeleShootAtSpeaker extends Command {
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.PROFILE);
     shot_note_ = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
-      CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
+    if (ShooterSubsystem.getInstance().isOverrideTargetLocked()){
       ShooterSubsystem.getInstance().setRollerFeed();
-      shot_note_ = true;
-    } else {
-      //ShooterSubsystem.getInstance().rollerStop();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ShooterSubsystem.getInstance().flyWheelStop();
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
   }

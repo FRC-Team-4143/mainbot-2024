@@ -106,6 +106,8 @@ public class SwerveDrivetrain extends Subsystem {
     public final Rotation2d blueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
     public final Rotation2d redAlliancePerspectiveRotation = Rotation2d.fromDegrees(180);
+    /* Keep track if we've ever applied the operator perspective before or not */
+    public boolean hasAppliedOperatorPerspective = false;
 
     // NT publishers
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
@@ -268,6 +270,7 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Yaw", io_.robot_yaw_.getDegrees());
         SmartDashboard.putNumber("Field relative offset", io_.field_relative_offset_.getDegrees());
+        SmartDashboard.putNumber("Driver Prespective", io_.drivers_station_perspective_.getDegrees());
     }
 
     public Rotation2d getRobotRotation(){
@@ -401,6 +404,10 @@ public class SwerveDrivetrain extends Subsystem {
 
     public void setDriverPrespective(Rotation2d prespective){
         io_.drivers_station_perspective_ = prespective;
+    }
+
+    public Rotation2d getDriverPrespective(){
+        return io_.drivers_station_perspective_;
     }
 
     @Override
