@@ -248,8 +248,7 @@ public class SwerveDrivetrain extends Subsystem {
         }
 
         /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_)
-                .relativeTo(new Pose2d(0, 0, io_.field_relative_offset_));
+        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_);        
         request_parameters.kinematics = kinematics;
         request_parameters.swervePositions = module_locations;
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
@@ -269,12 +268,11 @@ public class SwerveDrivetrain extends Subsystem {
 
         SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Yaw", io_.robot_yaw_.getDegrees());
-        SmartDashboard.putNumber("Field relative offset", io_.field_relative_offset_.getDegrees());
         SmartDashboard.putNumber("Driver Prespective", io_.drivers_station_perspective_.getDegrees());
     }
 
     public Rotation2d getRobotRotation(){
-       return (new Pose2d(0, 0, io_.robot_yaw_).relativeTo(new Pose2d(0, 0, io_.field_relative_offset_))).getRotation();
+       return (new Pose2d(0, 0, io_.robot_yaw_).getRotation());
     }
 
     /**
@@ -326,8 +324,8 @@ public class SwerveDrivetrain extends Subsystem {
      * Takes the current orientation of the robot and makes it X forward for
      * field-relative maneuvers.
      */
-    public void seedFieldRelative() {
-        io_.field_relative_offset_ = io_.robot_yaw_;
+    public void seedFieldRelative(Rotation2d offset) {
+        pigeon_imu.setYaw(offset.getDegrees());
     }
 
     /**
@@ -424,7 +422,6 @@ public class SwerveDrivetrain extends Subsystem {
     public static class SwerveDriverainPeriodicIo extends LogData {
         public SwerveModuleState[] current_module_states_, requested_module_states_;
         public SwerveModulePosition[] module_positions;
-        public Rotation2d field_relative_offset_ = new Rotation2d();
         public Rotation2d robot_yaw_ = new Rotation2d();
         public double driver_joystick_leftX_ = 0.0;
         public double driver_joystick_leftY_ = 0.0;

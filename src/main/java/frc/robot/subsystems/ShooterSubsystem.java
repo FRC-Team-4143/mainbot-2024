@@ -279,7 +279,7 @@ public class ShooterSubsystem extends Subsystem {
                         ShooterConstants.FLYWHEEL_TOLERANCE)
                 &&
                 Util.epislonEquals(io_.target_robot_yaw_,
-                        SwerveDrivetrain.getInstance().getRobotRotation(),
+                        SwerveDrivetrain.getInstance().getRobotRotation().rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()),
                         ShooterConstants.YAW_TOLERANCE);
     }
 
@@ -289,7 +289,6 @@ public class ShooterSubsystem extends Subsystem {
      * is all correct within a certain tolerance.
      * 
      * Ignores the Yaw Lineup for Loss of Vision
-     * Ignores the Note Sensor Check for Loss of TOF
      * 
      * @return True if the target is locked, otherwise return false.
      */
@@ -433,7 +432,7 @@ public class ShooterSubsystem extends Subsystem {
 
     private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target_pose) {
         Pose2d pose_difference = robot_pose.relativeTo(target_pose.toPose2d());
-        return pose_difference.getTranslation().getAngle().rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective().rotateBy(Rotation2d.fromDegrees(180)));
+        return pose_difference.getTranslation().getAngle().rotateBy(Rotation2d.fromDegrees(180));
     }
 
     private Transform3d calculateMovingTargetOffset(ChassisSpeeds chassis_speeds, double travel_time) {

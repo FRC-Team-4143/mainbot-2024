@@ -4,11 +4,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
@@ -37,7 +34,7 @@ public abstract class OI {
                 () -> swerve_drivetrain_.tareEverything())
                 .ignoringDisable(true));
         SmartDashboard.putData("Seed Field Centric", Commands.runOnce(
-                () -> swerve_drivetrain_.seedFieldRelative())
+                () -> swerve_drivetrain_.seedFieldRelative(swerve_drivetrain_.getDriverPrespective()))
                 .ignoringDisable(true));
 
         // Enagage Targeting
@@ -102,17 +99,21 @@ public abstract class OI {
                 }));
 
         // Climb
-        operator_joystick_.leftTrigger(0.1).whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(-0.6 * operator_joystick_.getLeftTriggerAxis()),
+        operator_joystick_.povUp().whileTrue(Commands.startEnd(
+                () -> climber_.setClimbSpeed(-0.6),
                 () -> climber_.stopClimb()));
 
         // Reverse Climb
-        // operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
-        //         () -> climber_.setClimbSpeed(0.6 * operator_joystick_.getRightTriggerAxis()),
-        //         () -> climber_.stopClimb()));
+        operator_joystick_.povDown().whileTrue(Commands.startEnd(
+                () -> climber_.setClimbSpeed(0.6),
+                () -> climber_.stopClimb()));
+
+        operator_joystick_.povRight().whileTrue(Commands.runOnce(
+                () -> shooter_.setShootMode(ShootMode.IDLE)
+        ));
 
         // Manual Shoot
-        operator_joystick_.rightTrigger(0.1).whileTrue(new OverrideShootAtSpeaker());
+        operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
 
         // Set Wrsit to Hook Position
         operator_joystick_.start().whileTrue(Commands.runOnce(
@@ -122,15 +123,7 @@ public abstract class OI {
         operator_joystick_.back().whileTrue(Commands.runOnce(
                 () -> mailman_.setHeight(HeightTarget.TRAP)));
 
-        // Test buttons
-
-
-
-        /* When we get alliance data from Driver Station, select what perspective is forward for operator control */
-        new Trigger(() -> DriverStation.getAlliance().isPresent() && DriverStation.isDisabled())
-        .whileTrue(new RunCommand(() ->  swerve_drivetrain_.setDriverPrespective(
-                DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
-                : swerve_drivetrain_.blueAlliancePerspectiveRotation)));
+        // Test buttons  
     }
 
     static public double getDriverJoystickLeftX() {
