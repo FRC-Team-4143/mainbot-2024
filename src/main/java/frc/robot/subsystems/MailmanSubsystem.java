@@ -10,9 +10,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 
@@ -36,7 +33,7 @@ public class MailmanSubsystem extends Subsystem {
     /**
      * Class Members
      */
-    private MailmanPeriodicIoAutoLogged io_;
+    private MailmanPeriodicIo io_;
     private CANSparkMax elevator_motor_;
     private RelativeEncoder elevator_encoder_;
     private CANSparkFlex dropper_motor_;
@@ -59,7 +56,7 @@ public class MailmanSubsystem extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new MailmanPeriodicIoAutoLogged();
+        io_ = new MailmanPeriodicIo();
 
         elevator_encoder_ = elevator_motor_.getEncoder();
         elevator_controller_ = elevator_motor_.getPIDController();
@@ -145,7 +142,6 @@ public class MailmanSubsystem extends Subsystem {
         io_.roller_speed_ = -0.15;
     }
 
-    @AutoLog
     public static class MailmanPeriodicIo extends LogData {
         public double current_height_ = 0.0;
         public double target_height_ = 0.0;
@@ -158,7 +154,7 @@ public class MailmanSubsystem extends Subsystem {
     }
 
     @Override
-    public LoggableInputs getLogger() {
+    public LogData getLogger() {
         return io_;
     }
 }

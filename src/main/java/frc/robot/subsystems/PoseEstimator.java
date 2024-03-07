@@ -2,17 +2,12 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.ProtobufSubscriber;
 import edu.wpi.first.networktables.TimestampedObject;
-
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -30,7 +25,7 @@ public class PoseEstimator extends Subsystem {
         return poseEstimatorInstance;
     }
 
-    private PoseEstimatorPeriodicIoAutoLogged io_;
+    private PoseEstimatorPeriodicIo io_;
     private Field2d field_;
     private SwerveDrivePoseEstimator odometry_;
     private SwerveDrivePoseEstimator vision_filtered_odometry_;
@@ -43,7 +38,7 @@ public class PoseEstimator extends Subsystem {
     int update_counter_ = 10;
 
     PoseEstimator() {
-        io_ = new PoseEstimatorPeriodicIoAutoLogged();
+        io_ = new PoseEstimatorPeriodicIo();
         field_ = new Field2d();
 
         NetworkTableInstance nti = NetworkTableInstance.getDefault();
@@ -62,7 +57,7 @@ public class PoseEstimator extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new PoseEstimatorPeriodicIoAutoLogged();
+        io_ = new PoseEstimatorPeriodicIo();
         odometry_ = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics, new Rotation2d(),
                 SwerveDrivetrain.getInstance().getModulePositions(), new Pose2d());
         vision_filtered_odometry_ = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics,
@@ -74,7 +69,7 @@ public class PoseEstimator extends Subsystem {
     public void readPeriodicInputs(double timestamp) {
         TimestampedObject<Pose2d> result = vision_subsciber_.getAtomic();
     
-        if (result.timestamp > io_.last_vision_timestamp_) {
+        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_) {
             vision_filtered_odometry_.addVisionMeasurement(result.value, timestamp - 0.2);
             io_.last_vision_timestamp_ = result.timestamp;
         }
@@ -131,7 +126,6 @@ public class PoseEstimator extends Subsystem {
         vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
     }
 
-    @AutoLog
     public static class PoseEstimatorPeriodicIo extends LogData {
         Pose2d pose_ = new Pose2d();
         Pose2d vision_filtered_pose_ = new Pose2d();
@@ -141,7 +135,7 @@ public class PoseEstimator extends Subsystem {
     }
 
     @Override
-    public LoggableInputs getLogger() {
+    public LogData getLogger() {
         return io_;
     }
 }

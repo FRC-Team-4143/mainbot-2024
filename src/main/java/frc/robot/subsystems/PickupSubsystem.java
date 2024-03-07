@@ -6,9 +6,6 @@ package frc.robot.subsystems;
 
 import frc.lib.subsystem.Subsystem;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
@@ -49,14 +46,14 @@ public class PickupSubsystem extends Subsystem {
     /**
      * Class Members
      */
-    private PickupPeriodicIoAutoLogged io_;
+    private PickupPeriodicIo io_;
     private CANSparkBase roller_motor_;
     private PickupSettings settings_;
     private TimeOfFlight note_sensor_;
 
     private PickupSubsystem(PickupSettings settings) {
         settings_ = settings;
-        io_ = new PickupPeriodicIoAutoLogged();
+        io_ = new PickupPeriodicIo();
         if(Constants.IS_COMP_BOT){
             roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         } else {
@@ -75,7 +72,7 @@ public class PickupSubsystem extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new PickupPeriodicIoAutoLogged();
+        io_ = new PickupPeriodicIo();
         roller_motor_.setSmartCurrentLimit(PickupConstants.ROLLER_AMP_LIMIT);
         roller_motor_.setInverted(settings_.ROLLER_MOTOR_INVERTED);
         roller_motor_.burnFlash();
@@ -171,7 +168,6 @@ public class PickupSubsystem extends Subsystem {
         return io_.has_note_pickup_;
     }
 
-    @AutoLog
     public static class PickupPeriodicIo extends LogData {
         public boolean has_note_pickup_ = false;
         public boolean has_note_reciever_ = false;
@@ -181,7 +177,7 @@ public class PickupSubsystem extends Subsystem {
     }
 
     @Override
-    public LoggableInputs getLogger() {
+    public LogData getLogger() {
         return io_;
     }
 }

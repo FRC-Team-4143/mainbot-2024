@@ -4,19 +4,15 @@
 
 package frc.robot;
 
-
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 
-
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
@@ -51,7 +47,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    //m_robotContainer.initLogfile("AUTO");
 
     swerve_drivetrain_.setDriverPrespective(
                 DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
@@ -72,7 +67,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    //m_robotContainer.initLogfile("TELE-OP");
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

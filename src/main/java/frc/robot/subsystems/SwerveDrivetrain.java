@@ -9,9 +9,6 @@ package frc.robot.subsystems;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -91,7 +88,7 @@ public class SwerveDrivetrain extends Subsystem {
     private final SwerveModule[] swerve_modules;
 
     // Subsystem data class
-    private SwerveDriverainPeriodicIoAutoLogged io_;
+    private SwerveDriverainPeriodicIo io_;
 
     // Drivetrain config
     final SwerveDriveKinematics kinematics;
@@ -124,7 +121,7 @@ public class SwerveDrivetrain extends Subsystem {
     public SwerveDrivetrain(SwerveModuleConstants... modules) {
 
         // make new io instance
-        io_ = new SwerveDriverainPeriodicIoAutoLogged();
+        io_ = new SwerveDriverainPeriodicIo();
 
         // Setup the Pigeon IMU
         pigeon_imu = new Pigeon2(DrivetrainConstants.PIGEON2_ID, DrivetrainConstants.MODULE_CANBUS_NAME[0]);
@@ -409,7 +406,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     @Override
-    public LoggableInputs getLogger() {
+    public LogData getLogger() {
         return io_;
     }
 
@@ -418,7 +415,6 @@ public class SwerveDrivetrain extends Subsystem {
      * This encapsulates most data that is relevant for telemetry or
      * decision-making from the Swerve Drive.
      */
-    @AutoLog
     public static class SwerveDriverainPeriodicIo extends LogData {
         public SwerveModuleState[] current_module_states_, requested_module_states_;
         public SwerveModulePosition[] module_positions;
