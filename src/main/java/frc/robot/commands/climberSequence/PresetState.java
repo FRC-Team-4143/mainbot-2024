@@ -2,9 +2,9 @@ package frc.robot.commands.climberSequence;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class CleanAllPickups extends Command {
+public class PresetState extends Command {
   /** Creates a new CleanAllPickups. */
-  public CleanAllPickups() {
+  public PresetState() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
