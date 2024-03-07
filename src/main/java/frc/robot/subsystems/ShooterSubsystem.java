@@ -112,7 +112,7 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void reset() {
         io_ = new ShooterPeriodicIoAutoLogged();
-
+  
         // Top flywheel motor configuration
         top_flywheel_motor_.setSmartCurrentLimit(40);
         top_flywheel_motor_.setInverted(true);
