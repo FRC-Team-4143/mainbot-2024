@@ -6,6 +6,7 @@ package frc.robot;
 
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -23,6 +24,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    //Logger.disableDeterministicTimestamps();
     m_robotContainer = RobotContainer.getInstance();
     AutoManager.getInstance();
     OI.configureBindings();
@@ -49,7 +51,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    // m_robotContainer.initLogfile("AUTO");
+    //m_robotContainer.initLogfile("AUTO");
 
     swerve_drivetrain_.setDriverPrespective(
                 DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
@@ -70,7 +72,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    // m_robotContainer.initLogfile("TELE-OP");
+    //m_robotContainer.initLogfile("TELE-OP");
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
