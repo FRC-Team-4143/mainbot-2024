@@ -130,7 +130,6 @@ public class PoseEstimator extends Subsystem {
         Pose2d pose_ = new Pose2d();
         Pose2d vision_filtered_pose_ = new Pose2d();
         double last_vision_timestamp_ = 0.0;
-        boolean vision_supress_odom_ = true;
         boolean vision_ready_status_ = false;
     }
 

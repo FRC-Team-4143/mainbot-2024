@@ -179,6 +179,7 @@ public class SwerveDrivetrain extends Subsystem {
         for (int i = 0; i < swerve_modules.length; ++i) {
             BaseStatusSignal.setUpdateFrequencyForAll(100, swerve_modules[i].getSignals());
             swerve_modules[i].optimizeCan();
+            swerve_modules[i].resetToAbsolute();
         }
         BaseStatusSignal[] imuSignals = { pigeon_imu.getYaw() };
         BaseStatusSignal.setUpdateFrequencyForAll(100, imuSignals);
