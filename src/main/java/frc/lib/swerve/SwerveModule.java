@@ -551,7 +551,6 @@ public class SwerveModule {
      */
     public void resetToAbsolute() {
         m_angle_offset = Preferences.getDouble("Module" + m_encoder_id, 0);
-        System.out.println("Get wheel offsets of " + m_encoder_id + " to " + m_angle_offset);
         double absolutePosition = m_analogEncoder.getAbsolutePosition() * 360.0 -
                 m_angle_offset;
         m_steerMotor.setPosition(absolutePosition / 360.0);
