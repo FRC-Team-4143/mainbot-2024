@@ -24,7 +24,6 @@ public class Robot extends TimedRobot {
     m_robotContainer = RobotContainer.getInstance();
     AutoManager.getInstance();
     OI.configureBindings();
-
   }
 
   @Override
@@ -39,6 +38,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.stopLog();
+    updateDriverPrespective();
   }
 
   @Override
@@ -92,4 +92,11 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
 
   }
+
+  private void updateDriverPrespective(){
+    swerve_drivetrain_.setDriverPrespective(
+                DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
+                : swerve_drivetrain_.blueAlliancePerspectiveRotation);
+  }
+
 }

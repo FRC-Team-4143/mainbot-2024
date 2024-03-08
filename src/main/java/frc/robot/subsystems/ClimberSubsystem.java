@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 
 import frc.robot.Constants.ClimberConstants;
@@ -125,14 +126,18 @@ public class ClimberSubsystem extends Subsystem {
     }
   }
 
+  public boolean atHeight(){
+    return Util.epislonEquals(io_.target_height_, io_.current_height_, ClimberConstants.HEIGHT_TOLERANCE);
+  }
 
-  public void getNextEndgameState() {
+
+  public void scheduleNextEndgameState() {
     io_.endgame_state_++;
     io_.endgame_state_ = Math.min(io_.endgame_state_, 3); // Increments the endgame state, up to 3
     endgame_commands_[io_.endgame_state_].schedule();
   }
 
-  public void getPreviousEndgameState() {
+  public void schedulePreviousEndgameState() {
     io_.endgame_state_--;
     io_.endgame_state_ = Math.max(io_.endgame_state_, 0); // Decrements the endgame state, down to 0
     endgame_commands_[io_.endgame_state_].schedule();

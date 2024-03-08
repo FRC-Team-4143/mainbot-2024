@@ -427,6 +427,10 @@ public class ShooterSubsystem extends Subsystem {
         return Math.sqrt((x * x) + (y * y));
     }
 
+    public double getLinearDist(){
+        return io_.target_distance_;
+    }
+
     private double calculateWristAngle(Pose2d robot_pose, Pose3d target_pose, double velocity) {
         Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
 

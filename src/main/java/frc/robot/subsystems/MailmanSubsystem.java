@@ -13,10 +13,19 @@ import com.revrobotics.SparkPIDController;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.MailmanConstants;
+import frc.lib.swerve.SwerveRequest;
 
 public class MailmanSubsystem extends Subsystem {
 
@@ -39,6 +48,26 @@ public class MailmanSubsystem extends Subsystem {
     private CANSparkFlex dropper_motor_;
     private SparkPIDController elevator_controller_;
     private TimeOfFlight note_sensor_;
+
+    // private FollowPathHolonomic pathToAmp = new FollowPathHolonomic(
+    //             PathPlannerPath.fromPathFile("Amp Lineup"),
+    //             PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+    //             SwerveDrivetrain.getInstance()::getCurrentRobotChassisSpeeds,
+    //             (speeds) -> SwerveDrivetrain.getInstance().setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+    //             SwerveDrivetrain.getInstance().getHolonomicFollowerConfig(),
+
+    //             () -> {
+    //                 // Boolean supplier that controls when the path will be mirrored for the red
+    //                 // alliance
+    //                 // This will flip the path being followed to the red side of the field.
+    //                 // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    //                 var alliance = DriverStation.getAlliance();
+    //                 if (alliance.isPresent()) {
+    //                     return alliance.get() == DriverStation.Alliance.Red;
+    //                 }
+    //                 return false;
+    //             },
+    //             this); // Subsystem for requirements
 
     public enum HeightTarget {
         AMP,
@@ -140,6 +169,9 @@ public class MailmanSubsystem extends Subsystem {
      */
     public void setRollerRecieve() {
         io_.roller_speed_ = -0.15;
+    }
+
+    public void lineupToAmp(){
     }
 
     public static class MailmanPeriodicIo extends LogData {

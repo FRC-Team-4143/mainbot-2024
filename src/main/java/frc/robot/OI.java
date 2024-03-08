@@ -128,10 +128,10 @@ public abstract class OI {
                 () -> mailman_.setHeight(HeightTarget.TRAP)));
 
         // Endgame Climb step increment
-        driver_joystick_.start().whileTrue((Commands.runOnce(() -> climber_.getNextEndgameState())));
+        driver_joystick_.start().whileTrue((Commands.runOnce(() -> climber_.scheduleNextEndgameState())));
 
         // Endgame Climb step decrement
-        driver_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.getPreviousEndgameState()));
+        driver_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
 
         // Test buttons
 

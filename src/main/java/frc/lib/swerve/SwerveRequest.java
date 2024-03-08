@@ -23,6 +23,8 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Voltage;
 
+import frc.robot.subsystems.PoseEstimator;
+
 /**
  * Container for all the Swerve Requests. Use this to find all applicable swerve
  * drive requests.
@@ -405,7 +407,7 @@ public interface SwerveRequest {
                 angleToFace = angleToFace.rotateBy(parameters.operatorForwardDirection);
             }
 
-            double rotationRate = HeadingController.calculate(parameters.currentPose.getRotation().getRadians(),
+            double rotationRate = HeadingController.calculate(PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(), //parameters.currentPose.getRotation().getRadians(),
                     angleToFace.getRadians(), parameters.timestamp);
 
             double toApplyOmega = rotationRate;

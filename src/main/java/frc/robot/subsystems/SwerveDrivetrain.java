@@ -277,24 +277,14 @@ public class SwerveDrivetrain extends Subsystem {
      * Configures the PathPlanner AutoBuilder
      */
     public void configurePathPlanner() {
-        double driveBaseRadius = 0;
-        for (var moduleLocation : module_locations) {
-            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-        }
+
 
         AutoBuilder.configureHolonomic(
                 PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
                 PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
                 this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the
-                                                                              // robot
-                new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                        new PIDConstants(10, 0, 0),
-                        3,
-                        driveBaseRadius,
-                        new ReplanningConfig(false, false),
-                        0.008), // faster period than default
-
+                (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds
+               getHolonomicFollowerConfig(),
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red
                     // alliance
@@ -308,6 +298,19 @@ public class SwerveDrivetrain extends Subsystem {
                 },
                 this); // Subsystem for requirements
                 PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
+    }
+
+    public HolonomicPathFollowerConfig getHolonomicFollowerConfig(){
+        double driveBaseRadius = 0;
+        for (var moduleLocation : module_locations) {
+            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
+        }
+        return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
+                        new PIDConstants(10, 0, 0),
+                        3,
+                        driveBaseRadius,
+                        new ReplanningConfig(false, false),
+                        0.008);
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {

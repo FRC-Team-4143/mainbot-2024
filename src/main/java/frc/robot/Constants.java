@@ -145,8 +145,7 @@ public final class Constants {
         Units.inchesToMeters(BL_Y_POS_INCH), INVERT_LEFT_DRIVE);
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
-        Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
-
+        Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);  
   }
 
   // IDs Range from 10 - 19
@@ -169,11 +168,17 @@ public final class Constants {
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 0.0);
-      map.put(1.6, 0.2);
-      map.put(3.0, 0.2); // 0.2
-      map.put(6.0, 0.45); // 0.6
-
+      if (IS_COMP_BOT){ // Comp Bot
+        map.put(0.0, 0.0);
+        map.put(1.6, 0.0);
+        map.put(3.0, 0.0);
+        map.put(6.0, 0.45);
+      } else { // Practice Bot
+        map.put(0.0, 0.0);
+        map.put(1.6, 0.2);
+        map.put(3.0, 0.2); // 0.2
+        map.put(6.0, 0.45); // 0.6
+      }
       return map;
     }
 
@@ -268,6 +273,6 @@ public final class Constants {
     public static final double HOME_HEIGHT = 0.0;
     public static final double HALF_HEIGHT = 5.0;
     public static final double MAX_HEIGHT = 10.0;
-
+    public static final double HEIGHT_TOLERANCE = 1.0;
   }
 }

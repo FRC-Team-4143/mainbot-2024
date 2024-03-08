@@ -36,13 +36,9 @@ public class TelePass extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
-      CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
+    if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && ShooterSubsystem.getInstance().getLinearDist() < 11){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
-    } else {
-      //ShooterSubsystem.getInstance().rollerStop();
     }
   }
 
