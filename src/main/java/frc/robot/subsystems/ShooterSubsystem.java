@@ -192,9 +192,9 @@ public class ShooterSubsystem extends Subsystem {
             io_.target_flywheel_speed_ = 550;
         }else if(io_.target_mode_ == ShootMode.PASS){
             io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-            //io_.target_wrist_angle_ = Math.toRadians(35);
-            io_.target_wrist_angle_ = calculateWristAnglePass(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY_PASSING);
-            io_.target_flywheel_speed_ = 350;
+            io_.target_wrist_angle_ = Math.toRadians(40);
+            //io_.target_wrist_angle_ = calculateWristAnglePass(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY_PASSING);
+            io_.target_flywheel_speed_ = 325;
         }
 
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
