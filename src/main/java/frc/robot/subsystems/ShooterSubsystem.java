@@ -29,9 +29,6 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -99,7 +96,7 @@ public class ShooterSubsystem extends Subsystem {
         PASS
     }
 
-    private ShooterPeriodicIoAutoLogged io_;
+    private ShooterPeriodicIo io_;
 
     public ShooterSubsystem() {
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
@@ -115,8 +112,8 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new ShooterPeriodicIoAutoLogged();
-  
+        io_ = new ShooterPeriodicIo();
+
         // Top flywheel motor configuration
         top_flywheel_motor_.setSmartCurrentLimit(40);
         top_flywheel_motor_.setInverted(true);
@@ -469,7 +466,6 @@ public class ShooterSubsystem extends Subsystem {
         return new Transform3d(new Translation3d(horizontal_offset, depth_offset, 0), new Rotation3d());
     }
 
-    @AutoLog
     public static class ShooterPeriodicIo extends LogData {
         public Pose3d target_ = new Pose3d();
         public double target_flywheel_speed_ = 0.0;
@@ -491,7 +487,7 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     @Override
-    public LoggableInputs getLogger() {
+    public LogData getLogger() {
         return io_;
     }
 

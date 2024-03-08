@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -56,7 +53,7 @@ public class ClimberSubsystem extends Subsystem {
   /**
    * 
    */
-  private ClimberPeriodicIoAutoLogged io_;
+  private ClimberPeriodicIo io_;
 
   private ClimberSubsystem() {
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
@@ -66,7 +63,7 @@ public class ClimberSubsystem extends Subsystem {
 
   @Override
   public void reset() {
-    io_ = new ClimberPeriodicIoAutoLogged();
+    io_ = new ClimberPeriodicIo();
     left_climber_motor_.setInverted(false);
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
     left_climber_motor_.setSmartCurrentLimit(150);
@@ -141,7 +138,6 @@ public class ClimberSubsystem extends Subsystem {
     endgame_commands_[io_.endgame_state_].schedule();
   }
 
-  @AutoLog
   public static class ClimberPeriodicIo extends LogData {
     public double current_height_ = 0.0;
     public double target_height_ = 0.0;
@@ -150,7 +146,7 @@ public class ClimberSubsystem extends Subsystem {
   }
 
   @Override
-  public LoggableInputs getLogger() {
+  public LogData getLogger() {
     return io_;
   }
 }

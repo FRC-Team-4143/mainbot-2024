@@ -2,17 +2,12 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.ProtobufSubscriber;
 import edu.wpi.first.networktables.TimestampedObject;
-
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -30,7 +25,7 @@ public class PoseEstimator extends Subsystem {
         return poseEstimatorInstance;
     }
 
-    private PoseEstimatorPeriodicIoAutoLogged io_;
+    private PoseEstimatorPeriodicIo io_;
     private Field2d field_;
     private SwerveDrivePoseEstimator odometry_;
     private SwerveDrivePoseEstimator vision_filtered_odometry_;
@@ -39,13 +34,11 @@ public class PoseEstimator extends Subsystem {
     private BooleanSubscriber vision_ready_subscriber_;
     private ProtobufPublisher<Pose2d> odom_publisher_;
     private ProtobufPublisher<Pose2d> pose_publisher_;
-   
-    private Transform2d vision_box_transform_ = new Transform2d(new Translation2d(0.33,-0.457), Rotation2d.fromDegrees(180));//30+90));
-   
+      
     int update_counter_ = 10;
 
     PoseEstimator() {
-        io_ = new PoseEstimatorPeriodicIoAutoLogged();
+        io_ = new PoseEstimatorPeriodicIo();
         field_ = new Field2d();
 
         NetworkTableInstance nti = NetworkTableInstance.getDefault();
@@ -64,7 +57,7 @@ public class PoseEstimator extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new PoseEstimatorPeriodicIoAutoLogged();
+        io_ = new PoseEstimatorPeriodicIo();
         odometry_ = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics, new Rotation2d(),
                 SwerveDrivetrain.getInstance().getModulePositions(), new Pose2d());
         vision_filtered_odometry_ = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics,
@@ -76,12 +69,12 @@ public class PoseEstimator extends Subsystem {
     public void readPeriodicInputs(double timestamp) {
         TimestampedObject<Pose2d> result = vision_subsciber_.getAtomic();
     
-        if (result.timestamp > io_.last_vision_timestamp_) {
-            vision_filtered_odometry_.addVisionMeasurement(result.value.transformBy(vision_box_transform_), timestamp - 0.2);
+        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_) {
+            vision_filtered_odometry_.addVisionMeasurement(result.value, timestamp - 0.2);
             io_.last_vision_timestamp_ = result.timestamp;
         }
-        SmartDashboard.putNumber("Vision Timestamp", result.timestamp);
-        SmartDashboard.putNumber("Subsystem Timestamp", timestamp);
+
+        io_.vision_ready_status_ = vision_ready_subscriber_.get(false);
     }
 
     // Make a subscriber, integate vision measurements wpilib method on the new
@@ -95,18 +88,22 @@ public class PoseEstimator extends Subsystem {
 
     @Override
     public void writePeriodicOutputs(double timestamp) {
+
+        supression_publisher_.set(!io_.vision_ready_status_);
+
         update_counter_--;
         if(update_counter_ == 0){
             odom_publisher_.set(io_.pose_);
-            update_counter_ = 10;
+            update_counter_ = 5;
         }
     }
 
     @Override
     public void outputTelemetry(double timestamp) {
         field_.setRobotPose(io_.vision_filtered_pose_);
-        SmartDashboard.putData("Field", field_);
         pose_publisher_.set(io_.vision_filtered_pose_);
+
+        SmartDashboard.putData("Field", field_);
     }
 
     public Pose2d getRobotPose() {
@@ -125,20 +122,19 @@ public class PoseEstimator extends Subsystem {
     public void setRobotOdometry(Pose2d pose) {
         var drive = SwerveDrivetrain.getInstance();
         SwerveDrivetrain.getInstance().seedFieldRelative(pose.getRotation());
-        odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
+        //odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
         vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
     }
 
-    @AutoLog
     public static class PoseEstimatorPeriodicIo extends LogData {
         Pose2d pose_ = new Pose2d();
         Pose2d vision_filtered_pose_ = new Pose2d();
         double last_vision_timestamp_ = 0.0;
-        boolean vision_supress_odom_ = true;
+        boolean vision_ready_status_ = false;
     }
 
     @Override
-    public LoggableInputs getLogger() {
+    public LogData getLogger() {
         return io_;
     }
 }
