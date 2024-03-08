@@ -138,7 +138,6 @@ public class ClimberSubsystem extends Subsystem {
     endgame_commands_[io_.endgame_state_].schedule();
   }
 
-  @AutoLog
   public static class ClimberPeriodicIo extends LogData {
     public double current_height_ = 0.0;
     public double target_height_ = 0.0;
