@@ -41,6 +41,8 @@ public abstract class OI {
         // Enagage Targeting
         driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker());
 
+        driver_joystick_.a().whileTrue(new TelePass());
+
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(new ScoreMailman());
 

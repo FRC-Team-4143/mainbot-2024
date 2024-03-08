@@ -65,14 +65,16 @@ public class ShooterSubsystem extends Subsystem {
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 0.65, new Rotation3d(0, 0, 0));
     private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0));
+    private final Transform3d RED_PASS_TRANSFORM = new Transform3d(1, -1.25, -1.5, new Rotation3d(0, 0, 0));
+    private final Transform3d BLUE_PASS_TRANSFORM = new Transform3d(-1, -1.25, -1.5, new Rotation3d(0, 0, 0));
 
     // Target positions
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
-            //.transformBy(new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
     private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
     private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
-
+    private final Pose3d BLUE_PASS = field_layout_.getTagPose(7).get().transformBy(BLUE_PASS_TRANSFORM);
+    private final Pose3d RED_PASS = field_layout_.getTagPose(4).get().transformBy(RED_PASS_TRANSFORM);
     // Speed maps
     private final InterpolatingDoubleTreeMap dist_to_angle_offset_lookup_ = ShooterConstants
             .DISTANCE_TO_TARGET_OFFSET_MAP();
@@ -82,7 +84,8 @@ public class ShooterSubsystem extends Subsystem {
 
     public enum ShootTarget {
         SPEAKER,
-        AMP
+        AMP,
+        PASS
     }
 
     public enum ShootMode {
@@ -92,7 +95,8 @@ public class ShooterSubsystem extends Subsystem {
         TRANSFER,
         RECEIVE,
         CLIMB,
-        PROFILE
+        PROFILE,
+        PASS
     }
 
     private ShooterPeriodicIoAutoLogged io_;
@@ -189,6 +193,11 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.target_mode_ == ShootMode.PROFILE) {
             io_.target_wrist_angle_ = Math.toRadians(35);
             io_.target_flywheel_speed_ = 550;
+        }else if(io_.target_mode_ == ShootMode.PASS){
+            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+            //io_.target_wrist_angle_ = Math.toRadians(35);
+            io_.target_wrist_angle_ = calculateWristAnglePass(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY_PASSING);
+            io_.target_flywheel_speed_ = 350;
         }
 
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
@@ -320,14 +329,19 @@ public class ShooterSubsystem extends Subsystem {
         if (DriverStation.Alliance.Red == alliance.get()) {
             if (target == ShootTarget.SPEAKER) {
                 io_.target_ = RED_SPEAKER;
-            } else {
+            } else if(target ==ShootTarget.AMP){
                 io_.target_ = RED_AMP;
+            }else{
+                io_.target_ = RED_PASS;
             }
+            
         } else {
             if (target == ShootTarget.SPEAKER) {
                 io_.target_ = BLUE_SPEAKER;
-            } else {
+            } else if(target ==ShootTarget.AMP){
                 io_.target_ = BLUE_AMP;
+            }else{
+                io_.target_ = BLUE_PASS;
             }
         }
     }
@@ -424,6 +438,20 @@ public class ShooterSubsystem extends Subsystem {
         double G = 9.81;
         double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
         double result = Math.atan2((velocity * velocity) - Math.sqrt(root), G * d);
+        if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
+            return ShooterConstants.WRIST_HOME_ANGLE;
+        }
+        return result;
+    }
+
+    private double calculateWristAnglePass(Pose2d robot_pose, Pose3d target_pose, double velocity) {
+        Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
+
+        double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) + io_.target_offset_lookup_;
+        double d = calculateLinearDist(robot_pose, target_pose);
+        double G = 9.81;
+        double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
+        double result = Math.atan2((velocity * velocity) + Math.sqrt(root), G * d);
         if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
             return ShooterConstants.WRIST_HOME_ANGLE;
         }
