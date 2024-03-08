@@ -62,12 +62,14 @@ public class SwerveModule {
     public enum SteerRequestType {
         /**
          * Control the drive motor using a Motion Magic® request.
-         * The control output type is determined by {@link SwerveModuleConstants#SteerMotorClosedLoopOutput}
+         * The control output type is determined by
+         * {@link SwerveModuleConstants#SteerMotorClosedLoopOutput}
          */
         MotionMagic,
         /**
          * Control the drive motor using a Motion Magic® Expo request.
-         * The control output type is determined by {@link SwerveModuleConstants#SteerMotorClosedLoopOutput}
+         * The control output type is determined by
+         * {@link SwerveModuleConstants#SteerMotorClosedLoopOutput}
          */
         MotionMagicExpo,
     }
@@ -82,14 +84,15 @@ public class SwerveModule {
         OpenLoopVoltage,
         /**
          * Control the drive motor using a velocity closed-loop request.
-         * The control output type is determined by {@link SwerveModuleConstants#DriveMotorClosedLoopOutput}
+         * The control output type is determined by
+         * {@link SwerveModuleConstants#DriveMotorClosedLoopOutput}
          */
         Velocity,
     }
 
     private final TalonFX m_driveMotor;
     private final TalonFX m_steerMotor;
-    //private final CANcoder m_cancoder; CRH: Removed for AnalogEncoders
+    // private final CANcoder m_cancoder; CRH: Removed for AnalogEncoders
     private final AnalogEncoder m_analogEncoder;
     private final int m_encoder_id;
     private double m_angle_offset;
@@ -112,8 +115,12 @@ public class SwerveModule {
     /* drive motor controls */
     private final VoltageOut m_voltageOpenLoopSetter = new VoltageOut(0);
     private final VelocityVoltage m_velocityVoltageSetter = new VelocityVoltage(0);
-    /* Velocity Torque current neutral should always be coast, as neutral corresponds to 0-current or maintain velocity, not 0-velocity */
-    private final VelocityTorqueCurrentFOC m_velocityTorqueSetter = new VelocityTorqueCurrentFOC(0).withOverrideCoastDurNeutral(true);
+    /*
+     * Velocity Torque current neutral should always be coast, as neutral
+     * corresponds to 0-current or maintain velocity, not 0-velocity
+     */
+    private final VelocityTorqueCurrentFOC m_velocityTorqueSetter = new VelocityTorqueCurrentFOC(0)
+            .withOverrideCoastDurNeutral(true);
 
     private final ClosedLoopOutputType m_steerClosedLoopOutput;
     private final ClosedLoopOutputType m_driveClosedLoopOutput;
@@ -124,16 +131,16 @@ public class SwerveModule {
     /**
      * Construct a SwerveModule with the specified constants.
      *
-     * @param constants   Constants used to construct the module
-     * @param canbusName  The name of the CAN bus this module is on
+     * @param constants  Constants used to construct the module
+     * @param canbusName The name of the CAN bus this module is on
      */
     public SwerveModule(SwerveModuleConstants constants, String canbusName) {
         m_driveMotor = new TalonFX(constants.DriveMotorId, canbusName);
         m_steerMotor = new TalonFX(constants.SteerMotorId, canbusName);
         m_encoder_id = constants.encoderId;
         m_analogEncoder = new AnalogEncoder(m_encoder_id);
-        //m_cancoder = new CANcoder(constants.CANcoderId, canbusName); CRH: Removed for AnalogEncoders
-        m_angle_offset = Preferences.getDouble("Module" + m_encoder_id, 0);
+        // m_cancoder = new CANcoder(constants.CANcoderId, canbusName); CRH: Removed for
+        // AnalogEncoders
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
@@ -162,7 +169,8 @@ public class SwerveModule {
 
         talonConfigs.Slot0 = constants.SteerMotorGains;
         // Modify configuration to use remote CANcoder fused
-        //talonConfigs.Feedback.FeedbackRemoteSensorID = constants.CANcoderId; CRH: Removed for AnalogEncoders
+        // talonConfigs.Feedback.FeedbackRemoteSensorID = constants.CANcoderId; CRH:
+        // Removed for AnalogEncoders
         switch (constants.FeedbackSource) {
             case RemoteCANcoder:
                 talonConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
@@ -184,7 +192,7 @@ public class SwerveModule {
                 talonConfigs.Feedback.SensorToMechanismRatio = constants.SteerMotorGearRatio;
                 break;
         }
-        //talonConfigs.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
+        // talonConfigs.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
 
         talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
         talonConfigs.MotionMagic.MotionMagicAcceleration = talonConfigs.MotionMagic.MotionMagicCruiseVelocity / 0.100;
@@ -207,8 +215,9 @@ public class SwerveModule {
         // cancoderConfigs.MagnetSensor.MagnetOffset = constants.CANcoderOffset;
         // response = m_cancoder.getConfigurator().apply(cancoderConfigs);
         // if (!response.isOK()) {
-        //     System.out.println(
-        //             "CANcoder ID " + m_cancoder.getDeviceID() + " failed config with error " + response.toString());
+        // System.out.println(
+        // "CANcoder ID " + m_cancoder.getDeviceID() + " failed config with error " +
+        // response.toString());
         // }
 
         m_drivePosition = m_driveMotor.getPosition().clone();
@@ -298,7 +307,8 @@ public class SwerveModule {
      *
      * @param state            Speed and direction the module should target
      * @param driveRequestType The {@link DriveRequestType} to apply
-     * @param steerRequestType The {@link SteerRequestType} to apply; defaults to {@link SteerRequestType#MotionMagic}
+     * @param steerRequestType The {@link SteerRequestType} to apply; defaults to
+     *                         {@link SteerRequestType#MotionMagic}
      */
     public void apply(SwerveModuleState state, DriveRequestType driveRequestType, SteerRequestType steerRequestType) {
         var optimized = SwerveModuleState.optimize(state, m_internalState.angle);
@@ -333,13 +343,22 @@ public class SwerveModule {
 
         double velocityToSet = optimized.speedMetersPerSecond * m_driveRotationsPerMeter;
 
-        /* From FRC 900's whitepaper, we add a cosine compensator to the applied drive velocity */
+        /*
+         * From FRC 900's whitepaper, we add a cosine compensator to the applied drive
+         * velocity
+         */
         /* To reduce the "skew" that occurs when changing direction */
         double steerMotorError = angleToSetDeg - m_steerPosition.getValue();
         /* If error is close to 0 rotations, we're already there, so apply full power */
-        /* If the error is close to 0.25 rotations, then we're 90 degrees, so movement doesn't help us at all */
+        /*
+         * If the error is close to 0.25 rotations, then we're 90 degrees, so movement
+         * doesn't help us at all
+         */
         double cosineScalar = Math.cos(Units.rotationsToRadians(steerMotorError));
-        /* Make sure we don't invert our drive, even though we shouldn't ever target over 90 degrees anyway */
+        /*
+         * Make sure we don't invert our drive, even though we shouldn't ever target
+         * over 90 degrees anyway
+         */
         if (cosineScalar < 0.0) {
             cosineScalar = 0.0;
         }
@@ -354,7 +373,10 @@ public class SwerveModule {
 
         switch (driveRequestType) {
             case OpenLoopVoltage:
-                /* Open loop ignores the driveRotationsPerMeter since it only cares about the open loop at the mechanism */
+                /*
+                 * Open loop ignores the driveRotationsPerMeter since it only cares about the
+                 * open loop at the mechanism
+                 */
                 /* But we do care about the backout due to coupling, so we keep it in */
                 velocityToSet /= m_driveRotationsPerMeter;
                 m_driveMotor.setControl(m_voltageOpenLoopSetter.withOutput(velocityToSet / m_speedAt12VoltsMps * 12.0));
@@ -375,15 +397,17 @@ public class SwerveModule {
     }
 
     /**
-     * Controls this module to the specified steer target, and applies the specific drive request.
+     * Controls this module to the specified steer target, and applies the specific
+     * drive request.
      * <p>
-     * This is intended only to be used for characterization of the robot, do not use this for normal use.
+     * This is intended only to be used for characterization of the robot, do not
+     * use this for normal use.
      *
-     * @param steerTarget The angle the wheels should face for characterization
-     * @param driveRequest The direct voltage to apply to the motor for use during characterization
+     * @param steerTarget  The angle the wheels should face for characterization
+     * @param driveRequest The direct voltage to apply to the motor for use during
+     *                     characterization
      */
-    public void applyCharacterization(Rotation2d steerTarget, VoltageOut driveRequest)
-    {
+    public void applyCharacterization(Rotation2d steerTarget, VoltageOut driveRequest) {
         double angleToSetDeg = steerTarget.getRotations();
         /* Use the configured closed loop output mode */
         switch (m_steerClosedLoopOutput) {
@@ -401,15 +425,17 @@ public class SwerveModule {
     }
 
     /**
-     * Controls this module to the specified steer target, and applies the specific drive request.
+     * Controls this module to the specified steer target, and applies the specific
+     * drive request.
      * <p>
-     * This is intended only to be used for characterization of the robot, do not use this for normal use.
+     * This is intended only to be used for characterization of the robot, do not
+     * use this for normal use.
      *
-     * @param steerTarget The angle the wheels should face for characterization
-     * @param driveRequest The direct Torque Current to apply to the motor for use during characterization
+     * @param steerTarget  The angle the wheels should face for characterization
+     * @param driveRequest The direct Torque Current to apply to the motor for use
+     *                     during characterization
      */
-    public void applyCharacterization(Rotation2d steerTarget, TorqueCurrentFOC driveRequest)
-    {
+    public void applyCharacterization(Rotation2d steerTarget, TorqueCurrentFOC driveRequest) {
         double angleToSetDeg = steerTarget.getRotations();
         /* Use the configured closed loop output mode */
         switch (m_steerClosedLoopOutput) {
@@ -444,7 +470,8 @@ public class SwerveModule {
         }
         if (!status.isOK()) {
             System.out.println(
-                    "TalonFX ID " + m_driveMotor.getDeviceID() + " failed config neutral mode with error " + status.toString());
+                    "TalonFX ID " + m_driveMotor.getDeviceID() + " failed config neutral mode with error "
+                            + status.toString());
         }
         return status;
     }
@@ -469,7 +496,8 @@ public class SwerveModule {
      * @return Current state of the module
      */
     public SwerveModuleState getCurrentState() {
-        return new SwerveModuleState(m_driveVelocity.getValue() / m_driveRotationsPerMeter, Rotation2d.fromRotations(m_steerPosition.getValue()));
+        return new SwerveModuleState(m_driveVelocity.getValue() / m_driveRotationsPerMeter,
+                Rotation2d.fromRotations(m_steerPosition.getValue()));
     }
 
     /**
@@ -512,6 +540,9 @@ public class SwerveModule {
 
         m_angle_offset = m_analogEncoder.getAbsolutePosition() * 360.0;
         Preferences.setDouble("Module" + m_encoder_id, m_angle_offset);
+
+        System.out.println("Set wheel offsets of " + m_encoder_id + " to " + m_angle_offset);
+
         resetToAbsolute();
     }
 
@@ -519,6 +550,8 @@ public class SwerveModule {
      * 
      */
     public void resetToAbsolute() {
+        m_angle_offset = Preferences.getDouble("Module" + m_encoder_id, 0);
+        System.out.println("Get wheel offsets of " + m_encoder_id + " to " + m_angle_offset);
         double absolutePosition = m_analogEncoder.getAbsolutePosition() * 360.0 -
                 m_angle_offset;
         m_steerMotor.setPosition(absolutePosition / 360.0);
@@ -562,6 +595,6 @@ public class SwerveModule {
      * @return This module's CANcoder reference
      */
     // public CANcoder getCANcoder() { CRH: Removed for AnalogEncoders
-    //     return m_cancoder;
+    // return m_cancoder;
     // }
 }

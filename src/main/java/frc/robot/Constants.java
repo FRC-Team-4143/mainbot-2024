@@ -31,10 +31,11 @@ import frc.lib.swerve.SwerveModuleConstants;
 public final class Constants {
 
   public static final boolean IS_COMP_BOT = Preferences.getBoolean("RobotIsComp", true);
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
-    
+
   public class DrivetrainConstants {
     // Can bus names for each of the swerve modules
     public static final String[] MODULE_CANBUS_NAME = { "CANivore", "CANivore", "CANivore", "CANivore" };
@@ -65,14 +66,15 @@ public final class Constants {
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
     private static final double COUPLE_RATIO = 3.5;
-    
-    private static final double DRIVE_GEAR_RATIO = 5.14; // Mk4i: 6.12, Mk4: 5.14 
+
+    private static final double DRIVE_GEAR_RATIO = 5.14; // Mk4i: 6.12, Mk4: 5.14
     private static final double STEER_GEAR_RATIO = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
-    private static final double WHEEL_RADIUS_INCH = 1.6090288; //1.59997; // Estimated at first, then fudge-factored to make odom match record
+    private static final double WHEEL_RADIUS_INCH = 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
+                                                               // make odom match record
 
     private static final boolean STEER_MOTOR_REVERSED = false;
     private static final boolean INVERT_LEFT_DRIVE = false;
-    private static final boolean INVERT_RIGHT_DRIVE = false; //true;
+    private static final boolean INVERT_RIGHT_DRIVE = false; // true;
 
     private static final double FRAME_WIDTH = 19.0;
     private static final double FRAME_LENGTH = 18.0;
@@ -82,19 +84,19 @@ public final class Constants {
     public static final double CRAWL_DRIVE_SPEED = 0.4;
 
     private static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()
-            .withDriveMotorGearRatio(DRIVE_GEAR_RATIO)
-            .withSteerMotorGearRatio(STEER_GEAR_RATIO)
-            .withWheelRadius(WHEEL_RADIUS_INCH)
-            .withSlipCurrent(SLIP_CURRENT_AMPS)
-            .withSteerMotorGains(STEER_GAINS)
-            .withDriveMotorGains(DRIVE_GAINS)
-            .withSpeedAt12VoltsMps(SPEED_AT_12V_MPS)
-            .withFeedbackSource(SteerFeedbackType.None) //.withFeedbackSource(SteerFeedbackType.FusedCANcoder) CRH: Removed for AnalogEncoders
-            .withCouplingGearRatio(COUPLE_RATIO)
-            .withSteerMotorInverted(STEER_MOTOR_REVERSED)
-            .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
-            .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.TorqueCurrentFOC);
-
+        .withDriveMotorGearRatio(DRIVE_GEAR_RATIO)
+        .withSteerMotorGearRatio(STEER_GEAR_RATIO)
+        .withWheelRadius(WHEEL_RADIUS_INCH)
+        .withSlipCurrent(SLIP_CURRENT_AMPS)
+        .withSteerMotorGains(STEER_GAINS)
+        .withDriveMotorGains(DRIVE_GAINS)
+        .withSpeedAt12VoltsMps(SPEED_AT_12V_MPS)
+        .withFeedbackSource(SteerFeedbackType.None) // .withFeedbackSource(SteerFeedbackType.FusedCANcoder) CRH: Removed
+                                                    // for AnalogEncoders
+        .withCouplingGearRatio(COUPLE_RATIO)
+        .withSteerMotorInverted(STEER_MOTOR_REVERSED)
+        .withSteerMotorClosedLoopOutput(ClosedLoopOutputType.Voltage)
+        .withDriveMotorClosedLoopOutput(ClosedLoopOutputType.TorqueCurrentFOC);
 
     // Front Left
     private static final int FLD_MOTOR_ID = 1;
@@ -102,17 +104,17 @@ public final class Constants {
     private static final int FLS_ENCODER_ID = 0;
     private static final double FLS_ENCODER_OFFSET = 0;
 
-    private static final double FL_X_POS_INCH = FRAME_WIDTH/2;
-    private static final double FL_Y_POS_INCH = FRAME_LENGTH/2;
-    
+    private static final double FL_X_POS_INCH = FRAME_WIDTH / 2;
+    private static final double FL_Y_POS_INCH = FRAME_LENGTH / 2;
+
     // Front Right
     private static final int FRD_MOTOR_ID = 3;
     private static final int FRS_MOTOR_ID = 4;
     private static final int FRS_ENCODER_ID = 1;
     private static final double FRS_ENCODER_OFFSET = 0.0;
 
-    private static final double FR_X_POS_INCH = FRAME_WIDTH/2.;
-    private static final double FR_Y_POS_INCH = -FRAME_LENGTH/2;
+    private static final double FR_X_POS_INCH = FRAME_WIDTH / 2.;
+    private static final double FR_Y_POS_INCH = -FRAME_LENGTH / 2;
 
     // Back Left
     private static final int BLD_MOTOR_ID = 5;
@@ -120,8 +122,8 @@ public final class Constants {
     private static final int BLS_ENCODER_ID = 2;
     private static final double BLS_ENCODER_OFFSET = 0.0;
 
-    private static final double BL_X_POS_INCH = -FRAME_WIDTH/2.;
-    private static final double BL_Y_POS_INCH = FRAME_LENGTH/2;
+    private static final double BL_X_POS_INCH = -FRAME_WIDTH / 2.;
+    private static final double BL_Y_POS_INCH = FRAME_LENGTH / 2;
 
     // Back Right
     private static final int BRD_MOTOR_ID = 7;
@@ -129,18 +131,21 @@ public final class Constants {
     private static final int BRS_ENCODER_ID = 3;
     private static final double BRS_ENCODER_OFFSET = 0;
 
-    private static final double BR_X_POS_INCH = -FRAME_WIDTH/2.;
-    private static final double BR_Y_POS_INCH = -FRAME_LENGTH/2;
-
+    private static final double BR_X_POS_INCH = -FRAME_WIDTH / 2.;
+    private static final double BR_Y_POS_INCH = -FRAME_LENGTH / 2;
 
     public static final SwerveModuleConstants FL_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
-            FLS_MOTOR_ID, FLD_MOTOR_ID, FLS_ENCODER_ID, FLS_ENCODER_OFFSET, Units.inchesToMeters(FL_X_POS_INCH), Units.inchesToMeters(FL_Y_POS_INCH), INVERT_LEFT_DRIVE);
+        FLS_MOTOR_ID, FLD_MOTOR_ID, FLS_ENCODER_ID, FLS_ENCODER_OFFSET, Units.inchesToMeters(FL_X_POS_INCH),
+        Units.inchesToMeters(FL_Y_POS_INCH), INVERT_LEFT_DRIVE);
     public static final SwerveModuleConstants FR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
-            FRS_MOTOR_ID, FRD_MOTOR_ID, FRS_ENCODER_ID, FRS_ENCODER_OFFSET, Units.inchesToMeters(FR_X_POS_INCH), Units.inchesToMeters(FR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
+        FRS_MOTOR_ID, FRD_MOTOR_ID, FRS_ENCODER_ID, FRS_ENCODER_OFFSET, Units.inchesToMeters(FR_X_POS_INCH),
+        Units.inchesToMeters(FR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
     public static final SwerveModuleConstants BL_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
-            BLS_MOTOR_ID, BLD_MOTOR_ID, BLS_ENCODER_ID, BLS_ENCODER_OFFSET, Units.inchesToMeters(BL_X_POS_INCH), Units.inchesToMeters(BL_Y_POS_INCH), INVERT_LEFT_DRIVE);
+        BLS_MOTOR_ID, BLD_MOTOR_ID, BLS_ENCODER_ID, BLS_ENCODER_OFFSET, Units.inchesToMeters(BL_X_POS_INCH),
+        Units.inchesToMeters(BL_Y_POS_INCH), INVERT_LEFT_DRIVE);
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
-            BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH), Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
+        BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
+        Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
 
   }
 
@@ -157,7 +162,12 @@ public final class Constants {
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30; // TODO: Tune for new PID controller
-    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear
+                                                                                                              // Shooter
+                                                                                                              // Velocity
+                                                                                                              // (80%
+                                                                                                              // for
+                                                                                                              // loss)
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
 
@@ -173,13 +183,15 @@ public final class Constants {
 
     // Wrist constants
     public static final int WRIST_MOTOR_ID = 12;
-    public static final int WRIST_ENCODER_ID = 0;    
+    public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
     public static final double WRIST_CONTROLLER_P = 13.0;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
-    public static final double WRIST_ZERO_ANGLE = ((IS_COMP_BOT)? 0.289 : 0.293) * (2 * Math.PI); // 0.289 for Comp Bot // 0.293 for Practice Bot
+    public static final double WRIST_ZERO_ANGLE = ((IS_COMP_BOT) ? 0.289 : 0.293) * (2 * Math.PI); // 0.289 for Comp Bot
+                                                                                                   // // 0.293 for
+                                                                                                   // Practice Bot
     public static final double WRIST_HOME_ANGLE = 0.22689;
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
@@ -187,7 +199,7 @@ public final class Constants {
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
-    public static final boolean ROLLER_MOTOR_INVERTED = ((IS_COMP_BOT)? false : true);
+    public static final boolean ROLLER_MOTOR_INVERTED = ((IS_COMP_BOT) ? false : true);
 
     // Yaw Aiming Tolerance
     public static final double YAW_TOLERANCE = Math.toRadians(5);
@@ -254,5 +266,12 @@ public final class Constants {
   public static class ClimberConstants {
     public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
     public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
+    public static final double CLIMBER_CONTROLLER_P = 0.1;
+    public static final double CLIMBER_CONTROLLER_D = 0.1;
+    public static final double CLIMBER_CONTROLLER_FF = 0.1;
+    public static final double HOME_HEIGHT = 0.0;
+    public static final double HALF_HEIGHT = 5.0;
+    public static final double MAX_HEIGHT = 10.0;
+
   }
 }

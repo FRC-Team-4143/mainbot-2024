@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.ClimberSubsystem.ClimbTarget;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -49,12 +50,12 @@ public abstract class OI {
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
                 () -> {
-                        pickup_front_.setPickupMode(PickupMode.PICKUP);
-                        mailman_.setRollerIntake();
+                    pickup_front_.setPickupMode(PickupMode.PICKUP);
+                    mailman_.setRollerIntake();
                 },
                 () -> {
-                        pickup_front_.setPickupMode(PickupMode.IDLE);
-                        mailman_.setRollerStop();
+                    pickup_front_.setPickupMode(PickupMode.IDLE);
+                    mailman_.setRollerStop();
                 }));
 
         // Crawl
@@ -85,7 +86,6 @@ public abstract class OI {
         // Handoff from Mailman to Shooter
         operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
 
-
         // FOR PRACTICE MODE ONLY
         // Feed Shooter
         operator_joystick_.leftStick().whileTrue(Commands.startEnd(
@@ -109,13 +109,15 @@ public abstract class OI {
                 () -> climber_.stopClimb()));
 
         operator_joystick_.povRight().whileTrue(Commands.runOnce(
-                () -> shooter_.setShootMode(ShootMode.IDLE)
-        ));
+                () -> shooter_.setShootMode(ShootMode.IDLE)));
+
+        // Climb to half height
+        operator_joystick_.povLeft().whileTrue(Commands.runOnce(() -> climber_.setHeight(ClimbTarget.HALF)));
 
         // Manual Shoot
         operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
 
-        // Set Wrsit to Hook Position
+        // Set Wrist to Hook Position
         operator_joystick_.start().whileTrue(Commands.runOnce(
                 () -> shooter_.setShootMode(ShootMode.CLIMB)));
 
@@ -123,7 +125,14 @@ public abstract class OI {
         operator_joystick_.back().whileTrue(Commands.runOnce(
                 () -> mailman_.setHeight(HeightTarget.TRAP)));
 
-        // Test buttons  
+        // Endgame Climb step increment
+        driver_joystick_.start().whileTrue((Commands.runOnce(() -> climber_.getNextEndgameState())));
+
+        // Endgame Climb step decrement
+        driver_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.getPreviousEndgameState()));
+
+        // Test buttons
+
     }
 
     static public double getDriverJoystickLeftX() {
