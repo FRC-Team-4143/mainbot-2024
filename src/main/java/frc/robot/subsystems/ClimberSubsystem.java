@@ -12,6 +12,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -20,6 +21,10 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.subsystem.Subsystem;
 
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.commands.climberSequence.ClimbState;
+import frc.robot.commands.climberSequence.EngageState;
+import frc.robot.commands.climberSequence.LockState;
+import frc.robot.commands.climberSequence.PresetState;
 
 public class ClimberSubsystem extends Subsystem {
 
@@ -43,6 +48,10 @@ public class ClimberSubsystem extends Subsystem {
     HALF,
     MAX
   }
+
+  private Command[] endgame_commands_ = {
+      new PresetState(), new EngageState(), new ClimbState(), new LockState()
+  };
 
   /**
    * 
@@ -119,23 +128,17 @@ public class ClimberSubsystem extends Subsystem {
     }
   }
 
-  public void endgameSteps(int change) {
-    io_.endgame_state_ += change;
-    if (io_.endgame_state_ <= 0) {
-      io_.endgame_state_ = 0;
-      // Wrist home, mailman down, rollers off
-    } else if (io_.endgame_state_ == 1) {
-      // new WristClimb();
-    } else if (io_.endgame_state_ == 2) {
-      // MailmanTrapHeight
-    } else if (io_.endgame_state_ == 3) {
-      setHeight(ClimbTarget.MAX);
-    } else if (io_.endgame_state_ == 4) {
-      setHeight(ClimbTarget.HOME);
-    } else if (io_.endgame_state_ == 5) {
-      // And so on
-    }
 
+  public void getNextEndgameState() {
+    io_.endgame_state_++;
+    io_.endgame_state_ = Math.min(io_.endgame_state_, 3); // Increments the endgame state, up to 3
+    endgame_commands_[io_.endgame_state_].schedule();
+  }
+
+  public void getPreviousEndgameState() {
+    io_.endgame_state_--;
+    io_.endgame_state_ = Math.max(io_.endgame_state_, 0); // Decrements the endgame state, down to 0
+    endgame_commands_[io_.endgame_state_].schedule();
   }
 
   @AutoLog

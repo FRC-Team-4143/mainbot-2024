@@ -126,12 +126,13 @@ public abstract class OI {
                 () -> mailman_.setHeight(HeightTarget.TRAP)));
 
         // Endgame Climb step increment
-        driver_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.endgameSteps(1)));
+        driver_joystick_.start().whileTrue((Commands.runOnce(() -> climber_.getNextEndgameState())));
 
         // Endgame Climb step decrement
-        driver_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.endgameSteps(-1)));
+        driver_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.getPreviousEndgameState()));
 
         // Test buttons
+
     }
 
     static public double getDriverJoystickLeftX() {
