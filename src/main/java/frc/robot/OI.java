@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.ClimberSubsystem.ClimbTarget;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -37,8 +36,13 @@ public abstract class OI {
         SmartDashboard.putData("Seed Field Centric", Commands.runOnce(
                 () -> swerve_drivetrain_.seedFieldRelative(swerve_drivetrain_.getDriverPrespective()))
                 .ignoringDisable(true));
-        SmartDashboard.putData("Reset Climber Encoder",
-                Commands.runOnce(() -> ClimberSubsystem.getInstance().resetClimberEncoder()));
+        SmartDashboard.putData("Reset Climber Encoder", Commands.runOnce(
+                () -> ClimberSubsystem.getInstance().resetClimberEncoder())
+                .ignoringDisable(true));
+
+        // ------------------        
+        // Driver Controls
+        // ------------------
 
         // Enagage Targeting
         driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker());
@@ -66,6 +70,10 @@ public abstract class OI {
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
         crawlTrigger.whileTrue(new RobotCentricCrawl());
 
+        // ------------------        
+        // Operator Controls
+        // ------------------
+
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
                 () -> mailman_.setRollerOutput(),
@@ -90,18 +98,6 @@ public abstract class OI {
         // Handoff from Mailman to Shooter
         operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
 
-        // FOR PRACTICE MODE ONLY
-        // Feed Shooter
-        operator_joystick_.leftStick().whileTrue(Commands.startEnd(
-                () -> {
-                    shooter_.setRollerFeed();
-                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
-                },
-                () -> {
-                    shooter_.rollerStop();
-                    pickup_rear_.setPickupMode(PickupMode.IDLE);
-                }));
-
         // Climb
         operator_joystick_.povUp().whileTrue(Commands.startEnd(
                 () -> climber_.setClimbSpeed(-0.6),
@@ -118,11 +114,17 @@ public abstract class OI {
         // Manual Shoot
         operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
 
+        // Manual Pass
+        operator_joystick_.leftTrigger().whileTrue(new OverrideTelePass());
+
         // Endgame Climb step increment
         operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
 
         // Endgame Climb step decrement
         operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
+
+        // Empty All Pickups
+        operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
 
         // Test buttons
 

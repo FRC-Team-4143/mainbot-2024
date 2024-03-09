@@ -20,7 +20,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    //Logger.disableDeterministicTimestamps();
     m_robotContainer = RobotContainer.getInstance();
     AutoManager.getInstance();
     OI.configureBindings();

@@ -8,11 +8,10 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -20,11 +19,7 @@ import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.commands.climberSequence.ClimbState;
-import frc.robot.commands.climberSequence.DeclimbState;
-import frc.robot.commands.climberSequence.EngageState;
-import frc.robot.commands.climberSequence.LockState;
-import frc.robot.commands.climberSequence.PresetState;
+import frc.robot.commands.climberSequence.*;
 
 public class ClimberSubsystem extends Subsystem {
 
@@ -42,6 +37,7 @@ public class ClimberSubsystem extends Subsystem {
   private CANSparkFlex right_climber_motor_;
   private RelativeEncoder climber_encoder_;
   private SparkPIDController climber_controller_;
+  private PIDController rio_climber_controller_;
 
   public enum ClimbTarget {
     HOME,
@@ -61,6 +57,10 @@ public class ClimberSubsystem extends Subsystem {
   private ClimberSubsystem() {
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     right_climber_motor_ = new CANSparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
+    climber_encoder_ = left_climber_motor_.getEncoder();
+    //climber_controller_ = left_climber_motor_.getPIDController();
+    rio_climber_controller_ = new PIDController(ClimberConstants.CLIMBER_CONTROLLER_P, 0, 0);
+
     reset();
   }
 
@@ -69,22 +69,20 @@ public class ClimberSubsystem extends Subsystem {
     io_ = new ClimberPeriodicIo();
     left_climber_motor_.setInverted(false);
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
-    left_climber_motor_.setSmartCurrentLimit(150);
+    left_climber_motor_.setSmartCurrentLimit(200);
+    left_climber_motor_.burnFlash();
 
     right_climber_motor_.setInverted(false);
     right_climber_motor_.setIdleMode(IdleMode.kBrake);
-    right_climber_motor_.setSmartCurrentLimit(150);
+    right_climber_motor_.setSmartCurrentLimit(200);
+    //right_climber_motor_.follow(left_climber_motor_, false);
+    right_climber_motor_.burnFlash();
 
-    climber_encoder_ = left_climber_motor_.getEncoder();
-    climber_controller_ = left_climber_motor_.getPIDController();
     climber_controller_.setFeedbackDevice(climber_encoder_);
     climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P, 0);
     climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P, 1);
     climber_controller_.setFF(ClimberConstants.CLIMBER_CONTROLLER_FF, 0);
     climber_controller_.setFF(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_FF, 1);
-    right_climber_motor_.follow(left_climber_motor_, false);
-    left_climber_motor_.burnFlash();
-    right_climber_motor_.burnFlash();
 
   }
 
@@ -95,20 +93,24 @@ public class ClimberSubsystem extends Subsystem {
 
   @Override
   public void updateLogic(double timestamp) {
-
+    io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_);
   }
 
   @Override
   public void writePeriodicOutputs(double timestamp) {
-    // left_climber_motor_.set(io_.winch_speed_);
-    // right_climber_motor_.set(io_.winch_speed_);
-    climber_controller_.setReference(io_.target_height_, ControlType.kPosition,
-        io_.pid_slot_);
+    left_climber_motor_.set(io_.winch_speed_);
+    right_climber_motor_.set(io_.winch_speed_);
+    // climber_controller_.setReference(io_.target_height_, ControlType.kPosition,
+    //     io_.pid_slot_);
+
+    
   }
 
   @Override
   public void outputTelemetry(double timestamp) {
     SmartDashboard.putNumber("Current Climb Height", io_.current_height_); // Unknown units
+    SmartDashboard.putNumber("Cliber Motor 1 Output", left_climber_motor_.getAppliedOutput());
+    SmartDashboard.putNumber("Cliber Motor 2 Output", right_climber_motor_.getAppliedOutput());
   }
 
   public void resetClimberEncoder() {

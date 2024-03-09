@@ -23,6 +23,8 @@ public class ScoreMailman extends Command {
   public void initialize() {
     if(ShooterSubsystem.getInstance().hasNote()){
       CommandScheduler.getInstance().schedule(new HandoffToMailman().withTimeout(1).andThen(() -> MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP)));
+    } else {
+      MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP);
     }
   }
 
