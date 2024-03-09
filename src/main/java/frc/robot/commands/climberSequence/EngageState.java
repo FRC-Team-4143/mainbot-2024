@@ -17,7 +17,7 @@ public class EngageState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ClimberSubsystem.getInstance().setHeight(ClimbTarget.MAX);
+    ClimberSubsystem.getInstance().setHeight(ClimbTarget.MAX, 0);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB);
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
   }

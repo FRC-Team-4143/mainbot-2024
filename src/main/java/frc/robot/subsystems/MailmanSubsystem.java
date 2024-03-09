@@ -49,25 +49,6 @@ public class MailmanSubsystem extends Subsystem {
     private SparkPIDController elevator_controller_;
     private TimeOfFlight note_sensor_;
 
-    // private FollowPathHolonomic pathToAmp = new FollowPathHolonomic(
-    //             PathPlannerPath.fromPathFile("Amp Lineup"),
-    //             PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
-    //             SwerveDrivetrain.getInstance()::getCurrentRobotChassisSpeeds,
-    //             (speeds) -> SwerveDrivetrain.getInstance().setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
-    //             SwerveDrivetrain.getInstance().getHolonomicFollowerConfig(),
-
-    //             () -> {
-    //                 // Boolean supplier that controls when the path will be mirrored for the red
-    //                 // alliance
-    //                 // This will flip the path being followed to the red side of the field.
-    //                 // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-    //                 var alliance = DriverStation.getAlliance();
-    //                 if (alliance.isPresent()) {
-    //                     return alliance.get() == DriverStation.Alliance.Red;
-    //                 }
-    //                 return false;
-    //             },
-    //             this); // Subsystem for requirements
 
     public enum HeightTarget {
         AMP,

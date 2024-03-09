@@ -17,8 +17,8 @@ public class ClimbState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP);
-    ClimberSubsystem.getInstance().setHeight(ClimbTarget.HOME);
+    MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP);
+    ClimberSubsystem.getInstance().setHeight(ClimbTarget.HOME, 1);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB);
   }
 

@@ -145,7 +145,7 @@ public final class Constants {
         Units.inchesToMeters(BL_Y_POS_INCH), INVERT_LEFT_DRIVE);
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
-        Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);  
+        Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
   }
 
   // IDs Range from 10 - 19
@@ -161,14 +161,29 @@ public final class Constants {
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30;
-    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
-    public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32 : 250 | 2626.056 : 275 | 300 : 2864.78
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear
+                                                                                                              // Shooter
+                                                                                                              // Velocity
+                                                                                                              // (80%
+                                                                                                              // for
+                                                                                                              // loss)
+    public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32
+                                                                                                                       // :
+                                                                                                                       // 250
+                                                                                                                       // |
+                                                                                                                       // 2626.056
+                                                                                                                       // :
+                                                                                                                       // 275
+                                                                                                                       // |
+                                                                                                                       // 300
+                                                                                                                       // :
+                                                                                                                       // 2864.78
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
-      if (IS_COMP_BOT){ // Comp Bot
+      if (IS_COMP_BOT) { // Comp Bot
         map.put(0.0, 0.0);
         map.put(1.6, 0.0);
         map.put(3.0, 0.0);
@@ -267,12 +282,13 @@ public final class Constants {
   public static class ClimberConstants {
     public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
     public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
-    public static final double CLIMBER_CONTROLLER_P = 0.1;
-    public static final double CLIMBER_CONTROLLER_D = 0.1;
-    public static final double CLIMBER_CONTROLLER_FF = 0.1;
+    public static final double CLIMBER_CONTROLLER_P = 0.05;
+    public static final double WEIGHTED_CLIMBER_CONTROLLER_P = 0.1;
+    public static final double CLIMBER_CONTROLLER_FF = 0.0;
+    public static final double WEIGHTED_CLIMBER_CONTROLLER_FF = -0.1;
     public static final double HOME_HEIGHT = 0.0;
-    public static final double HALF_HEIGHT = 5.0;
-    public static final double MAX_HEIGHT = 10.0;
+    public static final double HALF_HEIGHT = -16.0;
+    public static final double MAX_HEIGHT = -32.0;
     public static final double HEIGHT_TOLERANCE = 1.0;
   }
 }

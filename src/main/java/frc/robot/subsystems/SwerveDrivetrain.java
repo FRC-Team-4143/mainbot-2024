@@ -13,7 +13,9 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -311,6 +313,28 @@ public class SwerveDrivetrain extends Subsystem {
                         driveBaseRadius,
                         new ReplanningConfig(false, false),
                         0.008);
+    }
+
+    public Command followPathCommand(String pathName) {
+        return new FollowPathHolonomic(
+                PathPlannerPath.fromPathFile(pathName),
+                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+                this::getCurrentRobotChassisSpeeds,
+                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+                this.getHolonomicFollowerConfig(),
+
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this); // Subsystem for requirements
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {

@@ -37,6 +37,8 @@ public abstract class OI {
         SmartDashboard.putData("Seed Field Centric", Commands.runOnce(
                 () -> swerve_drivetrain_.seedFieldRelative(swerve_drivetrain_.getDriverPrespective()))
                 .ignoringDisable(true));
+        SmartDashboard.putData("Reset Climber Encoder",
+                Commands.runOnce(() -> ClimberSubsystem.getInstance().resetClimberEncoder()));
 
         // Enagage Targeting
         driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker());
@@ -113,25 +115,14 @@ public abstract class OI {
         operator_joystick_.povRight().whileTrue(Commands.runOnce(
                 () -> shooter_.setShootMode(ShootMode.IDLE)));
 
-        // Climb to half height
-        operator_joystick_.povLeft().whileTrue(Commands.runOnce(() -> climber_.setHeight(ClimbTarget.HALF)));
-
         // Manual Shoot
         operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
 
-        // Set Wrist to Hook Position
-        operator_joystick_.start().whileTrue(Commands.runOnce(
-                () -> shooter_.setShootMode(ShootMode.CLIMB)));
-
-        // Set Elevator to Trap Target
-        operator_joystick_.back().whileTrue(Commands.runOnce(
-                () -> mailman_.setHeight(HeightTarget.TRAP)));
-
         // Endgame Climb step increment
-        driver_joystick_.start().whileTrue((Commands.runOnce(() -> climber_.scheduleNextEndgameState())));
+        operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
 
         // Endgame Climb step decrement
-        driver_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
+        operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
 
         // Test buttons
 

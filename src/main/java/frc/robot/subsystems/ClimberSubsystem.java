@@ -10,6 +10,7 @@ import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -20,6 +21,7 @@ import frc.lib.subsystem.Subsystem;
 
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.commands.climberSequence.ClimbState;
+import frc.robot.commands.climberSequence.DeclimbState;
 import frc.robot.commands.climberSequence.EngageState;
 import frc.robot.commands.climberSequence.LockState;
 import frc.robot.commands.climberSequence.PresetState;
@@ -76,8 +78,10 @@ public class ClimberSubsystem extends Subsystem {
     climber_encoder_ = left_climber_motor_.getEncoder();
     climber_controller_ = left_climber_motor_.getPIDController();
     climber_controller_.setFeedbackDevice(climber_encoder_);
-    climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P);
-    climber_controller_.setD(ClimberConstants.CLIMBER_CONTROLLER_D); // Currently arbitrary values
+    climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P, 0);
+    climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P, 1);
+    climber_controller_.setFF(ClimberConstants.CLIMBER_CONTROLLER_FF, 0);
+    climber_controller_.setFF(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_FF, 1);
     right_climber_motor_.follow(left_climber_motor_, false);
     left_climber_motor_.burnFlash();
     right_climber_motor_.burnFlash();
@@ -96,16 +100,19 @@ public class ClimberSubsystem extends Subsystem {
 
   @Override
   public void writePeriodicOutputs(double timestamp) {
-    left_climber_motor_.set(io_.winch_speed_);
-    right_climber_motor_.set(io_.winch_speed_);
-    // climber_controller_.setReference(io_.target_height_, ControlType.kPosition,
-    // 0,
-    // ClimberConstants.CLIMBER_CONTROLLER_FF);
+    // left_climber_motor_.set(io_.winch_speed_);
+    // right_climber_motor_.set(io_.winch_speed_);
+    climber_controller_.setReference(io_.target_height_, ControlType.kPosition,
+        io_.pid_slot_);
   }
 
   @Override
   public void outputTelemetry(double timestamp) {
     SmartDashboard.putNumber("Current Climb Height", io_.current_height_); // Unknown units
+  }
+
+  public void resetClimberEncoder() {
+    climber_encoder_.setPosition(0.0);
   }
 
   public void setClimbSpeed(double speed) {
@@ -116,7 +123,7 @@ public class ClimberSubsystem extends Subsystem {
     io_.winch_speed_ = 0.0;
   }
 
-  public void setHeight(ClimbTarget target) {
+  public void setHeight(ClimbTarget target, int slot) {
     if (target == ClimbTarget.MAX) {
       io_.target_height_ = ClimberConstants.MAX_HEIGHT;
     } else if (target == ClimbTarget.HALF) {
@@ -124,12 +131,13 @@ public class ClimberSubsystem extends Subsystem {
     } else {
       io_.target_height_ = ClimberConstants.HOME_HEIGHT;
     }
+
+    io_.pid_slot_ = slot;
   }
 
-  public boolean atHeight(){
+  public boolean atHeight() {
     return Util.epislonEquals(io_.target_height_, io_.current_height_, ClimberConstants.HEIGHT_TOLERANCE);
   }
-
 
   public void scheduleNextEndgameState() {
     io_.endgame_state_++;
@@ -140,7 +148,20 @@ public class ClimberSubsystem extends Subsystem {
   public void schedulePreviousEndgameState() {
     io_.endgame_state_--;
     io_.endgame_state_ = Math.max(io_.endgame_state_, 0); // Decrements the endgame state, down to 0
-    endgame_commands_[io_.endgame_state_].schedule();
+    if (io_.endgame_state_ == 1) {
+      new DeclimbState().schedule();
+    } else {
+      endgame_commands_[io_.endgame_state_].schedule();
+    }
+  }
+
+  public void raiseHeightTarget() {
+    double adjusted = io_.target_height_ - 0.25;
+    io_.target_height_ = Math.max(adjusted, ClimberConstants.MAX_HEIGHT);
+  }
+
+  public double getTargetHeight() {
+    return io_.target_height_;
   }
 
   public static class ClimberPeriodicIo extends LogData {
@@ -148,6 +169,7 @@ public class ClimberSubsystem extends Subsystem {
     public double target_height_ = 0.0;
     public double winch_speed_ = 0.0;
     public int endgame_state_ = 0;
+    public int pid_slot_ = 0;
   }
 
   @Override

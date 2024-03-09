@@ -445,19 +445,19 @@ public class ShooterSubsystem extends Subsystem {
         return result;
     }
 
-    private double calculateWristAnglePass(Pose2d robot_pose, Pose3d target_pose, double velocity) {
-        Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
+    // private double calculateWristAnglePass(Pose2d robot_pose, Pose3d target_pose, double velocity) {
+    //     Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
 
-        double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) + io_.target_offset_lookup_;
-        double d = calculateLinearDist(robot_pose, target_pose);
-        double G = 9.81;
-        double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
-        double result = Math.atan2((velocity * velocity) + Math.sqrt(root), G * d);
-        if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
-            return ShooterConstants.WRIST_HOME_ANGLE;
-        }
-        return result;
-    }
+    //     double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) + io_.target_offset_lookup_;
+    //     double d = calculateLinearDist(robot_pose, target_pose);
+    //     double G = 9.81;
+    //     double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
+    //     double result = Math.atan2((velocity * velocity) + Math.sqrt(root), G * d);
+    //     if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
+    //         return ShooterConstants.WRIST_HOME_ANGLE;
+    //     }
+    //     return result;
+    // }
 
     private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target_pose) {
         Pose2d pose_difference = robot_pose.relativeTo(target_pose.toPose2d());

@@ -18,7 +18,7 @@ public class LockState extends Command {
   @Override
   public void initialize() {
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-    ClimberSubsystem.getInstance().setHeight(ClimbTarget.HOME);
+    ClimberSubsystem.getInstance().setHeight(ClimbTarget.HOME, 1);
     MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP);
   }
 
