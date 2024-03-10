@@ -20,6 +20,8 @@ import frc.lib.subsystem.Subsystem;
 
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.commands.climberSequence.*;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 public class ClimberSubsystem extends Subsystem {
 
@@ -78,11 +80,11 @@ public class ClimberSubsystem extends Subsystem {
     //right_climber_motor_.follow(left_climber_motor_, false);
     right_climber_motor_.burnFlash();
 
-    climber_controller_.setFeedbackDevice(climber_encoder_);
-    climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P, 0);
-    climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P, 1);
-    climber_controller_.setFF(ClimberConstants.CLIMBER_CONTROLLER_FF, 0);
-    climber_controller_.setFF(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_FF, 1);
+    // climber_controller_.setFeedbackDevice(climber_encoder_);
+    // climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P, 0);
+    // climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P, 1);
+    // climber_controller_.setFF(ClimberConstants.CLIMBER_CONTROLLER_FF, 0);
+    // climber_controller_.setFF(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_FF, 1);
 
   }
 
@@ -93,6 +95,11 @@ public class ClimberSubsystem extends Subsystem {
 
   @Override
   public void updateLogic(double timestamp) {
+    if(io_.pid_slot_ == 1){
+      rio_climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P);
+    } else {
+      rio_climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P);
+    }
     io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_);
   }
 
@@ -102,8 +109,6 @@ public class ClimberSubsystem extends Subsystem {
     right_climber_motor_.set(io_.winch_speed_);
     // climber_controller_.setReference(io_.target_height_, ControlType.kPosition,
     //     io_.pid_slot_);
-
-    
   }
 
   @Override
@@ -133,7 +138,6 @@ public class ClimberSubsystem extends Subsystem {
     } else {
       io_.target_height_ = ClimberConstants.HOME_HEIGHT;
     }
-
     io_.pid_slot_ = slot;
   }
 
@@ -166,16 +170,21 @@ public class ClimberSubsystem extends Subsystem {
     return io_.target_height_;
   }
 
-  public static class ClimberPeriodicIo extends LogData {
+  public class ClimberPeriodicIo implements Logged {
+    @Log.File
     public double current_height_ = 0.0;
+    @Log.File
     public double target_height_ = 0.0;
+    @Log.File
     public double winch_speed_ = 0.0;
+    @Log.File
     public int endgame_state_ = 0;
+    @Log.File
     public int pid_slot_ = 0;
   }
 
   @Override
-  public LogData getLogger() {
+  public Logged getLoggingObject() {
     return io_;
   }
 }

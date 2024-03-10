@@ -34,6 +34,9 @@ import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 
+import monologue.Logged;
+import monologue.Annotations.Log;
+
 public class ShooterSubsystem extends Subsystem {
     // Singleton pattern
     private static ShooterSubsystem shooterInstance = null;
@@ -61,15 +64,13 @@ public class ShooterSubsystem extends Subsystem {
 
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 0.65, new Rotation3d(0, 0, 0));
-    private final Transform3d AMP_TRANSFORM = new Transform3d(0, 0, -0.5, new Rotation3d(0, 0, 0));
     private final Transform3d RED_PASS_TRANSFORM = new Transform3d(1, -1.25, -1.5, new Rotation3d(0, 0, 0));
     private final Transform3d BLUE_PASS_TRANSFORM = new Transform3d(-1, -1.25, -1.5, new Rotation3d(0, 0, 0));
 
     // Target positions
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
-    private final Pose3d BLUE_AMP = field_layout_.getTagPose(6).get().transformBy(AMP_TRANSFORM);
-    private final Pose3d RED_AMP = field_layout_.getTagPose(5).get().transformBy(AMP_TRANSFORM);
+
     private final Pose3d BLUE_PASS = field_layout_.getTagPose(7).get().transformBy(BLUE_PASS_TRANSFORM);
     private final Pose3d RED_PASS = field_layout_.getTagPose(4).get().transformBy(RED_PASS_TRANSFORM);
     // Speed maps
@@ -81,7 +82,6 @@ public class ShooterSubsystem extends Subsystem {
 
     public enum ShootTarget {
         SPEAKER,
-        AMP,
         PASS
     }
 
@@ -108,6 +108,7 @@ public class ShooterSubsystem extends Subsystem {
 
         target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
         rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
+        
     }
 
     @Override
@@ -210,7 +211,9 @@ public class ShooterSubsystem extends Subsystem {
         roller_motor_.set(io_.roller_speed_);
         setFlyWheelRPM(io_.target_flywheel_speed_);
         setWristAngle(io_.target_wrist_angle_);
-        SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
+        if(io_.target_mode_ == ShootMode.PASS || io_.target_mode_ == ShootMode.TARGET){
+            SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
+        }
     }
 
     @Override
@@ -326,8 +329,6 @@ public class ShooterSubsystem extends Subsystem {
         if (DriverStation.Alliance.Red == alliance.get()) {
             if (target == ShootTarget.SPEAKER) {
                 io_.target_ = RED_SPEAKER;
-            } else if(target ==ShootTarget.AMP){
-                io_.target_ = RED_AMP;
             }else{
                 io_.target_ = RED_PASS;
             }
@@ -335,8 +336,6 @@ public class ShooterSubsystem extends Subsystem {
         } else {
             if (target == ShootTarget.SPEAKER) {
                 io_.target_ = BLUE_SPEAKER;
-            } else if(target ==ShootTarget.AMP){
-                io_.target_ = BLUE_AMP;
             }else{
                 io_.target_ = BLUE_PASS;
             }
@@ -470,29 +469,45 @@ public class ShooterSubsystem extends Subsystem {
         return new Transform3d(new Translation3d(horizontal_offset, depth_offset, 0), new Rotation3d());
     }
 
-    public static class ShooterPeriodicIo extends LogData {
+    public class ShooterPeriodicIo implements Logged {
+        @Log.File
         public Pose3d target_ = new Pose3d();
+        @Log.File
         public double target_flywheel_speed_ = 0.0;
+        @Log.File
         public double current_top_flywheel_speed_ = 0.0;
+        @Log.File
         public double current_bot_flywheel_speed_ = 0.0;
+        @Log.File
         public double target_wrist_angle_ = 0.0;
+        @Log.File
         public double current_wrist_angle_ = 0.0;
+        @Log.File
         public ShootMode target_mode_ = ShootMode.IDLE;
+        @Log.File
         public double roller_speed_ = 0.0;
+        @Log.File
         public boolean has_note_ = false;
+        @Log.File
         public Rotation2d target_robot_yaw_ = new Rotation2d();
+        @Log.File
         public double note_travel_time_ = 0.0;
+        @Log.File
         public Transform3d target_transform_ = new Transform3d();
+        @Log.File
         public ChassisSpeeds relative_chassis_speed_ = new ChassisSpeeds();
+        @Log.File
         public double note_sensor_range_ = 0.0;
+        @Log.File
         public double target_offset_lookup_ = 0.0;
+        @Log.File
         public double target_distance_ = 0.0;
+        @Log.File
         public Pose3d target_offset_pose = new Pose3d();
     }
 
     @Override
-    public LogData getLogger() {
-        return io_;
+    public Logged getLoggingObject() {
+      return io_;
     }
-
 }

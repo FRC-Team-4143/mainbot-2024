@@ -36,7 +36,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    m_robotContainer.stopLog();
     updateDriverPrespective();
   }
 
@@ -46,7 +45,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-
     swerve_drivetrain_.setDriverPrespective(
                 DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
                 : swerve_drivetrain_.blueAlliancePerspectiveRotation);
@@ -66,7 +64,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -93,9 +90,11 @@ public class Robot extends TimedRobot {
   }
 
   private void updateDriverPrespective(){
+    if(DriverStation.getAlliance().isPresent()){
     swerve_drivetrain_.setDriverPrespective(
                 DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
                 : swerve_drivetrain_.blueAlliancePerspectiveRotation);
+    }
   }
 
 }

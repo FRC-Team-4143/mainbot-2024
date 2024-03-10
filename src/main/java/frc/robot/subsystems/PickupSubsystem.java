@@ -16,6 +16,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
 
+import monologue.Logged;
+import monologue.Annotations.Log;
+
 public class PickupSubsystem extends Subsystem {
 
     public enum PickupMode {
@@ -168,16 +171,21 @@ public class PickupSubsystem extends Subsystem {
         return io_.has_note_pickup_;
     }
 
-    public static class PickupPeriodicIo extends LogData {
+    public class PickupPeriodicIo implements Logged {
+        @Log.File
         public boolean has_note_pickup_ = false;
+        @Log.File
         public boolean has_note_reciever_ = false;
+        @Log.File
         public double roller_speed_ = 0.0;
+        @Log.File
         public PickupMode pickup_mode_ = PickupMode.IDLE;
+        @Log.File
         public double note_sensor_range_ = 0.0;
     }
 
     @Override
-    public LogData getLogger() {
-        return io_;
+    public Logged getLoggingObject() {
+      return io_;
     }
 }

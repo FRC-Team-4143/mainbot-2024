@@ -12,6 +12,7 @@ import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.PickupSubsystem;
 
 public class TeleShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
@@ -20,6 +21,7 @@ public class TeleShootAtSpeaker extends Command {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
+    addRequirements(PickupSubsystem.getMailmanInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 

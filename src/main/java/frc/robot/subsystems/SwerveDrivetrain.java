@@ -34,6 +34,7 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.lib.subsystem.Subsystem;
@@ -42,6 +43,9 @@ import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.Constants.DrivetrainConstants;
+
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -173,6 +177,7 @@ public class SwerveDrivetrain extends Subsystem {
                 .getStructArrayTopic("module_states/requested", SwerveModuleState.struct).publish();
         current_state_pub = NetworkTableInstance.getDefault()
                 .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
+                
     }
 
     @Override
@@ -425,6 +430,10 @@ public class SwerveDrivetrain extends Subsystem {
         io_.drive_mode_ = mode;
     }
 
+    public DriveMode getDriveMode(){
+        return io_.drive_mode_;
+    }
+
     public void setDriverPrespective(Rotation2d prespective){
         io_.drivers_station_perspective_ = prespective;
     }
@@ -433,28 +442,40 @@ public class SwerveDrivetrain extends Subsystem {
         return io_.drivers_station_perspective_;
     }
 
-    @Override
-    public LogData getLogger() {
-        return io_;
-    }
-
     /**
      * Plain-Old-Data class holding the state of the swerve drivetrain.
      * This encapsulates most data that is relevant for telemetry or
      * decision-making from the Swerve Drive.
      */
-    public static class SwerveDriverainPeriodicIo extends LogData {
+    public class SwerveDriverainPeriodicIo implements Logged {
+        @Log.File
         public SwerveModuleState[] current_module_states_, requested_module_states_;
+        @Log.File
         public SwerveModulePosition[] module_positions;
+        @Log.File
         public Rotation2d robot_yaw_ = new Rotation2d();
+        @Log.File
         public double driver_joystick_leftX_ = 0.0;
+        @Log.File
         public double driver_joystick_leftY_ = 0.0;
+        @Log.File
         public double driver_joystick_rightX_ = 0.0;
+        @Log.File
         public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
+        @Log.File
         public Rotation2d target_rotation_ = new Rotation2d();
+        @Log.File
         public DriveMode drive_mode_ = DriveMode.FIELD_CENTRIC;
+        @Log.File
         public double driver_POVx = 0.0;
+        @Log.File
         public double driver_POVy = 0.0;
+        @Log.File
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
+    }
+
+    @Override
+    public Logged getLoggingObject() {
+      return io_;
     }
 }

@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.commands.*;
 
 public abstract class OI {
@@ -98,33 +97,32 @@ public abstract class OI {
         // Handoff from Mailman to Shooter
         operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
 
-        // Climb
-        operator_joystick_.povUp().whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(-0.6),
-                () -> climber_.stopClimb()));
-
-        // Reverse Climb
-        operator_joystick_.povDown().whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(0.6),
-                () -> climber_.stopClimb()));
-
-        operator_joystick_.povRight().whileTrue(Commands.runOnce(
-                () -> shooter_.setShootMode(ShootMode.IDLE)));
-
         // Manual Shoot
         operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
 
         // Manual Pass
         operator_joystick_.leftTrigger().whileTrue(new OverrideTelePass());
 
-        // Endgame Climb step increment
-        operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
+        if(Constants.IS_COMP_BOT){
+            // Endgame Climb step increment
+            operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
 
-        // Endgame Climb step decrement
-        operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
+            // Endgame Climb step decrement
+            operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
 
-        // Empty All Pickups
-        operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
+            // Empty All Pickups
+            operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
+
+            // Climb
+            operator_joystick_.povUp().whileTrue(Commands.startEnd(
+                    () -> climber_.setClimbSpeed(-0.6),
+                    () -> climber_.stopClimb()));
+
+            // Reverse Climb
+            operator_joystick_.povDown().whileTrue(Commands.startEnd(
+                    () -> climber_.setClimbSpeed(0.6),
+                    () -> climber_.stopClimb()));
+        }
 
         // Test buttons
 

@@ -15,6 +15,9 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.subsystem.Subsystem;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 public class PoseEstimator extends Subsystem {
 
@@ -59,6 +62,7 @@ public class PoseEstimator extends Subsystem {
         odom_publisher_ = robot_odom_topic.publish();
         pose_publisher_ = robot_pose_topic.publish();
         supression_publisher_ = supress_odom_topic.publish(); 
+        
     }
 
     @Override
@@ -77,7 +81,7 @@ public class PoseEstimator extends Subsystem {
         io_.vision_ready_status_ = vision_ready_subscriber_.get(false);
         vision_std_devs_ = vision_std_devs_subscriber.get(new double[] {1,1,1});        
     
-        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_) {
+        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_ && SwerveDrivetrain.getInstance().getDriveMode() != DriveMode.AUTONOMOUS) {
             vision_filtered_odometry_.addVisionMeasurement(result.value, timestamp - 0.02, new MatBuilder<>(Nat.N3(), Nat.N1()).fill(vision_std_devs_[0], vision_std_devs_[1], vision_std_devs_[2]));
             io_.last_vision_timestamp_ = result.timestamp;
         }
@@ -133,15 +137,19 @@ public class PoseEstimator extends Subsystem {
         vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
     }
 
-    public static class PoseEstimatorPeriodicIo extends LogData {
-        Pose2d pose_ = new Pose2d();
-        Pose2d vision_filtered_pose_ = new Pose2d();
-        double last_vision_timestamp_ = 0.0;
-        boolean vision_ready_status_ = false;
+    public class PoseEstimatorPeriodicIo implements Logged {
+        @Log.File
+        public Pose2d pose_ = new Pose2d();
+        @Log.File
+        public Pose2d vision_filtered_pose_ = new Pose2d();
+        @Log.File
+        public double last_vision_timestamp_ = 0.0;
+        @Log.File
+        public boolean vision_ready_status_ = false;
     }
 
     @Override
-    public LogData getLogger() {
-        return io_;
+    public Logged getLoggingObject() {
+      return io_;
     }
 }

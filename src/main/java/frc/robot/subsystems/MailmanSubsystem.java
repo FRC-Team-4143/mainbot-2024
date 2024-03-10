@@ -13,19 +13,20 @@ import com.revrobotics.SparkPIDController;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.MailmanConstants;
-import frc.lib.swerve.SwerveRequest;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 public class MailmanSubsystem extends Subsystem {
 
@@ -49,6 +50,8 @@ public class MailmanSubsystem extends Subsystem {
     private SparkPIDController elevator_controller_;
     private TimeOfFlight note_sensor_;
 
+    private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    private final Pose3d AMP = field_layout_.getTagPose(5).get();
 
     public enum HeightTarget {
         AMP,
@@ -61,6 +64,7 @@ public class MailmanSubsystem extends Subsystem {
         dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         note_sensor_ = new TimeOfFlight(MailmanConstants.NOTE_SENSOR_ID);
         note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, MailmanConstants.SENSOR_SAMPLE_TIME);
+        
         reset();
     }
 
@@ -152,22 +156,33 @@ public class MailmanSubsystem extends Subsystem {
         io_.roller_speed_ = -0.15;
     }
 
-    public void lineupToAmp(){
+    public void setTargetYaw() {
+        SwerveDrivetrain.getInstance().setTargetRotation(Rotation2d.fromDegrees(90).rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()));
     }
 
-    public static class MailmanPeriodicIo extends LogData {
+    public class MailmanPeriodicIo implements Logged {
+        @Log.File
         public double current_height_ = 0.0;
+        @Log.File
         public double target_height_ = 0.0;
+        @Log.File
         public boolean is_holding_note_ = false;
+        @Log.File
         public boolean is_allinged_ = false;
+        @Log.File
         public boolean note_wanted_elsewhere_ = false;
+        @Log.File
         public double roller_speed_ = 0.0;
+        @Log.File
         public boolean has_note_ = false;
+        @Log.File
         public double note_sensor_range_= 0.0;
+        @Log.File
+        public Rotation2d target_rotation_ = new Rotation2d();
     }
 
     @Override
-    public LogData getLogger() {
-        return io_;
+    public Logged getLoggingObject() {
+      return io_;
     }
 }

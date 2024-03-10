@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
@@ -18,6 +19,7 @@ public class OverrideShootAtSpeaker extends Command {
   public OverrideShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
+    addRequirements(PickupSubsystem.getMailmanInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
