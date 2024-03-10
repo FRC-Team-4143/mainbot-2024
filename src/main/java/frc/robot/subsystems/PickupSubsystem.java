@@ -75,7 +75,6 @@ public class PickupSubsystem extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new PickupPeriodicIo();
         roller_motor_.setSmartCurrentLimit(PickupConstants.ROLLER_AMP_LIMIT);
         roller_motor_.setInverted(settings_.ROLLER_MOTOR_INVERTED);
         roller_motor_.burnFlash();

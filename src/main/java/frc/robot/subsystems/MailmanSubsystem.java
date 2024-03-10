@@ -60,18 +60,16 @@ public class MailmanSubsystem extends Subsystem {
     }
 
     private MailmanSubsystem() {
+        io_ = new MailmanPeriodicIo();
         elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         note_sensor_ = new TimeOfFlight(MailmanConstants.NOTE_SENSOR_ID);
         note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, MailmanConstants.SENSOR_SAMPLE_TIME);
-        
         reset();
     }
 
     @Override
     public void reset() {
-        io_ = new MailmanPeriodicIo();
-
         elevator_encoder_ = elevator_motor_.getEncoder();
         elevator_controller_ = elevator_motor_.getPIDController();
         elevator_controller_.setFeedbackDevice(elevator_encoder_);

@@ -57,6 +57,7 @@ public class ClimberSubsystem extends Subsystem {
   private ClimberPeriodicIo io_;
 
   private ClimberSubsystem() {
+    io_ = new ClimberPeriodicIo();
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     right_climber_motor_ = new CANSparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     climber_encoder_ = left_climber_motor_.getEncoder();
@@ -68,7 +69,6 @@ public class ClimberSubsystem extends Subsystem {
 
   @Override
   public void reset() {
-    io_ = new ClimberPeriodicIo();
     left_climber_motor_.setInverted(false);
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
     left_climber_motor_.setSmartCurrentLimit(200);

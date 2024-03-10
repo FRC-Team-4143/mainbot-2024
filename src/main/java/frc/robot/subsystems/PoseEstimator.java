@@ -67,7 +67,6 @@ public class PoseEstimator extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new PoseEstimatorPeriodicIo();
         odometry_ = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics, new Rotation2d(),
                 SwerveDrivetrain.getInstance().getModulePositions(), new Pose2d());
         vision_filtered_odometry_ = new SwerveDrivePoseEstimator(SwerveDrivetrain.getInstance().kinematics,

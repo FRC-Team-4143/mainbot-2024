@@ -99,6 +99,7 @@ public class ShooterSubsystem extends Subsystem {
     private ShooterPeriodicIo io_;
 
     public ShooterSubsystem() {
+        io_ = new ShooterPeriodicIo();
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         bot_flywheel_motor_ = new CANSparkFlex(ShooterConstants.BOT_FLYWHEEL_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         wrist_motor_ = new CANSparkMax(ShooterConstants.WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
@@ -113,8 +114,6 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new ShooterPeriodicIo();
-
         // Top flywheel motor configuration
         top_flywheel_motor_.setSmartCurrentLimit(40);
         top_flywheel_motor_.setInverted(true);
