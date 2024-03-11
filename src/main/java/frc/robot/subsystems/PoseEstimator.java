@@ -116,6 +116,10 @@ public class PoseEstimator extends Subsystem {
         SmartDashboard.putData("Field", field_);
     }
 
+    public Field2d getFieldWidget(){
+        return field_;
+    }
+
     public Pose2d getRobotPose() {
         return io_.vision_filtered_pose_;
     }

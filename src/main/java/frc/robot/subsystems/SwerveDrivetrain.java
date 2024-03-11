@@ -285,8 +285,6 @@ public class SwerveDrivetrain extends Subsystem {
      * Configures the PathPlanner AutoBuilder
      */
     public void configurePathPlanner() {
-
-
         AutoBuilder.configureHolonomic(
                 PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
                 PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
@@ -306,6 +304,12 @@ public class SwerveDrivetrain extends Subsystem {
                 },
                 this); // Subsystem for requirements
                 PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
+
+        // Logging callback for the active path, this is sent as a list of poses
+        PathPlannerLogging.setLogActivePathCallback((poses) -> {
+        // Do whatever you want with the poses here
+        PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
+        });
     }
 
     public HolonomicPathFollowerConfig getHolonomicFollowerConfig(){

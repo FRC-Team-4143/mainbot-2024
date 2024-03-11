@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    swerve_drivetrain_.seedFieldRelative(pose_estimator_.getRobotPose().getRotation());
+    //swerve_drivetrain_.seedFieldRelative(pose_estimator_.getRobotPose().getRotation());
     updateDriverPrespective();
   }
 
