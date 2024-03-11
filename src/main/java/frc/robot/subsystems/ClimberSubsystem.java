@@ -44,7 +44,8 @@ public class ClimberSubsystem extends Subsystem {
   public enum ClimbTarget {
     HOME,
     HALF,
-    MAX
+    MAX,
+    CLIMB
   }
 
   private Command[] endgame_commands_ = {
@@ -101,6 +102,16 @@ public class ClimberSubsystem extends Subsystem {
       rio_climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P);
     }
     io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_);
+
+    if(!this.atHeight() && io_.current_height_ > io_.target_height_){ // Climber Hooks Up
+      io_.winch_speed_ = 0.2;
+    } else if (!this.atHeight() && io_.current_height_ < io_.target_height_){ // Climber Hooks Down
+      io_.winch_speed_ = -0.2; // Change to 0.6 for climbing
+    } else if (this. atHeight() && io_.climb_target_ == ClimbTarget.CLIMB){
+      io_.winch_speed_ = 0.05;
+    } else {
+      io_.winch_speed_ = 0;
+    }
   }
 
   @Override
@@ -131,10 +142,13 @@ public class ClimberSubsystem extends Subsystem {
   }
 
   public void setHeight(ClimbTarget target, int slot) {
+    io_.climb_target_ = target;
     if (target == ClimbTarget.MAX) {
       io_.target_height_ = ClimberConstants.MAX_HEIGHT;
     } else if (target == ClimbTarget.HALF) {
       io_.target_height_ = ClimberConstants.HALF_HEIGHT;
+    } else if (target == ClimbTarget.CLIMB) {
+      io_.target_height_ = ClimberConstants.HOME_HEIGHT; 
     } else {
       io_.target_height_ = ClimberConstants.HOME_HEIGHT;
     }
@@ -143,6 +157,16 @@ public class ClimberSubsystem extends Subsystem {
 
   public boolean atHeight() {
     return Util.epislonEquals(io_.target_height_, io_.current_height_, ClimberConstants.HEIGHT_TOLERANCE);
+  }
+
+
+  public void raiseHeightTarget() {
+    double adjusted = io_.target_height_ - 0.25;
+    io_.target_height_ = Math.max(adjusted, ClimberConstants.MAX_HEIGHT);
+  }
+
+  public double getTargetHeight() {
+    return io_.target_height_;
   }
 
   public void scheduleNextEndgameState() {
@@ -161,15 +185,6 @@ public class ClimberSubsystem extends Subsystem {
     }
   }
 
-  public void raiseHeightTarget() {
-    double adjusted = io_.target_height_ - 0.25;
-    io_.target_height_ = Math.max(adjusted, ClimberConstants.MAX_HEIGHT);
-  }
-
-  public double getTargetHeight() {
-    return io_.target_height_;
-  }
-
   public class ClimberPeriodicIo implements Logged {
     @Log.File
     public double current_height_ = 0.0;
@@ -181,6 +196,8 @@ public class ClimberSubsystem extends Subsystem {
     public int endgame_state_ = 0;
     @Log.File
     public int pid_slot_ = 0;
+    @Log.File
+    public ClimbTarget climb_target_ = ClimbTarget.HOME;
   }
 
   @Override

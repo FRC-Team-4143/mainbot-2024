@@ -18,7 +18,7 @@ public class ClimbState extends Command {
   @Override
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP);
-    ClimberSubsystem.getInstance().setHeight(ClimbTarget.HOME, 1);
+    ClimberSubsystem.getInstance().setHeight(ClimbTarget.CLIMB, 1);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB);
   }
 

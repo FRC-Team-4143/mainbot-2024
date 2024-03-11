@@ -57,11 +57,11 @@ public final class Constants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final double SLIP_CURRENT_AMPS = 60.0;
+    private static final double SLIP_CURRENT_AMPS = 80.0;
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot
-    private static final double SPEED_AT_12V_MPS = 6.0;
+    private static final double SPEED_AT_12V_MPS = 5.0;
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
@@ -79,7 +79,7 @@ public final class Constants {
     private static final double FRAME_WIDTH = 19.0;
     private static final double FRAME_LENGTH = 18.0;
 
-    public static final double MAX_DRIVE_SPEED = 6; // 6 meters per second desired top speed
+    public static final double MAX_DRIVE_SPEED = 5; // 6 meters per second desired top speed
     public static final double MAX_DRIVE_ANGULAR_RATE = Math.PI * 2; // Rotation per second max angular velocity
     public static final double CRAWL_DRIVE_SPEED = 0.4;
 
@@ -267,15 +267,15 @@ public final class Constants {
     public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
 
     // Dropper Motor Constants
-    public static final int DROPPER_MOTOR_ID = 32;
+    public static final int DROPPER_MOTOR_ID = (IS_COMP_BOT)? 0 : 32;
     public static final double DROPPER_IN_SPEED = 0.5;
     public static final double DROPPER_OUT_SPEED = -0.75;
 
     // Mailman TOF Constants
     public static final int NOTE_SENSOR_ID = 2;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
-    public static final double HAS_NOTE_RANGE = 0;
-    public static final double NO_NOTE_RANGE = 1;
+    public static final double HAS_NOTE_RANGE = 40;
+    public static final double NO_NOTE_RANGE = 80;
   }
 
   // IDs range from 40 - 49

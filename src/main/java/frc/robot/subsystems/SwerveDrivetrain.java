@@ -83,7 +83,8 @@ public class SwerveDrivetrain extends Subsystem {
         TARGET,
         AUTONOMOUS,
         AUTONOMOUS_TARGET,
-        CRAWL
+        CRAWL,
+        PROFILE,
     }
 
     private SwerveRequest.FieldCentric field_centric;
@@ -322,7 +323,7 @@ public class SwerveDrivetrain extends Subsystem {
         }
         return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
                         new PIDConstants(10, 0, 0),
-                        6,
+                        5,
                         driveBaseRadius,
                         new ReplanningConfig(false, false), 
                         0.01);

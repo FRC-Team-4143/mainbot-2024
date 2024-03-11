@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -11,6 +12,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
+import frc.lib.swerve.SwerveModule;
+import frc.lib.swerve.SwerveRequest;
 import frc.robot.commands.*;
 
 public abstract class OI {
@@ -55,15 +59,7 @@ public abstract class OI {
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
 
         // Front Pickup
-        driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> {
-                    pickup_front_.setPickupMode(PickupMode.PICKUP);
-                    mailman_.setRollerIntake();
-                },
-                () -> {
-                    pickup_front_.setPickupMode(PickupMode.IDLE);
-                    mailman_.setRollerStop();
-                }));
+        driver_joystick_.leftBumper().whileTrue(new TeleRearPickup());
 
         // Crawl
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
@@ -125,6 +121,7 @@ public abstract class OI {
         }
 
         // Test buttons
+        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0));
 
     }
 

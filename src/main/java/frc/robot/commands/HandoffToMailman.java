@@ -48,6 +48,6 @@ public class HandoffToMailman extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return mailman_.hasNote();
   }
 }

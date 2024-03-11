@@ -20,9 +20,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
+import frc.robot.Constants;
 import frc.robot.Constants.MailmanConstants;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import monologue.Logged;
@@ -47,6 +49,7 @@ public class MailmanSubsystem extends Subsystem {
     private CANSparkMax elevator_motor_;
     private RelativeEncoder elevator_encoder_;
     private CANSparkFlex dropper_motor_;
+    //private PWMSparkFlex dropper_motor_;
     private SparkPIDController elevator_controller_;
     private TimeOfFlight note_sensor_;
 
@@ -62,7 +65,11 @@ public class MailmanSubsystem extends Subsystem {
     private MailmanSubsystem() {
         io_ = new MailmanPeriodicIo();
         elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-        dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        if (Constants.IS_COMP_BOT){ 
+            //dropper_motor_ = new PWMSparkFlex(MailmanConstants.DROPPER_MOTOR_ID);
+        } else {
+            dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        }
         note_sensor_ = new TimeOfFlight(MailmanConstants.NOTE_SENSOR_ID);
         note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, MailmanConstants.SENSOR_SAMPLE_TIME);
         reset();
@@ -76,7 +83,7 @@ public class MailmanSubsystem extends Subsystem {
         elevator_controller_.setP(MailmanConstants.ELEVATOR_CONTROLLER_P);
         elevator_controller_.setSmartMotionMaxVelocity(MailmanConstants.ELEVATOR_CONTROLLER_MAX_VEL, 0);
         elevator_controller_.setSmartMotionMaxAccel(MailmanConstants.ELEVATOR_CONTROLLER_MAX_ACC, 0);
-        dropper_motor_.setSmartCurrentLimit(80);
+        if(!Constants.IS_COMP_BOT) dropper_motor_.setSmartCurrentLimit(80);
     }
 
     @Override
@@ -152,6 +159,10 @@ public class MailmanSubsystem extends Subsystem {
      */
     public void setRollerRecieve() {
         io_.roller_speed_ = -0.15;
+    }
+
+    public boolean hasNote(){
+        return io_.has_note_;
     }
 
     public void setTargetYaw() {
