@@ -32,7 +32,7 @@ public class AutoShootAtSpeaker extends Command {
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote()) {
       ShooterSubsystem.getInstance().setRollerFeed();
-    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { 
+    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()) { //is target lock normaly 
       ShooterSubsystem.getInstance().setRollerFeed();
       has_shot_note_ = true;
     } else {

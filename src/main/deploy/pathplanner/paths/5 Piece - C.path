@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4324651726226545,
-        "y": 1.4701744788104976
+        "x": 2.9026396514331507,
+        "y": 6.314843398917567
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4324651726226554,
-        "y": 1.4701744788104976
+        "x": 1.7778081710009594,
+        "y": 6.018835114593307
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "5 Piece Shoot Marker"
     },
     {
       "anchor": {
-        "x": 2.4586272249467593,
-        "y": 1.4701744788104976
+        "x": 2.9026396514331507,
+        "y": 7.003080254377342
       },
       "prevControl": {
-        "x": 1.4586272249467593,
-        "y": 1.4701744788104976
+        "x": 1.254860202028098,
+        "y": 7.042548025620577
       },
       "nextControl": null,
       "isLocked": false,
@@ -39,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": -178.9769698113322,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "5 Piece",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -178.60281897270374,
     "velocity": 0
   },
   "useDefaultConstraints": true

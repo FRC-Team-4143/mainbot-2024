@@ -31,6 +31,7 @@ public class AutoManager {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker().withTimeout(2));
         NamedCommands.registerCommand("PPShootAtSpeaker", new PPShootAtSpeaker().withTimeout(5));
         NamedCommands.registerCommand("Duck", new Duck());
+        NamedCommands.registerCommand("AutoFrontPickupToShooter", new HandoffToShooter().withTimeout(2).andThen(new AutoEnableDefaults()));
         SwerveDrivetrain.getInstance().configurePathPlanner();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Mode", autoChooser);

@@ -38,6 +38,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
   }
 
   @Override

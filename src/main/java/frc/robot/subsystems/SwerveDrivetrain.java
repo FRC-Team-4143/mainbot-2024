@@ -169,7 +169,8 @@ public class SwerveDrivetrain extends Subsystem {
                 .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
                 .withDeadband(Constants.DrivetrainConstants.MAX_DRIVE_SPEED * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
-        auto_request = new SwerveRequest.ApplyChassisSpeeds();
+        auto_request = new SwerveRequest.ApplyChassisSpeeds()
+                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
 
@@ -275,6 +276,8 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Yaw", io_.robot_yaw_.getDegrees());
         SmartDashboard.putNumber("Driver Prespective", io_.drivers_station_perspective_.getDegrees());
+        SmartDashboard.putNumber("X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
+        SmartDashboard.putNumber("Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
     }
 
     public Rotation2d getRobotRotation(){
@@ -319,10 +322,10 @@ public class SwerveDrivetrain extends Subsystem {
         }
         return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
                         new PIDConstants(10, 0, 0),
-                        3,
+                        6,
                         driveBaseRadius,
-                        new ReplanningConfig(false, false),
-                        0.008);
+                        new ReplanningConfig(false, false), 
+                        0.01);
     }
 
     public Command followPathCommand(String pathName) {

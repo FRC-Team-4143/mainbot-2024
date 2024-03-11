@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 0.8104536608502588,
-      "y": 4.532093743217444
-    },
-    "rotation": 119.82708465447476
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -34,7 +28,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Front Note 1"
+                        "pathName": "5 Piece - H"
                       }
                     },
                     {
@@ -46,7 +40,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Front Note 2"
+                        "pathName": "5 Piece - G"
                       }
                     },
                     {
@@ -58,7 +52,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Front Note 3"
+                        "pathName": "5 Piece - C"
                       }
                     },
                     {

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 2.883271729453586,
+        "y": 6.9956624528633675
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0,
-        "y": 7.0
+        "x": 1.9932481519741916,
+        "y": 6.866843250859771
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "5 Piece - C Endpoint"
     },
     {
       "anchor": {
-        "x": 9.924800000000001,
-        "y": 7.0
+        "x": 2.883271729453586,
+        "y": 5.527514849608872
       },
       "prevControl": {
-        "x": 8.924800000000001,
-        "y": 7.0
+        "x": 0.9392728628538557,
+        "y": 5.258165609055897
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -43,10 +43,10 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "5 Piece",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -178.80651057601804,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

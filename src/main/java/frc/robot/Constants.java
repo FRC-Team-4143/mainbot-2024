@@ -52,8 +52,8 @@ public final class Constants {
     // - VelocityVoltage, if DrivetrainConstants.SupportsPro is false (default)
     // - VelocityTorqueCurrentFOC, if DrivetrainConstants.SupportsPro is true
     private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
-        .withKP(7.0).withKI(0.0).withKD(0.0)
-        .withKS(2.4).withKV(0.0).withKA(0.0);
+        .withKP(10.0).withKI(0.0).withKD(0.0) // 7 : updated to 3 RJS
+        .withKS(0.0).withKV(0.0).withKA(0.0); // 2.4 : updated to 0 RJS
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
@@ -67,9 +67,9 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double COUPLE_RATIO = 3.5;
 
-    private static final double DRIVE_GEAR_RATIO = 5.14; // Mk4i: 6.12, Mk4: 5.14
+    private static final double DRIVE_GEAR_RATIO = 6.12; // L3: 6.12, L2: 5.14
     private static final double STEER_GEAR_RATIO = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
-    private static final double WHEEL_RADIUS_INCH = 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
+    private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
                                                                // make odom match record
 
     private static final boolean STEER_MOTOR_REVERSED = false;
