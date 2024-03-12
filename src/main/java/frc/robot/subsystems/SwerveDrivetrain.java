@@ -31,11 +31,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.MathUtil;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.lib.subsystem.Subsystem;
@@ -116,6 +116,8 @@ public class SwerveDrivetrain extends Subsystem {
 
     // NT publishers
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
+    private ProtobufPublisher<Pose2d> pp_pose_pub_;
+
 
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
@@ -180,7 +182,8 @@ public class SwerveDrivetrain extends Subsystem {
                 .getStructArrayTopic("module_states/requested", SwerveModuleState.struct).publish();
         current_state_pub = NetworkTableInstance.getDefault()
                 .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
-                
+        pp_pose_pub_ = NetworkTableInstance.getDefault()
+                .getProtobufTopic("pp_target_pose", Pose2d.proto).publish();
     }
 
     @Override
@@ -313,6 +316,12 @@ public class SwerveDrivetrain extends Subsystem {
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
         // Do whatever you want with the poses here
         PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
+        });
+
+        // Logging callback for target robot pose
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            pp_pose_pub_.set(pose);
         });
     }
 
