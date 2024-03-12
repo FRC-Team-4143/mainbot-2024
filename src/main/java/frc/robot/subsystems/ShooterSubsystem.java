@@ -223,30 +223,30 @@ public class ShooterSubsystem extends Subsystem {
         target_pub.set(io_.target_offset_pose);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
 
-        SmartDashboard.putNumber("Exit Speed", calculateNoteExitVelocity());
-        SmartDashboard.putBoolean("Shooter Has Note", io_.has_note_);
-        SmartDashboard.putNumber("Shooter Note Sensor Range", io_.note_sensor_range_);
+        SmartDashboard.putBoolean("Shooter TOF/Has Note", io_.has_note_);
+        SmartDashboard.putNumber("Shooter TOF/Range", io_.note_sensor_range_);
 
         // Target Locked Tests
-        SmartDashboard.putBoolean("Target Locked", this.isTargetLocked());
-        SmartDashboard.putBoolean("Wrist Locked", this.wristLocked());
-        SmartDashboard.putBoolean("Upper Locked", this.upperFlywheelLocked());
-        SmartDashboard.putBoolean("Lower Locked", this.lowerFlywheelLocked());
-        SmartDashboard.putBoolean("Orientation Locked", this.orientationLocked());
+        SmartDashboard.putBoolean("Target Locked Check/Target Locked", this.isTargetLocked());
+        SmartDashboard.putBoolean("Target Locked Check/Wrist Locked", this.wristLocked());
+        SmartDashboard.putBoolean("Target Locked Check/Upper Locked", this.upperFlywheelLocked());
+        SmartDashboard.putBoolean("Target Locked Check/Lower Locked", this.lowerFlywheelLocked());
+        SmartDashboard.putBoolean("Target Locked Check/Orientation Locked", this.orientationLocked());
 
-        SmartDashboard.putNumber("Target Flywheel Speed", io_.target_flywheel_speed_); // * 9.549);
-        SmartDashboard.putNumber("Current Top Flywheel Speed", io_.current_top_flywheel_speed_); // * 9.549);
-        SmartDashboard.putNumber("Current Bot Flywheel Speed", io_.current_bot_flywheel_speed_); // * 9.549);
+        SmartDashboard.putNumber("Shooter Control/Target/Flywheel Speed", io_.target_flywheel_speed_); // * 9.549);
+        SmartDashboard.putNumber("Shooter Control/Current/Top Flywheel Speed", io_.current_top_flywheel_speed_); // * 9.549);
+        SmartDashboard.putNumber("Shooter Control/Current/Bot Flywheel Speed", io_.current_bot_flywheel_speed_); // * 9.549);
 
-        SmartDashboard.putNumber("Target Wrist Angle", io_.target_wrist_angle_); // * 180 / 3.14159);
-        SmartDashboard.putNumber("Current Wrist Angle", io_.current_wrist_angle_); // * 180 / 3.14159);
+        SmartDashboard.putNumber("Shooter Control/Target/Wrist Angle", io_.target_wrist_angle_); // * 180 / 3.14159);
+        SmartDashboard.putNumber("Shooter Control/Current/Wrist Angle", io_.current_wrist_angle_); // * 180 / 3.14159);
 
-        SmartDashboard.putNumber("Target Robot Yaw", io_.target_robot_yaw_.getRadians());
-        SmartDashboard.putNumber("Current Robot Yaw",
+        SmartDashboard.putNumber("Shooter Control/Target/Robot Yaw", io_.target_robot_yaw_.getRadians());
+        SmartDashboard.putNumber("Shooter Control/Current/Robot Yaw",
                 PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
-        SmartDashboard.putNumber("Target Distance", io_.target_distance_);
+        
+        SmartDashboard.putNumber("Distance to Target", io_.target_distance_);
 
-        SmartDashboard.putNumber("Wrist Encoder Value", wrist_encoder_.getPosition());
+        SmartDashboard.putNumber("Debug/Wrist Encoder Value", wrist_encoder_.getPosition());
 
     }
 
@@ -285,6 +285,23 @@ public class ShooterSubsystem extends Subsystem {
         return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked() && orientationLocked();
     }
 
+    /**
+     * Returns true if the robot is locked onto the target and ready to shoot. This
+     * method will return true if the flywheel speed, shooter angle
+     * is all correct within a certain tolerance.
+     * 
+     * Ignores the Yaw Lineup for Loss of Vision
+     * 
+     * @return True if the target is locked, otherwise return false.
+     */
+    public boolean isOverrideTargetLocked() {
+
+        if (io_.target_flywheel_speed_ == 0) {
+            return false;
+        }
+        return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked();
+    }
+
     public boolean wristLocked() {
         return Util.epislonEquals(io_.current_wrist_angle_, io_.target_wrist_angle_,
                 ShooterConstants.WRIST_TOLERANCE);
@@ -306,25 +323,6 @@ public class ShooterSubsystem extends Subsystem {
         return Util.epislonEquals(io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()),
                 SwerveDrivetrain.getInstance().getRobotRotation(),
                 ShooterConstants.YAW_TOLERANCE);
-    }
-
-    /**
-     * Returns true if the robot is locked onto the target and ready to shoot. This
-     * method will return true if the flywheel speed, shooter angle
-     * is all correct within a certain tolerance.
-     * 
-     * Ignores the Yaw Lineup for Loss of Vision
-     * 
-     * @return True if the target is locked, otherwise return false.
-     */
-    public boolean isOverrideTargetLocked() {
-
-        if (io_.target_flywheel_speed_ == 0) {
-            return false;
-        }
-
-        return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked();
-
     }
 
     /**
