@@ -282,6 +282,7 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Debug/Driver Prespective", io_.drivers_station_perspective_.getDegrees());
         SmartDashboard.putNumber("Debug/X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
         SmartDashboard.putNumber("Debug/Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Omega Chassis Speed", io_.chassis_speeds_.omegaRadiansPerSecond);
     }
 
     public Rotation2d getRobotRotation(){
