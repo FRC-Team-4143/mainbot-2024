@@ -104,9 +104,10 @@ public class ClimberSubsystem extends Subsystem {
 
   @Override
   public void outputTelemetry(double timestamp) {
-    SmartDashboard.putNumber("Current Climb Height", io_.current_height_); // Unknown units
-    SmartDashboard.putNumber("Cliber Motor 1 Output", left_climber_motor_.getAppliedOutput());
-    SmartDashboard.putNumber("Cliber Motor 2 Output", right_climber_motor_.getAppliedOutput());
+    SmartDashboard.putNumber("Climber Control/Current Height", io_.current_height_); // Unknown units
+    SmartDashboard.putNumber("Climber Control/Target Height", io_.target_height_);
+    SmartDashboard.putNumber("Climber Control/Motor1 Applied Output", left_climber_motor_.getAppliedOutput());
+    SmartDashboard.putNumber("Climber Control/Motor2 Applied Output", right_climber_motor_.getAppliedOutput());
   }
 
   public void resetClimberEncoder() {
