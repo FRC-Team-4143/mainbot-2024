@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.OI;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -40,7 +41,7 @@ public class TeleShootAtSpeaker extends Command {
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
       CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && !OI.getDriverJoystickRightActive()){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
     } else {

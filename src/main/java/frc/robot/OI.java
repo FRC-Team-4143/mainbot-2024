@@ -158,6 +158,13 @@ public abstract class OI {
         return output;
     }
 
+    static public boolean getDriverJoystickRightActive(){
+        if(Math.abs(getDriverJoystickRightX()) > 0.1 && Math.abs(getDriverJoystickRightY()) > 0.1){
+            return true;
+        }
+        return false;
+    }
+
     static public double getDriverJoystickPOVangle() {
         return driver_joystick_.getHID().getPOV();
     }
