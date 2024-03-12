@@ -17,17 +17,15 @@ public class TeleFrontPickup extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
-
-    if (!MailmanSubsystem.getInstance().hasNote()) {
-      MailmanSubsystem.getInstance().setRollerIntake();
-    }
-
+    PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.PICKUP);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //if (!MailmanSubsystem.getInstance().hasNote()) {
+      MailmanSubsystem.getInstance().setRollerIntake();
+    //}
   }
 
   // Called once the command ends or is interrupted.
@@ -40,6 +38,6 @@ public class TeleFrontPickup extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return MailmanSubsystem.getInstance().hasNote();
+    return false;//MailmanSubsystem.getInstance().hasNote();
   }
 }

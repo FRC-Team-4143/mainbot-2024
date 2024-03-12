@@ -38,7 +38,6 @@ public class ClimberSubsystem extends Subsystem {
   private CANSparkFlex left_climber_motor_;
   private CANSparkFlex right_climber_motor_;
   private RelativeEncoder climber_encoder_;
-  private SparkPIDController climber_controller_;
   private PIDController rio_climber_controller_;
 
   public enum ClimbTarget {
@@ -49,7 +48,7 @@ public class ClimberSubsystem extends Subsystem {
   }
 
   private Command[] endgame_commands_ = {
-      new PresetState(), new EngageState(), new ClimbState(), new LockState()
+      new PresetState(), new EngageState(), new PrepareState(), new ClimbState(), new LockState()
   };
 
   /**
@@ -62,7 +61,6 @@ public class ClimberSubsystem extends Subsystem {
     left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     right_climber_motor_ = new CANSparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     climber_encoder_ = left_climber_motor_.getEncoder();
-    //climber_controller_ = left_climber_motor_.getPIDController();
     rio_climber_controller_ = new PIDController(ClimberConstants.CLIMBER_CONTROLLER_P, 0, 0);
 
     reset();
@@ -78,15 +76,7 @@ public class ClimberSubsystem extends Subsystem {
     right_climber_motor_.setInverted(false);
     right_climber_motor_.setIdleMode(IdleMode.kBrake);
     right_climber_motor_.setSmartCurrentLimit(200);
-    //right_climber_motor_.follow(left_climber_motor_, false);
     right_climber_motor_.burnFlash();
-
-    // climber_controller_.setFeedbackDevice(climber_encoder_);
-    // climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P, 0);
-    // climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P, 1);
-    // climber_controller_.setFF(ClimberConstants.CLIMBER_CONTROLLER_FF, 0);
-    // climber_controller_.setFF(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_FF, 1);
-
   }
 
   @Override
@@ -98,28 +88,18 @@ public class ClimberSubsystem extends Subsystem {
   public void updateLogic(double timestamp) {
     if(io_.pid_slot_ == 1){
       rio_climber_controller_.setP(ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_P);
+      io_.controller_ff_ = ClimberConstants.WEIGHTED_CLIMBER_CONTROLLER_FF;
     } else {
       rio_climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P);
+      io_.controller_ff_ = ClimberConstants.CLIMBER_CONTROLLER_FF;
     }
-    io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_);
-
-    if(!this.atHeight() && io_.current_height_ > io_.target_height_){ // Climber Hooks Up
-      io_.winch_speed_ = 0.2;
-    } else if (!this.atHeight() && io_.current_height_ < io_.target_height_){ // Climber Hooks Down
-      io_.winch_speed_ = -0.2; // Change to 0.6 for climbing
-    } else if (this. atHeight() && io_.climb_target_ == ClimbTarget.CLIMB){
-      io_.winch_speed_ = 0.05;
-    } else {
-      io_.winch_speed_ = 0;
-    }
+    io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_) + io_.controller_ff_;
   }
 
   @Override
   public void writePeriodicOutputs(double timestamp) {
     left_climber_motor_.set(io_.winch_speed_);
     right_climber_motor_.set(io_.winch_speed_);
-    // climber_controller_.setReference(io_.target_height_, ControlType.kPosition,
-    //     io_.pid_slot_);
   }
 
   @Override
@@ -148,7 +128,7 @@ public class ClimberSubsystem extends Subsystem {
     } else if (target == ClimbTarget.HALF) {
       io_.target_height_ = ClimberConstants.HALF_HEIGHT;
     } else if (target == ClimbTarget.CLIMB) {
-      io_.target_height_ = ClimberConstants.HOME_HEIGHT; 
+      io_.target_height_ = ClimberConstants.CLIMB_HEIGHT; 
     } else {
       io_.target_height_ = ClimberConstants.HOME_HEIGHT;
     }
@@ -171,14 +151,14 @@ public class ClimberSubsystem extends Subsystem {
 
   public void scheduleNextEndgameState() {
     io_.endgame_state_++;
-    io_.endgame_state_ = Math.min(io_.endgame_state_, 3); // Increments the endgame state, up to 3
+    io_.endgame_state_ = Math.min(io_.endgame_state_, 4); // Increments the endgame state, up to 4
     endgame_commands_[io_.endgame_state_].schedule();
   }
 
   public void schedulePreviousEndgameState() {
     io_.endgame_state_--;
     io_.endgame_state_ = Math.max(io_.endgame_state_, 0); // Decrements the endgame state, down to 0
-    if (io_.endgame_state_ == 1) {
+    if (io_.endgame_state_ == 2) {
       new DeclimbState().schedule();
     } else {
       endgame_commands_[io_.endgame_state_].schedule();
@@ -192,6 +172,8 @@ public class ClimberSubsystem extends Subsystem {
     public double target_height_ = 0.0;
     @Log.File
     public double winch_speed_ = 0.0;
+    @Log.File
+    public double controller_ff_ = 0.0;
     @Log.File
     public int endgame_state_ = 0;
     @Log.File

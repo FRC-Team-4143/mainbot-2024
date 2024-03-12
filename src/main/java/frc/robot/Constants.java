@@ -269,7 +269,7 @@ public final class Constants {
     // Dropper Motor Constants
     public static final int DROPPER_MOTOR_ID = (IS_COMP_BOT)? 0 : 32;
     public static final double DROPPER_IN_SPEED = 0.5;
-    public static final double DROPPER_OUT_SPEED = -0.75;
+    public static final double DROPPER_OUT_SPEED = -1.0;
 
     // Mailman TOF Constants
     public static final int NOTE_SENSOR_ID = 2;
@@ -286,6 +286,7 @@ public final class Constants {
     public static final double WEIGHTED_CLIMBER_CONTROLLER_P = 0.1;
     public static final double CLIMBER_CONTROLLER_FF = 0.0;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_FF = -0.1;
+    public static final double CLIMB_HEIGHT = 5.0;
     public static final double HOME_HEIGHT = 0.0;
     public static final double HALF_HEIGHT = -16.0;
     public static final double MAX_HEIGHT = -32.0;
