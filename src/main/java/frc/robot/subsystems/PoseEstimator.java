@@ -82,7 +82,7 @@ public class PoseEstimator extends Subsystem {
         io_.vision_ready_status_ = vision_ready_subscriber_.get(false);
         vision_std_devs_ = vision_std_devs_subscriber.get(new double[] {1,1,1});        
     
-        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_ && !isCloseToTarget()){//&& (SwerveDrivetrain.getInstance().getDriveMode() != DriveMode.AUTONOMOUS || isRobotInMidFeild())) {
+        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_ ){//&& !isCloseToTarget()){//&& (SwerveDrivetrain.getInstance().getDriveMode() != DriveMode.AUTONOMOUS || isRobotInMidFeild())) {
             vision_filtered_odometry_.addVisionMeasurement(result.value.transformBy(new Transform2d(0, 0, new Rotation2d())), timestamp - 0.04, new MatBuilder<>(Nat.N3(), Nat.N1()).fill(vision_std_devs_[0], vision_std_devs_[1], vision_std_devs_[2]));
             io_.last_vision_timestamp_ = result.timestamp;
         }

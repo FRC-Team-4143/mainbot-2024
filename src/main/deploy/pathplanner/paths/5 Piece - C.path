@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.9026396514331507,
-        "y": 6.314843398917567
+        "x": 3.534123991324907,
+        "y": 6.304976456106759
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7778081710009594,
-        "y": 6.018835114593307
+        "x": 2.409292510892716,
+        "y": 6.008968171782499
       },
       "isLocked": false,
       "linkedName": "5 Piece Shoot Marker"
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

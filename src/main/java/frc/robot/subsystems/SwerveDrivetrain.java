@@ -330,8 +330,8 @@ public class SwerveDrivetrain extends Subsystem {
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
-        return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                        new PIDConstants(10, 0, 0),
+        return new HolonomicPathFollowerConfig(new PIDConstants(5, 0, 0),
+                        new PIDConstants(5, 0, 0),
                         5,
                         driveBaseRadius,
                         new ReplanningConfig(false, false), 

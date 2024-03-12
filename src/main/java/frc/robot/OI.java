@@ -59,7 +59,7 @@ public abstract class OI {
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
 
         // Front Pickup
-        driver_joystick_.leftBumper().whileTrue(new TeleRearPickup());
+        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup());
 
         // Crawl
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
