@@ -277,11 +277,11 @@ public class SwerveDrivetrain extends Subsystem {
         current_state_pub.set(io_.current_module_states_);
         requested_state_pub.set(io_.requested_module_states_);
 
-        SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
-        SmartDashboard.putNumber("Yaw", io_.robot_yaw_.getDegrees());
-        SmartDashboard.putNumber("Driver Prespective", io_.drivers_station_perspective_.getDegrees());
-        SmartDashboard.putNumber("X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
-        SmartDashboard.putNumber("Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
+        SmartDashboard.putNumber("Rotation Control/Target Rotation", io_.target_rotation_.getDegrees());
+        SmartDashboard.putNumber("Rotation Control/Current Yaw", io_.robot_yaw_.getDegrees());
+        SmartDashboard.putNumber("Debug/Driver Prespective", io_.drivers_station_perspective_.getDegrees());
+        SmartDashboard.putNumber("Debug/X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
     }
 
     public Rotation2d getRobotRotation(){
@@ -314,8 +314,9 @@ public class SwerveDrivetrain extends Subsystem {
 
         // Logging callback for the active path, this is sent as a list of poses
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
-        // Do whatever you want with the poses here
-        PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
+            // Do whatever you want with the poses here
+            PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
+            io_.pp_active_path_ = poses;
         });
 
         // Logging callback for target robot pose
@@ -490,6 +491,8 @@ public class SwerveDrivetrain extends Subsystem {
         public double driver_POVy = 0.0;
         @Log.File
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
+        @Log.File
+        public List<Pose2d> pp_active_path_ = null;
     }
 
     @Override
