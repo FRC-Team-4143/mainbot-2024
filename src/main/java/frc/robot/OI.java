@@ -99,15 +99,15 @@ public abstract class OI {
         // Manual Pass
         operator_joystick_.leftTrigger().whileTrue(new OverrideTelePass());
 
+        // Empty All Pickups
+        operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
+
         if(Constants.IS_COMP_BOT){
             // Endgame Climb step increment
             operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
 
             // Endgame Climb step decrement
             operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
-
-            // Empty All Pickups
-            operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
 
             // Climb
             operator_joystick_.povUp().whileTrue(Commands.startEnd(
@@ -121,7 +121,7 @@ public abstract class OI {
         }
 
         // Test buttons
-        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0));
+        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(DriverStation.isTest()));
 
     }
 
@@ -141,6 +141,13 @@ public abstract class OI {
 
     static public double getDriverJoystickRightX() {
         double val = driver_joystick_.getRightX();
+        double output = val * val;
+        output = Math.copySign(output, val);
+        return output;
+    }
+
+    static public double getDriverJoystickRightY() {
+        double val = driver_joystick_.getRightY();
         double output = val * val;
         output = Math.copySign(output, val);
         return output;
