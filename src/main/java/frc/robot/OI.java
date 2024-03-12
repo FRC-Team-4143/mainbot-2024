@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,6 +45,8 @@ public abstract class OI {
         SmartDashboard.putData("Reset Climber Encoder", Commands.runOnce(
                 () -> ClimberSubsystem.getInstance().resetClimberEncoder())
                 .ignoringDisable(true));
+
+        BooleanSupplier isTestMode = () -> DriverStation.isTest();
 
         // ------------------        
         // Driver Controls
@@ -121,7 +126,7 @@ public abstract class OI {
         }
 
         // Test buttons
-        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(DriverStation.isTest()));
+        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
 
     }
 
