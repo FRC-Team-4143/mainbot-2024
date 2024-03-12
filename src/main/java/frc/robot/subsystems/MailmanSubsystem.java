@@ -105,9 +105,13 @@ public class MailmanSubsystem extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
-        SmartDashboard.putNumber("Current Elevator Height", io_.current_height_);
-        SmartDashboard.putNumber("Elevator Applied Output", elevator_motor_.getAppliedOutput());
-        SmartDashboard.putBoolean("Mailman has Note", io_.has_note_);
+
+        SmartDashboard.putBoolean("Mailman TOF/Has Note", io_.has_note_);
+        SmartDashboard.putNumber("Mailman TOF/Range", io_.note_sensor_range_);
+
+        SmartDashboard.putNumber("Elevator Control/Target Height", io_.target_height_);
+        SmartDashboard.putNumber("Elevator Control/Current Height", io_.current_height_);
+        SmartDashboard.putNumber("Elevator Control/Applied Output", elevator_motor_.getAppliedOutput()); 
     }
 
     public boolean atHeight() {
