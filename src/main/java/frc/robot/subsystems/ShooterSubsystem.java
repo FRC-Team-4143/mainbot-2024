@@ -65,7 +65,7 @@ public class ShooterSubsystem extends Subsystem {
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     private final Transform3d SPEAKER_TRANSFORM = new Transform3d(0, 0, 0.65, new Rotation3d(0, 0, 0));
     private final Transform3d RED_PASS_TRANSFORM = new Transform3d(1, -1.25, -1.5, new Rotation3d(0, 0, 0));
-    private final Transform3d BLUE_PASS_TRANSFORM = new Transform3d(-1, -1.25, -1.5, new Rotation3d(0, 0, 0));
+    private final Transform3d BLUE_PASS_TRANSFORM = new Transform3d(1, 1.25, -1.5, new Rotation3d(0, 0, 0));
 
     // Target positions
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
