@@ -23,6 +23,9 @@ public class HandoffToShooter extends Command {
   /** Creates a new HandoffToShooter. */
   public HandoffToShooter() {
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(shooter_);
+    addRequirements(pickup_front_);
+    addRequirements(mailman_);
   }
 
   // Called when the command is initially scheduled.

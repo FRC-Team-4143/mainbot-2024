@@ -51,7 +51,6 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
 
     swerve_drivetrain_.setDriveMode(DriveMode.AUTONOMOUS);
-
     m_autonomousCommand = AutoManager.getInstance().getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -69,7 +68,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
 
   }

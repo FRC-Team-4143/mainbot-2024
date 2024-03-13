@@ -240,7 +240,7 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putNumber("Shooter Control/Target/Wrist Angle", io_.target_wrist_angle_); // * 180 / 3.14159);
         SmartDashboard.putNumber("Shooter Control/Current/Wrist Angle", io_.current_wrist_angle_); // * 180 / 3.14159);
 
-        SmartDashboard.putNumber("Shooter Control/Target/Robot Yaw", io_.target_robot_yaw_.getRadians());
+        SmartDashboard.putNumber("Shooter Control/Target/Robot Yaw", io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()).getRadians());
         SmartDashboard.putNumber("Shooter Control/Current/Robot Yaw",
                 PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
         
@@ -321,7 +321,7 @@ public class ShooterSubsystem extends Subsystem {
 
     public boolean orientationLocked() {
         return Util.epislonEquals(io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()),
-                SwerveDrivetrain.getInstance().getRobotRotation(),
+                PoseEstimator.getInstance().getRobotPose().getRotation(),
                 ShooterConstants.YAW_TOLERANCE);
     }
 

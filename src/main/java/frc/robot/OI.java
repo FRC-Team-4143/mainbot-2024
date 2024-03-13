@@ -16,6 +16,7 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
+import frc.lib.Util;
 import frc.lib.swerve.SwerveModule;
 import frc.lib.swerve.SwerveRequest;
 import frc.robot.commands.*;
@@ -151,18 +152,9 @@ public abstract class OI {
         return output;
     }
 
-    static public double getDriverJoystickRightY() {
+    static public boolean getDriverJoystickRightY() {
         double val = driver_joystick_.getRightY();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
-    }
-
-    static public boolean getDriverJoystickRightActive(){
-        if(Math.abs(getDriverJoystickRightX()) > 0.1 && Math.abs(getDriverJoystickRightY()) > 0.1){
-            return true;
-        }
-        return false;
+        return Util.epislonEquals(val, 0, 0.1);
     }
 
     static public double getDriverJoystickPOVangle() {

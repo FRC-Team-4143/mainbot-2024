@@ -41,7 +41,7 @@ public class TeleShootAtSpeaker extends Command {
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
       CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && !OI.getDriverJoystickRightActive()){
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && OI.getDriverJoystickRightY()){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
     } else {
