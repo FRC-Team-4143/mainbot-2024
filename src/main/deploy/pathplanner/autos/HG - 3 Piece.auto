@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8104536608502588,
-      "y": 4.532093743217444
+      "x": 0.7911138899200891,
+      "y": 6.571383911998593
     },
-    "rotation": 119.82708465447476
+    "rotation": -121.70142966950579
   },
   "command": {
     "type": "sequential",
@@ -34,7 +34,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Wide 4 Piece - A"
+                        "pathName": "3 Piece H"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "3 Piece H to shoot"
                       }
                     },
                     {
@@ -46,19 +52,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Piece - B"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
+                        "pathName": "3 Piece G"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Piece - C"
+                        "pathName": "3 Piece G to shoot"
                       }
                     },
                     {

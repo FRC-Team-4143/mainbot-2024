@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.300282951493148,
-        "y": 4.930262185774015
+        "x": 4.2,
+        "y": 5.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.548763568283198,
-        "y": 3.9816844255657124
+        "x": 6.2261858552906215,
+        "y": 3.999442196711674
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Far 4 Piece Shoot Point"
     },
     {
       "anchor": {
@@ -20,56 +20,39 @@
         "y": 2.4007214918852084
       },
       "prevControl": {
-        "x": 7.853615625647926,
-        "y": 1.9613254214786688
+        "x": 7.549969715324047,
+        "y": 2.9107481291885664
       },
       "nextControl": {
-        "x": 9.160280117992475,
-        "y": 3.232190886635696
+        "x": 8.83160971430313,
+        "y": 2.0454399370663476
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.300282951493148,
-        "y": 4.930262185774015
+        "x": 4.2,
+        "y": 5.2
       },
       "prevControl": {
-        "x": 6.337968510459132,
-        "y": 3.817732713924771
+        "x": 6.137383369993342,
+        "y": 4.058643853576527
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Far 4 Piece Shoot Point"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": -179.58399423369738,
+      "rotationDegrees": 147.75932838919275,
       "rotateFast": false
     }
   ],
   "constraintZones": [],
   "eventMarkers": [
-    {
-      "name": "Run Pickup Note 2",
-      "waypointRelativePos": 0.75,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": null
-              }
-            }
-          ]
-        }
-      }
-    },
     {
       "name": "Duck Note 2 Start",
       "waypointRelativePos": 0.0,
@@ -89,7 +72,7 @@
     },
     {
       "name": "Enable Targeting Note 2",
-      "waypointRelativePos": 1.9,
+      "waypointRelativePos": 2.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -119,7 +102,7 @@
   "reversed": false,
   "folder": "Far 4 Piece",
   "previewStartingState": {
-    "rotation": 168.35656850123834,
+    "rotation": 168.79,
     "velocity": 0
   },
   "useDefaultConstraints": true

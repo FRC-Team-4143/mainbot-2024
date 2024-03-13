@@ -3,35 +3,56 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.7645024520818287,
-        "y": 4.1638498661612715
+        "x": 2.3106230827846286,
+        "y": 6.304976456106759
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.814502452081829,
-        "y": 4.1638498661612715
+        "x": 4.688576770937119,
+        "y": 6.304976456106759
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.882905765811533,
-        "y": 5.527514849606139
+        "x": 8.260389597702273,
+        "y": 7.390340165295715
       },
       "prevControl": {
-        "x": 0.5524492932010125,
-        "y": 5.468960666877231
+        "x": 8.232654587891012,
+        "y": 7.431942680012607
+      },
+      "nextControl": {
+        "x": 8.288124607513534,
+        "y": 7.348737650578823
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.534123991324907,
+        "y": 6.304976456106759
+      },
+      "prevControl": {
+        "x": 6.9974209179187605,
+        "y": 6.512182255133743
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "5 Piece Shoot Marker"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.1,
       "rotationDegrees": 180.0,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 0.7,
+      "rotationDegrees": -152.73614782426853,
       "rotateFast": false
     }
   ],
@@ -49,7 +70,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "5 Piece (4+1)",
+  "folder": "Far 5 Piece",
   "previewStartingState": {
     "rotation": 180.0,
     "velocity": 0

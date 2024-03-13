@@ -1,0 +1,109 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.2,
+        "y": 5.2
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.257400207108107,
+        "y": 3.9467771243234795
+      },
+      "isLocked": false,
+      "linkedName": "Far 4 Piece Shoot Point"
+    },
+    {
+      "anchor": {
+        "x": 8.280123483327722,
+        "y": 4.10464820929041
+      },
+      "prevControl": {
+        "x": 7.67823997186456,
+        "y": 3.9270432387018626
+      },
+      "nextControl": {
+        "x": 8.677591761494762,
+        "y": 4.2219339307120345
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.2,
+        "y": 5.2
+      },
+      "prevControl": {
+        "x": 6.750747347648543,
+        "y": 3.512631640647897
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Far 4 Piece Shoot Point"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 180.0,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "Duck Note 3 ",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Duck"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Enable Targeting Note 3",
+      "waypointRelativePos": 2.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoEnableDefaults"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 168.79,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Far 4 Piece",
+  "previewStartingState": {
+    "rotation": 168.79,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

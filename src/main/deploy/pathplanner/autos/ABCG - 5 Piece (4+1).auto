@@ -34,7 +34,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Wide 4 Piece - A"
+                        "pathName": "Wide 5 Piece - A"
                       }
                     },
                     {
@@ -46,7 +46,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Piece - B"
+                        "pathName": "5 Piece - B"
                       }
                     },
                     {
@@ -58,7 +58,25 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4 Piece - C"
+                        "pathName": "5 Piece - C"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AutoShootAtSpeaker"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "5 Piece - G"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "5 Piece - G to shoot"
                       }
                     },
                     {

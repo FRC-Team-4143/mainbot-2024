@@ -3,38 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.882905765811533,
-        "y": 6.979658581285779
+        "x": 2.883271729453586,
+        "y": 6.9956624528633675
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.668822414567908,
-        "y": 7.163400480647115
+        "x": 1.9932481519741916,
+        "y": 6.866843250859771
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "5 Piece - C Endpoint"
     },
     {
       "anchor": {
-        "x": 8.201187940837421,
-        "y": 7.429807936538951
+        "x": 2.883271729453586,
+        "y": 5.527514849608872
       },
       "prevControl": {
-        "x": 6.583009319864795,
-        "y": 7.3114046228092455
+        "x": 0.9392728628538557,
+        "y": 5.258165609055897
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.0,
-      "rotationDegrees": -150.14386490207866,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -45,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -173.83,
+    "rotation": 180.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "5 Piece (4+1)",
+  "folder": "Far 5 Piece",
   "previewStartingState": {
-    "rotation": -146.888658039628,
+    "rotation": -178.80651057601804,
     "velocity": 0
   },
   "useDefaultConstraints": true
