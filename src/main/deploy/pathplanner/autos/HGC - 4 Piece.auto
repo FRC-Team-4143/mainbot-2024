@@ -3,7 +3,7 @@
   "startingPose": {
     "position": {
       "x": 1.2745940876497153,
-      "y": 5.535354916863679
+      "y": 5.564955745296107
     },
     "rotation": 180.0
   },
@@ -12,65 +12,45 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "AutoEnableDefaults"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Far 5 Piece - H"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Far 5 Piece - G"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Far 5 Piece - C"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 5 Piece - H"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 5 Piece - G"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 5 Piece - C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
           }
         }
       ]

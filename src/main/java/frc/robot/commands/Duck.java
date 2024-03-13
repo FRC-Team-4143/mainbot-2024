@@ -6,9 +6,12 @@ import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class Duck extends Command {
 
+    public Duck() {
+        addRequirements(ShooterSubsystem.getInstance());
+    }
     @Override
     public void initialize() {
-        ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
+        ShooterSubsystem.getInstance().setShootMode(ShootMode.DUCK);
     }
 
     @Override

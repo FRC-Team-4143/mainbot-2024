@@ -93,7 +93,8 @@ public class ShooterSubsystem extends Subsystem {
         RECEIVE,
         CLIMB,
         PROFILE,
-        PASS
+        PASS,
+        DUCK
     }
 
     private ShooterPeriodicIo io_;
@@ -199,6 +200,11 @@ public class ShooterSubsystem extends Subsystem {
             // io_.target_wrist_angle_ = calculateWristAnglePass(robot_pose,
             // io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY_PASSING);
             io_.target_flywheel_speed_ = 325;
+        } else if (io_.target_mode_ == ShootMode.DUCK) {
+            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
+                    ShooterConstants.NOTE_EXIT_VELOCITY);
+            io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
         }
 
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {

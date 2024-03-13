@@ -12,65 +12,45 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "AutoEnableDefaults"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "3 Piece H"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "3 Piece H to shoot"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "3 Piece G"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "3 Piece G to shoot"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AutoShootAtSpeaker"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece H to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece H to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
           }
         }
       ]

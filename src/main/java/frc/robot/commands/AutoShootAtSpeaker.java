@@ -5,8 +5,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.MailmanSubsystem;
+import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
 public class AutoShootAtSpeaker extends Command {
 
@@ -14,12 +20,16 @@ public class AutoShootAtSpeaker extends Command {
 
   /** Creates a new AutoShootAtSpeaker. */
   public AutoShootAtSpeaker() {
+    addRequirements(ShooterSubsystem.getInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
+    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     has_shot_note_ = false;
   }
@@ -28,11 +38,13 @@ public class AutoShootAtSpeaker extends Command {
   @Override
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote()) {
+      PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
       ShooterSubsystem.getInstance().setRollerFeed();
-    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()) { //is target lock normaly 
+    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { //is target lock normaly 
       ShooterSubsystem.getInstance().setRollerFeed();
       has_shot_note_ = true;
     } else {
+      PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
       ShooterSubsystem.getInstance().rollerStop();
     }
   }
@@ -40,6 +52,7 @@ public class AutoShootAtSpeaker extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
     ShooterSubsystem.getInstance().rollerStop();
   }

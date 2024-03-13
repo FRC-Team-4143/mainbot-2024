@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 0.7987428243044774,
-      "y": 4.555515416309007
-    },
-    "rotation": 121.42956561483855
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -20,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece D"
+            "pathName": "Far 5 Piece - H"
           }
         },
         {
@@ -32,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece E"
+            "pathName": "Far 5 Piece - G"
           }
         },
         {
@@ -44,7 +38,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece F"
+            "pathName": "Far 5 Piece - C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 5 Piece - B"
           }
         },
         {

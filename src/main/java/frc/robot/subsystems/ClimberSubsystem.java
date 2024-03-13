@@ -106,6 +106,7 @@ public class ClimberSubsystem extends Subsystem {
   public void outputTelemetry(double timestamp) {
     SmartDashboard.putNumber("Climber Control/Current Height", io_.current_height_); // Unknown units
     SmartDashboard.putNumber("Climber Control/Target Height", io_.target_height_);
+    SmartDashboard.putNumber("Climber Control/Winch Speed", io_.winch_speed_);
     SmartDashboard.putNumber("Climber Control/Motor1 Applied Output", left_climber_motor_.getAppliedOutput());
     SmartDashboard.putNumber("Climber Control/Motor2 Applied Output", right_climber_motor_.getAppliedOutput());
   }
