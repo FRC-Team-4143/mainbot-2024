@@ -9,7 +9,10 @@
     "Far 5 Piece",
     "5 Piece (4+1)"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "ABCG - 5 Piece",
+    "ABC - 4 Piece"
+  ],
   "defaultMaxVel": 2.0,
   "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 540.0,

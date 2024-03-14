@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.244993259217289,
-      "y": 5.525487974052871
+      "x": 0.7911138899200891,
+      "y": 6.551650026376976
     },
-    "rotation": 178.95165666234564
+    "rotation": -119.60507704189853
   },
   "command": {
     "type": "sequential",
@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center 4 Piece - A"
+            "pathName": "Short 5 Piece - A"
           }
         },
         {
@@ -74,6 +74,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "ABCG - 5 Piece",
   "choreoAuto": false
 }
