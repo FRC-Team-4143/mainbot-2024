@@ -92,7 +92,7 @@ public class MailmanSubsystem extends Subsystem {
     public void updateLogic(double timestamp) {
         if (io_.has_note_ && io_.note_sensor_range_ > MailmanConstants.NO_NOTE_RANGE) {
             io_.has_note_ = false;
-        } else if (io_.has_note_ == false && io_.note_sensor_range_ < MailmanConstants.HAS_NOTE_RANGE) {
+        } else if (!io_.has_note_ && io_.note_sensor_range_ < MailmanConstants.HAS_NOTE_RANGE) {
             io_.has_note_ = true;
         }
     }
@@ -159,6 +159,10 @@ public class MailmanSubsystem extends Subsystem {
      */
     public void setRollerRecieve() {
         io_.roller_speed_ = -0.15;
+    }
+
+    public void setRollerSpeed(double speed){
+        io_.roller_speed_ = speed;  
     }
 
     public boolean hasNote(){

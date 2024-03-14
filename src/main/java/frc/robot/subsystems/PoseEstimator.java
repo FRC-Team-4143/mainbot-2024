@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.TimestampedObject;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
@@ -42,9 +43,9 @@ public class PoseEstimator extends Subsystem {
     private ProtobufPublisher<Pose2d> odom_publisher_;
     private ProtobufPublisher<Pose2d> pose_publisher_;
     private DoubleArraySubscriber vision_std_devs_subscriber;
-      
+
     int update_counter_ = 2;
-    double[] vision_std_devs_ = {1,1,1};
+    double[] vision_std_devs_ = { 1, 1, 1 };
 
     PoseEstimator() {
         io_ = new PoseEstimatorPeriodicIo();
@@ -63,8 +64,8 @@ public class PoseEstimator extends Subsystem {
         vision_std_devs_subscriber = vision_std_devs_topic.subscribe(null);
         odom_publisher_ = robot_odom_topic.publish();
         pose_publisher_ = robot_pose_topic.publish();
-        supression_publisher_ = supress_odom_topic.publish(); 
-        
+        supression_publisher_ = supress_odom_topic.publish();
+
     }
 
     @Override
@@ -80,10 +81,15 @@ public class PoseEstimator extends Subsystem {
     public void readPeriodicInputs(double timestamp) {
         TimestampedObject<Pose2d> result = vision_subsciber_.getAtomic();
         io_.vision_ready_status_ = vision_ready_subscriber_.get(false);
-        vision_std_devs_ = vision_std_devs_subscriber.get(new double[] {1,1,1});        
-    
-        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_ ){
-            vision_filtered_odometry_.addVisionMeasurement(result.value.transformBy(new Transform2d(0, 0, new Rotation2d())), timestamp - 0.04, new MatBuilder<>(Nat.N3(), Nat.N1()).fill(vision_std_devs_[0], vision_std_devs_[1], vision_std_devs_[2]));
+        vision_std_devs_ = vision_std_devs_subscriber.get(new double[] { 1, 1, 1 });
+
+        io_.vision_paused = SmartDashboard.getBoolean("pose_estimator/pause", false);
+
+        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_) {
+            vision_filtered_odometry_.addVisionMeasurement(
+                    result.value.transformBy(new Transform2d(0, 0, new Rotation2d())), timestamp - 0.04,
+                    new MatBuilder<>(Nat.N3(), Nat.N1()).fill(vision_std_devs_[0], vision_std_devs_[1],
+                            vision_std_devs_[2]));
             io_.last_vision_timestamp_ = result.timestamp;
         }
 
@@ -105,9 +111,16 @@ public class PoseEstimator extends Subsystem {
         supression_publisher_.set(!io_.vision_ready_status_);
 
         update_counter_--;
-        if(update_counter_ == 0){
+        if (update_counter_ == 0) {
             odom_publisher_.set(io_.pose_);
-            update_counter_ = 2;
+            if (DriverStation.isDisabled() && io_.vision_paused) {
+                // NO- op on purpose
+            } else if (DriverStation.isDisabled()) {
+                update_counter_ = 50;
+                SmartDashboard.putBoolean("pose_estimator/pause", false);
+            } else {
+                update_counter_ = 2;
+            }
         }
     }
 
@@ -120,7 +133,7 @@ public class PoseEstimator extends Subsystem {
         SmartDashboard.putBoolean("target close", isCloseToTarget());
     }
 
-    public Field2d getFieldWidget(){
+    public Field2d getFieldWidget() {
         return field_;
     }
 
@@ -129,11 +142,14 @@ public class PoseEstimator extends Subsystem {
     }
 
     public boolean isRobotInMidFeild() {
-        return Util.epislonEquals(io_.vision_filtered_pose_.getX(), 8.29564, 2.423); // 8.29564 is the center field line | 2.423 is the center line to wing line
+        return Util.epislonEquals(io_.vision_filtered_pose_.getX(), 8.29564, 2.423); // 8.29564 is the center field line
+                                                                                     // | 2.423 is the center line to
+                                                                                     // wing line
     }
 
-    public boolean isCloseToTarget(){
-        return Util.epislonEquals(io_.vision_filtered_pose_.getTranslation(), ShooterSubsystem.getInstance().getTarget().toPose2d().getTranslation(), 1.9);
+    public boolean isCloseToTarget() {
+        return Util.epislonEquals(io_.vision_filtered_pose_.getTranslation(),
+                ShooterSubsystem.getInstance().getTarget().toPose2d().getTranslation(), 1.9);
     }
 
     public SwerveDrivePoseEstimator getOdometryPose() {
@@ -148,7 +164,6 @@ public class PoseEstimator extends Subsystem {
     public void setRobotOdometry(Pose2d pose) {
         var drive = SwerveDrivetrain.getInstance();
         SwerveDrivetrain.getInstance().seedFieldRelative(pose.getRotation());
-        //odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
         vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
     }
 
@@ -161,10 +176,12 @@ public class PoseEstimator extends Subsystem {
         public double last_vision_timestamp_ = 0.0;
         @Log.File
         public boolean vision_ready_status_ = false;
+        @Log.File
+        public boolean vision_paused = false;
     }
 
     @Override
     public Logged getLoggingObject() {
-      return io_;
+        return io_;
     }
 }

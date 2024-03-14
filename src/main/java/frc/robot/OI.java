@@ -6,7 +6,6 @@ package frc.robot;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,11 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
-import frc.robot.subsystems.PickupSubsystem.PickupMode;
-import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import frc.lib.Util;
-import frc.lib.swerve.SwerveModule;
-import frc.lib.swerve.SwerveRequest;
 import frc.robot.commands.*;
 
 public abstract class OI {
@@ -77,12 +72,12 @@ public abstract class OI {
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerOutput(),
+                () -> mailman_.setRollerSpeed(0.25),
                 () -> mailman_.setRollerStop()));
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerIntake(),
+                () -> mailman_.setRollerSpeed(-0.25),
                 () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target

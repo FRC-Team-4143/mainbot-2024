@@ -28,6 +28,7 @@ public class AutoManager {
 
     private AutoManager() {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker().withTimeout(2));
+        NamedCommands.registerCommand("AutoShootAtSpeakerPreload", new AutoShootAtSpeakerPreload().withTimeout(2));
         NamedCommands.registerCommand("Duck", new Duck());
         //NamedCommands.registerCommand("AutoFrontPickupToShooter", new HandoffToShooter().withTimeout(2).andThen(new AutoEnableDefaults()));
         SwerveDrivetrain.getInstance().configurePathPlanner();

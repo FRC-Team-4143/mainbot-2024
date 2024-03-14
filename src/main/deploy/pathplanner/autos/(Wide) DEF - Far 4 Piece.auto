@@ -2,25 +2,31 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7987428243044774,
-      "y": 4.555515416309007
+      "x": 1.2252593735956716,
+      "y": 2.220062132431957
     },
-    "rotation": 121.42956561483855
+    "rotation": -121.93663186688747
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "AutoShootAtSpeaker"
+            "pathName": "Far Start to Shoot Point"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Far 4 Piece D"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 4 Piece D to shoot"
           }
         },
         {
@@ -36,6 +42,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Far 4 Piece E to shoot"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "AutoShootAtSpeaker"
@@ -45,6 +57,12 @@
           "type": "path",
           "data": {
             "pathName": "Far 4 Piece F"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 4 Piece F to shoot"
           }
         },
         {

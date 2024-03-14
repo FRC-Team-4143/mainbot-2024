@@ -185,9 +185,9 @@ public final class Constants {
       var map = new InterpolatingDoubleTreeMap();
       if (IS_COMP_BOT) { // Comp Bot
         map.put(0.0, 0.0);
-        map.put(1.6, 0.0);
-        map.put(3.0, 0.0);
-        map.put(6.0, 0.45);
+        map.put(1.6, 0.2);
+        map.put(3.0, 0.2);
+        map.put(6.0, 0.2);
       } else { // Practice Bot
         map.put(0.0, 0.0);
         map.put(1.6, 0.2);
@@ -274,8 +274,8 @@ public final class Constants {
     // Mailman TOF Constants
     public static final int NOTE_SENSOR_ID = 2;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
-    public static final double HAS_NOTE_RANGE = 40;
-    public static final double NO_NOTE_RANGE = 80;
+    public static final double HAS_NOTE_RANGE = 105;
+    public static final double NO_NOTE_RANGE = 130;
   }
 
   // IDs range from 40 - 49

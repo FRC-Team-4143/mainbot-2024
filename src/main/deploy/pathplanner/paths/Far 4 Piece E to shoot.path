@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.534123991324907,
-        "y": 6.304976456106759
+        "x": 8.246834867421518,
+        "y": 2.435854001522554
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.409292510892716,
-        "y": 6.008968171782499
+        "x": 5.998354250631467,
+        "y": 1.2413486738528394
       },
       "isLocked": false,
-      "linkedName": "5 Piece Shoot Marker"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9026396514331507,
-        "y": 7.003080254377342
+        "x": 3.0589342776403092,
+        "y": 2.9862633191742836
       },
       "prevControl": {
-        "x": 1.254860202028098,
-        "y": 7.042548025620577
+        "x": 4.581343028591905,
+        "y": 1.5224087509515964
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Far 4 Piece to shoot point"
     }
   ],
   "rotationTargets": [],
@@ -39,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -178.9769698113322,
+    "rotation": 140.06361685303003,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 5 Piece",
+  "folder": "Far 4 Piece",
   "previewStartingState": {
-    "rotation": -178.60281897270374,
+    "rotation": -151.93,
     "velocity": 0
   },
   "useDefaultConstraints": true

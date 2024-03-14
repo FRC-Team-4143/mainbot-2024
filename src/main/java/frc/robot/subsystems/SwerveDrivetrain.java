@@ -377,6 +377,7 @@ public class SwerveDrivetrain extends Subsystem {
      */
     public void seedFieldRelative(Rotation2d offset) {
         pigeon_imu.setYaw(offset.getDegrees());
+        io_.robot_yaw_ = Rotation2d.fromRadians(MathUtil.angleModulus(-pigeon_imu.getAngle() * Math.PI / 180));
     }
 
     /**
