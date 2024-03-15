@@ -83,8 +83,6 @@ public class PoseEstimator extends Subsystem {
         io_.vision_ready_status_ = vision_ready_subscriber_.get(false);
         vision_std_devs_ = vision_std_devs_subscriber.get(new double[] { 1, 1, 1 });
 
-        io_.vision_paused = SmartDashboard.getBoolean("pose_estimator/pause", false);
-
         if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_) {
             vision_filtered_odometry_.addVisionMeasurement(
                     result.value.transformBy(new Transform2d(0, 0, new Rotation2d())), timestamp - 0.04,
@@ -108,19 +106,21 @@ public class PoseEstimator extends Subsystem {
     @Override
     public void writePeriodicOutputs(double timestamp) {
 
-        supression_publisher_.set(!io_.vision_ready_status_);
+        if (DriverStation.isDisabled() && io_.vision_paused) {
+            supression_publisher_.set(true);
+        } else {
+            supression_publisher_.set(!io_.vision_ready_status_);   
+        }
 
         update_counter_--;
-        if (update_counter_ == 0) {
+        if (update_counter_ <= 0) {
             odom_publisher_.set(io_.pose_);
-            if (DriverStation.isDisabled() && io_.vision_paused) {
-                // NO- op on purpose
-            } else if (DriverStation.isDisabled()) {
+            if (DriverStation.isDisabled()) {
                 update_counter_ = 50;
-                SmartDashboard.putBoolean("pose_estimator/pause", false);
             } else {
                 update_counter_ = 2;
             }
+
         }
     }
 
@@ -154,6 +154,10 @@ public class PoseEstimator extends Subsystem {
 
     public SwerveDrivePoseEstimator getOdometryPose() {
         return vision_filtered_odometry_;
+    }
+
+    public void pauseVisionFilter(){
+        io_.vision_paused = true;
     }
 
     /**

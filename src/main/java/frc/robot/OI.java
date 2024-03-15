@@ -41,6 +41,9 @@ public abstract class OI {
         SmartDashboard.putData("Reset Climber Encoder", Commands.runOnce(
                 () -> ClimberSubsystem.getInstance().resetClimberEncoder())
                 .ignoringDisable(true));
+        SmartDashboard.putData("Pause Vision", Commands.runOnce(
+                () -> PoseEstimator.getInstance().pauseVisionFilter())
+                .ignoringDisable(true));
 
         BooleanSupplier isTestMode = () -> DriverStation.isTest();
 
@@ -72,12 +75,12 @@ public abstract class OI {
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerSpeed(0.25),
+                () -> mailman_.setRollerOutput(),
                 () -> mailman_.setRollerStop()));
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerSpeed(-0.25),
+                () -> mailman_.setRollerSpeed(0.25),
                 () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
