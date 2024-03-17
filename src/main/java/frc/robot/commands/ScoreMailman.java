@@ -22,11 +22,7 @@ public class ScoreMailman extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(ShooterSubsystem.getInstance().hasNote()){
-      CommandScheduler.getInstance().schedule(new HandoffToMailman().withTimeout(1).andThen(() -> MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP)));
-    } else {
-      MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP);
-    }
+    MailmanSubsystem.getInstance().setRollerOutput();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -37,13 +33,8 @@ public class ScoreMailman extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    CommandScheduler.getInstance().schedule(Commands.run(
-      () -> MailmanSubsystem.getInstance().setRollerOutput()).withTimeout(0.5)
-      .andThen(() -> {
-        MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
-        MailmanSubsystem.getInstance().setRollerStop();
-      }));
-    SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
+    MailmanSubsystem.getInstance().setRollerStop();
+    MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
   }
 
   // Returns true when the command should end.
