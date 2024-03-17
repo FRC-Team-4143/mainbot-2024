@@ -88,7 +88,6 @@ public class ShooterSubsystem extends Subsystem {
     public enum ShootMode {
         TARGET,
         IDLE,
-        READY,
         TRANSFER,
         RECEIVE,
         CLIMB,
@@ -173,33 +172,41 @@ public class ShooterSubsystem extends Subsystem {
         io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
         io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
-        if (io_.target_mode_ == ShootMode.TARGET) {
-            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-            io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
-                    ShooterConstants.NOTE_EXIT_VELOCITY);
-            io_.target_flywheel_speed_ = 550; // TODO: set ideal shooter rads/s
-        } else if (io_.target_mode_ == ShootMode.IDLE) {
-            io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
-            io_.target_flywheel_speed_ = 0;
-        } else if (io_.target_mode_ == ShootMode.TRANSFER) {
-            io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
-            io_.target_flywheel_speed_ = 50;
-        } else if (io_.target_mode_ == ShootMode.CLIMB) {
-            io_.target_wrist_angle_ = ShooterConstants.WRIST_CLIMB_ANGLE;
-            io_.target_flywheel_speed_ = 0;
-        } else if (io_.target_mode_ == ShootMode.RECEIVE) {
-            io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
-            io_.target_flywheel_speed_ = -50;
-        } else if (io_.target_mode_ == ShootMode.PROFILE) {
-            io_.target_wrist_angle_ = Math.toRadians(35);
-            io_.target_flywheel_speed_ = 550;
-        } else if (io_.target_mode_ == ShootMode.PASS) {
-            io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-            io_.target_wrist_angle_ = Math.toRadians(40);
-            io_.target_flywheel_speed_ = 325;
+        switch (io_.target_mode_) {
+            case TARGET:
+                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+                io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
+                        ShooterConstants.NOTE_EXIT_VELOCITY);
+                io_.target_flywheel_speed_ = 550;
+                break;
+            case TRANSFER:
+                io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
+                io_.target_flywheel_speed_ = 50;
+                break;
+            case CLIMB:
+                io_.target_wrist_angle_ = ShooterConstants.WRIST_CLIMB_ANGLE;
+                io_.target_flywheel_speed_ = 0;
+                break;
+            case RECEIVE:
+                io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
+                io_.target_flywheel_speed_ = -50;
+                break;
+            case PROFILE:
+                io_.target_wrist_angle_ = Math.toRadians(35);
+                io_.target_flywheel_speed_ = 550;
+                break;
+            case PASS:
+                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+                io_.target_wrist_angle_ = Math.toRadians(40);
+                io_.target_flywheel_speed_ = 325;
+                break;
+            case IDLE:
+            default:
+                io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
+                io_.target_flywheel_speed_ = 0;
+                break;
         }
     
-
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
             io_.has_note_ = false;
         } else if (io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE) {
