@@ -75,6 +75,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.reset();
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
 
   }
