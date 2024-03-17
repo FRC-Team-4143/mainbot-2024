@@ -167,16 +167,15 @@ public class ShooterSubsystem extends Subsystem {
         Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
         io_.note_travel_time_ = calculateNoteTravelTime(robot_pose, io_.target_offset_pose);
         io_.relative_chassis_speed_ = transformChassisVelocity();
-        io_.target_offset_pose = io_.target_
-                .transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
+        io_.target_offset_pose = io_.target_.transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
         io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
-        io_.target_offset_lookup_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
+        io_.target_offset_tuned_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
         switch (io_.target_mode_) {
             case TARGET:
                 io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
                 io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
-                        ShooterConstants.NOTE_EXIT_VELOCITY);
+                        ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
                 io_.target_flywheel_speed_ = 550;
                 break;
             case TRANSFER:
@@ -449,10 +448,10 @@ public class ShooterSubsystem extends Subsystem {
         return io_.target_;
     }
 
-    private double calculateWristAngle(Pose2d robot_pose, Pose3d target_pose, double velocity) {
+    private double calculateWristAngle(Pose2d robot_pose, Pose3d target_pose, double velocity, double offset) {
         Pose3d shooter_pose = (new Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
 
-        double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) + io_.target_offset_lookup_;
+        double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) + offset;
         double d = calculateLinearDist(robot_pose, target_pose);
         double G = 9.81;
         double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity * velocity * z);
@@ -522,7 +521,7 @@ public class ShooterSubsystem extends Subsystem {
         @Log.File
         public double note_sensor_range_ = 0.0;
         @Log.File
-        public double target_offset_lookup_ = 0.0;
+        public double target_offset_tuned_ = 0.0;
         @Log.File
         public double target_distance_ = 0.0;
         @Log.File
