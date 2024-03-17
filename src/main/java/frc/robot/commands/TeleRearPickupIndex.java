@@ -9,8 +9,8 @@ import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 
-public class TeleRearPickup extends Command {
-  public TeleRearPickup() {
+public class TeleRearPickupIndex extends Command {
+  public TeleRearPickupIndex() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -18,6 +18,11 @@ public class TeleRearPickup extends Command {
   @Override
   public void initialize() {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
+
+    if (!ShooterSubsystem.getInstance().hasNote()) {
+      ShooterSubsystem.getInstance().setRollerFeed();
+    }
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -29,11 +34,12 @@ public class TeleRearPickup extends Command {
   @Override
   public void end(boolean interrupted) {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
+    ShooterSubsystem.getInstance().rollerStop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return PickupSubsystem.getShooterInstance().hasNote();
+    return ShooterSubsystem.getInstance().hasNote();
   }
 }

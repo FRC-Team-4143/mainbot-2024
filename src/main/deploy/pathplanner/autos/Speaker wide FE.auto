@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7401886415755699,
-      "y": 6.640044321458116
+      "x": 0.7284778050297884,
+      "y": 4.42669621430541
     },
-    "rotation": -119.60507704189853
+    "rotation": 119.16761337957779
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,7 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Short 5 Piece - A"
+            "pathName": "Far 4 Speaker to F"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far 4 Piece F to shoot"
           }
         },
         {
@@ -32,37 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - B"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShootAtSpeaker"
+            "pathName": "Far 4 Piece E Front"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - C"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShootAtSpeaker"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "5 Piece - G"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "5 Piece - G to shoot"
+            "pathName": "Far 4 Piece E to shoot"
           }
         },
         {
@@ -74,6 +62,6 @@
       ]
     }
   },
-  "folder": "ABCG - 5 Piece",
+  "folder": null,
   "choreoAuto": false
 }

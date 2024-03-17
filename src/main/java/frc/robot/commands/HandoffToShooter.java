@@ -56,7 +56,7 @@ public class HandoffToShooter extends Command {
     shooter_.rollerStop();
     mailman_.setRollerStop();
     pickup_front_.setPickupMode(PickupMode.IDLE);
-    CommandScheduler.getInstance().schedule(new TeleRearPickup());
+    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex());
   }
 
   // Returns true when the command should end.

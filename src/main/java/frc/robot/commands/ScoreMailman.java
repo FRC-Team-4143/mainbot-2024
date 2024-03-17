@@ -22,7 +22,6 @@ public class ScoreMailman extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SwerveDrivetrain.getInstance().setDriveMode(DriveMode.TARGET);
     if(ShooterSubsystem.getInstance().hasNote()){
       CommandScheduler.getInstance().schedule(new HandoffToMailman().withTimeout(1).andThen(() -> MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP)));
     } else {

@@ -12,10 +12,12 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.MailmanConstants;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
-
+import frc.robot.Constants.ShooterConstants;
 import monologue.Logged;
 import monologue.Annotations.Log;
 
@@ -34,14 +36,14 @@ public class PickupSubsystem extends Subsystem {
 
     public static PickupSubsystem getShooterInstance() {
         if (shooterPickupInstance == null) {
-            shooterPickupInstance = new PickupSubsystem(PickupConstants.SHOOTER_PICKUP);
+            shooterPickupInstance = new PickupSubsystem(PickupConstants.SHOOTER_PICKUP, "shooter");
         }
         return shooterPickupInstance;
     }
 
     public static PickupSubsystem getMailmanInstance() {
         if (mailmainPickupInstance == null) {
-            mailmainPickupInstance = new PickupSubsystem(PickupConstants.MAILMAN_PICKUP);
+            mailmainPickupInstance = new PickupSubsystem(PickupConstants.MAILMAN_PICKUP, "mailman");
         }
         return mailmainPickupInstance;
     }
@@ -53,8 +55,10 @@ public class PickupSubsystem extends Subsystem {
     private CANSparkBase roller_motor_;
     private PickupSettings settings_;
     private TimeOfFlight note_sensor_;
+    private String name_;
 
-    private PickupSubsystem(PickupSettings settings) {
+    private PickupSubsystem(PickupSettings settings, String name) {
+        name_ = name;
         settings_ = settings;
         io_ = new PickupPeriodicIo();
         if(Constants.IS_COMP_BOT){
@@ -63,7 +67,7 @@ public class PickupSubsystem extends Subsystem {
             roller_motor_ = new CANSparkMax(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
         }
 
-        if (settings.PICKUP_NOTE_SENSOR_ID < 0) {
+        if (settings.PICKUP_NOTE_SENSOR_ID >= 0) {
             note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);
             note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, PickupConstants.SENSOR_SAMPLE_TIME);
         } else {
@@ -91,25 +95,19 @@ public class PickupSubsystem extends Subsystem {
 
     @Override
     public void updateLogic(double timestamp) {
-        if (io_.has_note_pickup_ && io_.note_sensor_range_ > PickupConstants.NO_NOTE_RANGE) {
+        if (io_.has_note_pickup_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
             io_.has_note_pickup_ = false;
-        } else if (io_.has_note_pickup_ == false && io_.note_sensor_range_ < PickupConstants.HAS_NOTE_RANGE) {
+        } else if (io_.has_note_pickup_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE) {
             io_.has_note_pickup_ = true;
         }
 
         switch (io_.pickup_mode_) {
             case PICKUP:
                 setRollersForward();
-                if (io_.has_note_pickup_) {
-                    tellShooterReady();
-                    io_.pickup_mode_ = PickupMode.IDLE;
-                }
                 break;
             case TRANSFER:
                 setRollersForward();
-                if (io_.has_note_reciever_) {
-                    io_.pickup_mode_ = PickupMode.IDLE;
-                }
+
                 break;
             case CLEAN:
                 setRollersBackward();
@@ -127,7 +125,8 @@ public class PickupSubsystem extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
-
+        SmartDashboard.putBoolean(name_ + "/has_note", hasNote());
+        SmartDashboard.putNumber(name_ + "/range", io_.note_sensor_range_);
     }
 
     public void tellShooterReady() {

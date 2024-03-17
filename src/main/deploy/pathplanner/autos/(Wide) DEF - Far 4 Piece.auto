@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2252593735956716,
-      "y": 2.220062132431957
+      "x": 0.7284778050297884,
+      "y": 4.42669621430541
     },
-    "rotation": -121.93663186688747
+    "rotation": -90.0
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far Start to Shoot Point"
+            "pathName": "Far 4 Piece Start"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
           }
         },
         {

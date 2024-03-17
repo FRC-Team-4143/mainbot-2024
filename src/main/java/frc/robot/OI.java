@@ -62,6 +62,8 @@ public abstract class OI {
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
 
+        driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5));
+
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup());
 
@@ -118,10 +120,12 @@ public abstract class OI {
                     () -> climber_.setClimbSpeed(-0.6),
                     () -> climber_.stopClimb()));
 
-            // Reverse Climb
-            operator_joystick_.povDown().whileTrue(Commands.startEnd(
-                    () -> climber_.setClimbSpeed(0.6),
-                    () -> climber_.stopClimb()));
+        //     // Reverse Climb
+        //     operator_joystick_.povDown().whileTrue(Commands.startEnd(
+        //             () -> climber_.setClimbSpeed(0.6),
+        //             () -> climber_.stopClimb()));
+                
+            operator_joystick_.povDown().whileTrue(new ManuallyLowerElevator());
         }
 
         // Test buttons

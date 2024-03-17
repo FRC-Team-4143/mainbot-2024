@@ -27,9 +27,11 @@ public class AutoManager {
     private final SendableChooser<Command> autoChooser;
 
     private AutoManager() {
-        NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker().withTimeout(2));
+        NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker());//.withTimeout(2));
         NamedCommands.registerCommand("AutoShootAtSpeakerPreload", new AutoShootAtSpeakerPreload().withTimeout(2));
         NamedCommands.registerCommand("Duck", new Duck());
+        NamedCommands.registerCommand("AllowVision", new SetIgnoreVision(false));
+        NamedCommands.registerCommand("IgnoreVision", new SetIgnoreVision(true));
         //NamedCommands.registerCommand("AutoFrontPickupToShooter", new HandoffToShooter().withTimeout(2).andThen(new AutoEnableDefaults()));
         SwerveDrivetrain.getInstance().configurePathPlanner();
         autoChooser = AutoBuilder.buildAutoChooser();

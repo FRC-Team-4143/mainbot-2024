@@ -232,10 +232,10 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, -1);
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3);
     public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, -1);
-    public static final double HAS_NOTE_RANGE = 0;
-    public static final double NO_NOTE_RANGE = 1;
+    public static final double HAS_NOTE_RANGE = 150;
+    public static final double NO_NOTE_RANGE = 200;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
   }
 

@@ -83,7 +83,7 @@ public class PoseEstimator extends Subsystem {
         io_.vision_ready_status_ = vision_ready_subscriber_.get(false);
         vision_std_devs_ = vision_std_devs_subscriber.get(new double[] { 1, 1, 1 });
 
-        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_) {
+        if (result.timestamp > io_.last_vision_timestamp_ && io_.vision_ready_status_ && !io_.ignore_vision) {
             vision_filtered_odometry_.addVisionMeasurement(
                     result.value.transformBy(new Transform2d(0, 0, new Rotation2d())), timestamp - 0.04,
                     new MatBuilder<>(Nat.N3(), Nat.N1()).fill(vision_std_devs_[0], vision_std_devs_[1],
@@ -131,6 +131,7 @@ public class PoseEstimator extends Subsystem {
 
         SmartDashboard.putData("Field", field_);
         SmartDashboard.putBoolean("target close", isCloseToTarget());
+        SmartDashboard.putBoolean("Is vision paused", io_.vision_paused);
     }
 
     public Field2d getFieldWidget() {
@@ -157,7 +158,11 @@ public class PoseEstimator extends Subsystem {
     }
 
     public void pauseVisionFilter(){
-        io_.vision_paused = true;
+        io_.vision_paused = !io_.vision_paused;
+    }
+
+    public void setIgnoreVision(boolean ignore){
+        io_.ignore_vision = ignore;
     }
 
     /**
@@ -168,7 +173,8 @@ public class PoseEstimator extends Subsystem {
     public void setRobotOdometry(Pose2d pose) {
         var drive = SwerveDrivetrain.getInstance();
         SwerveDrivetrain.getInstance().seedFieldRelative(pose.getRotation());
-        vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
+        // vision_filtered_odometry_.resetPosition(drive.getImuYaw(), drive.getModulePositions(), pose);
+        vision_filtered_odometry_.resetPosition(pose.getRotation(), drive.getModulePositions(), pose);
     }
 
     public class PoseEstimatorPeriodicIo implements Logged {
@@ -182,6 +188,8 @@ public class PoseEstimator extends Subsystem {
         public boolean vision_ready_status_ = false;
         @Log.File
         public boolean vision_paused = false;
+        @Log.File
+        public boolean ignore_vision = false;
     }
 
     @Override

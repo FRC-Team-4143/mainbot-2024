@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7401886415755699,
-      "y": 6.640044321458116
+      "x": 1.3337957445145674,
+      "y": 5.527514849606139
     },
-    "rotation": -119.60507704189853
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,7 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Short 5 Piece - A"
+            "pathName": "New 4 Piece - B"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AllowVision"
           }
         },
         {
@@ -32,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - B"
+            "pathName": "New 4 Piece - C"
           }
         },
         {
@@ -44,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - C"
+            "pathName": "New 4 Piece - A"
           }
         },
         {
@@ -56,24 +68,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - G"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "5 Piece - G to shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShootAtSpeaker"
+            "pathName": "New 4 Piece - G"
           }
         }
       ]
     }
   },
-  "folder": "ABCG - 5 Piece",
+  "folder": null,
   "choreoAuto": false
 }

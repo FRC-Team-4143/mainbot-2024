@@ -173,6 +173,14 @@ public class MailmanSubsystem extends Subsystem {
         SwerveDrivetrain.getInstance().setTargetRotation(Rotation2d.fromDegrees(90).rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()));
     }
 
+    public void resetElevatorEncoder() {
+        elevator_encoder_.setPosition(0);
+    }
+
+    public void lowerElevatorHeightTarget() {
+        io_.target_height_ -= 0.25;
+    }
+
     public class MailmanPeriodicIo implements Logged {
         @Log.File
         public double current_height_ = 0.0;

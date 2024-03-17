@@ -17,6 +17,7 @@ import frc.robot.subsystems.PickupSubsystem.PickupMode;
 public class AutoShootAtSpeaker extends Command {
 
   boolean has_shot_note_ = false;
+  int timeout = 0;
 
   /** Creates a new AutoShootAtSpeaker. */
   public AutoShootAtSpeaker() {
@@ -32,11 +33,17 @@ public class AutoShootAtSpeaker extends Command {
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     has_shot_note_ = false;
+    timeout = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (ShooterSubsystem.getInstance().hasNote() || PickupSubsystem.getShooterInstance().hasNote()) {
+      timeout = 0;
+    } else {
+      timeout++;
+    }
     if (!ShooterSubsystem.getInstance().hasNote()) {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
       ShooterSubsystem.getInstance().setRollerFeed();
@@ -60,6 +67,6 @@ public class AutoShootAtSpeaker extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return has_shot_note_ && !ShooterSubsystem.getInstance().hasNote();
+    return (timeout >= 50 || has_shot_note_) && !ShooterSubsystem.getInstance().hasNote() && !PickupSubsystem.getShooterInstance().hasNote();
   }
 }
