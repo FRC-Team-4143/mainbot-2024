@@ -26,7 +26,7 @@ public class TeleFrontPickup extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (MailmanSubsystem.getInstance().hasNote()) {
+    if (PickupSubsystem.getMailmanInstance().hasNote()) {
       seen_note_ = true;
     }
   }
@@ -41,6 +41,6 @@ public class TeleFrontPickup extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !MailmanSubsystem.getInstance().hasNote() && seen_note_;
+    return !PickupSubsystem.getMailmanInstance().hasNote() && seen_note_;
   }
 }

@@ -43,10 +43,8 @@ public class MailmanSubsystem extends Subsystem {
     private MailmanPeriodicIo io_;
     private CANSparkMax elevator_motor_;
     private RelativeEncoder elevator_encoder_;
-    //private CANSparkFlex dropper_motor_;
     private PWMSparkFlex dropper_motor_;
     private SparkPIDController elevator_controller_;
-    private TimeOfFlight note_sensor_;
 
     private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     private final Pose3d AMP = field_layout_.getTagPose(5).get();
@@ -59,14 +57,7 @@ public class MailmanSubsystem extends Subsystem {
 
     private MailmanSubsystem() {
         io_ = new MailmanPeriodicIo();
-        elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-        if (Constants.IS_COMP_BOT){ 
-            dropper_motor_ = new PWMSparkFlex(MailmanConstants.DROPPER_MOTOR_ID);
-        } else {
-            //dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-        }
-        note_sensor_ = new TimeOfFlight(MailmanConstants.NOTE_SENSOR_ID);
-        note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, MailmanConstants.SENSOR_SAMPLE_TIME);
+        dropper_motor_ = new PWMSparkFlex(MailmanConstants.DROPPER_MOTOR_ID);
         reset();
     }
 
@@ -78,23 +69,16 @@ public class MailmanSubsystem extends Subsystem {
         elevator_controller_.setP(MailmanConstants.ELEVATOR_CONTROLLER_P);
         elevator_controller_.setSmartMotionMaxVelocity(MailmanConstants.ELEVATOR_CONTROLLER_MAX_VEL, 0);
         elevator_controller_.setSmartMotionMaxAccel(MailmanConstants.ELEVATOR_CONTROLLER_MAX_ACC, 0);
-        //if(!Constants.IS_COMP_BOT) dropper_motor_.setSmartCurrentLimit(80);
     }
 
     @Override
     public void readPeriodicInputs(double timestamp) {
         io_.current_height_ = elevator_encoder_.getPosition();
-        io_.note_sensor_range_ = note_sensor_.getRange();
 
     }
 
     @Override
     public void updateLogic(double timestamp) {
-        if (io_.has_note_ && io_.note_sensor_range_ > MailmanConstants.NO_NOTE_RANGE) {
-            io_.has_note_ = false;
-        } else if (!io_.has_note_ && io_.note_sensor_range_ < MailmanConstants.HAS_NOTE_RANGE) {
-            io_.has_note_ = true;
-        }
     }
 
     @Override
@@ -105,10 +89,6 @@ public class MailmanSubsystem extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
-
-        SmartDashboard.putBoolean("Mailman TOF/Has Note", io_.has_note_);
-        SmartDashboard.putNumber("Mailman TOF/Range", io_.note_sensor_range_);
-
         SmartDashboard.putNumber("Elevator Control/Target Height", io_.target_height_);
         SmartDashboard.putNumber("Elevator Control/Current Height", io_.current_height_);
         SmartDashboard.putNumber("Elevator Control/Applied Output", elevator_motor_.getAppliedOutput()); 
@@ -165,10 +145,6 @@ public class MailmanSubsystem extends Subsystem {
         io_.roller_speed_ = speed;  
     }
 
-    public boolean hasNote(){
-        return io_.has_note_;
-    }
-
     public void setTargetYaw() {
         SwerveDrivetrain.getInstance().setTargetRotation(Rotation2d.fromDegrees(90).rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()));
     }
@@ -189,13 +165,7 @@ public class MailmanSubsystem extends Subsystem {
         @Log.File
         public boolean is_allinged_ = false;
         @Log.File
-        public boolean note_wanted_elsewhere_ = false;
-        @Log.File
         public double roller_speed_ = 0.0;
-        @Log.File
-        public boolean has_note_ = false;
-        @Log.File
-        public double note_sensor_range_= 0.0;
         @Log.File
         public Rotation2d target_rotation_ = new Rotation2d();
     }

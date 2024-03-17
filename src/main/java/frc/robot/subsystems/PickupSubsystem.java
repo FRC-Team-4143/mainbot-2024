@@ -14,7 +14,6 @@ import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.Constants.MailmanConstants;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
 import frc.robot.Constants.ShooterConstants;

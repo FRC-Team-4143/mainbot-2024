@@ -161,23 +161,8 @@ public final class Constants {
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30;
-    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear
-                                                                                                              // Shooter
-                                                                                                              // Velocity
-                                                                                                              // (80%
-                                                                                                              // for
-                                                                                                              // loss)
-    public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32
-                                                                                                                       // :
-                                                                                                                       // 250
-                                                                                                                       // |
-                                                                                                                       // 2626.056
-                                                                                                                       // :
-                                                                                                                       // 275
-                                                                                                                       // |
-                                                                                                                       // 300
-                                                                                                                       // :
-                                                                                                                       // 2864.78
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
+    public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32 : 250 | 2626.056 : 275 | 300 : 2864.78
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
 
@@ -232,24 +217,26 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, -1);
-    public static final double HAS_NOTE_RANGE = 150;
-    public static final double NO_NOTE_RANGE = 200;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3, 150, 200);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, 2, 105, 130);
   }
 
   // Pickup Settings Class
   public class PickupSettings {
-    public PickupSettings(int id, boolean invert, int sense_id) {
+    public PickupSettings(int id, boolean invert, int sense_id, double has_note_range, double no_note_range) {
       ROLLER_MOTOR_ID = id;
       ROLLER_MOTOR_INVERTED = invert;
       PICKUP_NOTE_SENSOR_ID = sense_id;
+      HAS_NOTE_RANGE = has_note_range;
+      NO_NOTE_RANGE = no_note_range;
     }
 
     public final int ROLLER_MOTOR_ID;
     public final boolean ROLLER_MOTOR_INVERTED;
     public final int PICKUP_NOTE_SENSOR_ID;
+    public final double HAS_NOTE_RANGE;
+    public final double NO_NOTE_RANGE;
   }
 
   // IDs Range from 30 - 39
@@ -270,12 +257,6 @@ public final class Constants {
     public static final int DROPPER_MOTOR_ID = (IS_COMP_BOT)? 0 : 32;
     public static final double DROPPER_IN_SPEED = 0.5;
     public static final double DROPPER_OUT_SPEED = -1.0;
-
-    // Mailman TOF Constants
-    public static final int NOTE_SENSOR_ID = 2;
-    public static final double SENSOR_SAMPLE_TIME = 50.0;
-    public static final double HAS_NOTE_RANGE = 105;
-    public static final double NO_NOTE_RANGE = 130;
   }
 
   // IDs range from 40 - 49
