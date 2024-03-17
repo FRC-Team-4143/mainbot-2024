@@ -4,61 +4,59 @@
 
 package frc.robot;
 
-
-import com.ctre.phoenix6.SignalLogger;
-
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import com.ctre.phoenix6.unmanaged.Unmanaged;
-import edu.wpi.first.cameraserver.CameraServer;
+import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
+import frc.robot.commands.AutoEnableDefaults;
+import frc.robot.subsystems.PickupSubsystem;
+import frc.robot.subsystems.PoseEstimator;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
-  private final boolean UseLimelight = false;
+  static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
+  static PoseEstimator pose_estimator_ = PoseEstimator.getInstance();
 
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer();
-    //CameraServer.startAutomaticCapture();
-
-    m_robotContainer.drivetrain.getDaqThread().setThreadPriority(99);
-
-    SignalLogger.start();
+    m_robotContainer = RobotContainer.getInstance();
+    AutoManager.getInstance();
+    OI.configureBindings();
   }
+
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
-    if(UseLimelight) {    
-      var lastResult = LimelightHelpers.getLatestResults("limelight").targetingResults;
+    // Call the scheduler so that commands work for buttons
+    CommandScheduler.getInstance().run();
 
-      Pose2d llPose = lastResult.getBotPose2d_wpiBlue();
-
-      if (lastResult.valid) {
-        m_robotContainer.drivetrain.addVisionMeasurement(llPose, Timer.getFPGATimestamp());
-      }
-    }
+    // tell the subsystems to output telemetry to smartdashboard
+    m_robotContainer.outputTelemetry();
   }
 
   @Override
-    public void disabledInit() {
-    }
-
-
-  @Override
-  public void disabledPeriodic() {}
+  public void disabledInit() {
+    SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledPeriodic() {
+    //swerve_drivetrain_.seedFieldRelative(pose_estimator_.getRobotPose().getRotation());
+    updateDriverPrespective();
+  }
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    swerve_drivetrain_.setDriveMode(DriveMode.AUTONOMOUS);
+    m_autonomousCommand = AutoManager.getInstance().getAutonomousCommand();
+
+    ShooterSubsystem.getInstance().setDefaultCommand(new AutoEnableDefaults());
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -66,23 +64,26 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {Unmanaged.feedEnable(100);}
+  public void autonomousPeriodic() {
 
-  @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
-    }
   }
 
   @Override
-  public void teleopPeriodic() {Unmanaged.feedEnable(100);}
+  public void teleopInit() {
+    ShooterSubsystem.getInstance().removeDefaultCommand();
+    PoseEstimator.getInstance().setIgnoreVision(false);
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
+    SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
+
+  }
+
+
 
   @Override
-  public void teleopExit() {
+  public void teleopPeriodic() {
+
   }
 
   @Override
@@ -91,11 +92,16 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {Unmanaged.feedEnable(100);}
+  public void testPeriodic() {
 
-  @Override
-  public void testExit() {}
+  }
 
-  @Override
-  public void simulationPeriodic() {}
+  private void updateDriverPrespective(){
+    if(DriverStation.getAlliance().isPresent()){
+    swerve_drivetrain_.setDriverPrespective(
+                DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
+                : swerve_drivetrain_.blueAlliancePerspectiveRotation);
+    }
+  }
+
 }

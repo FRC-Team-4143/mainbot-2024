@@ -1,7 +1,6 @@
 package frc.lib.swerve.utility;
 
 import com.ctre.phoenix6.Utils;
-import frc.lib.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.subsystems.PoseEstimator;
+import frc.robot.subsystems.SwerveDrivetrain;
 
 public class Telemetry {
     private final double MaxSpeed;
@@ -52,6 +53,8 @@ public class Telemetry {
     /* Keep a reference of the last pose to calculate the speeds */
     Pose2d m_lastPose = new Pose2d();
     double lastTime = Utils.getCurrentTimeSeconds();
+    PoseEstimator poseEstimator = PoseEstimator.getInstance();
+    SwerveDrivetrain swerveDrivetrain = SwerveDrivetrain.getInstance();
 
     /* Mechanisms to represent the swerve module states */
     Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
@@ -80,9 +83,9 @@ public class Telemetry {
     };
 
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
-    public void telemeterize(SwerveDriveState state) {
+    public void telemeterize() {
         /* Telemeterize the pose */
-        Pose2d pose = state.Pose;
+        Pose2d pose = poseEstimator.getRobotPose();
         fieldTypePub.set("Field2d");
         fieldPub.set(new double[] {
                 pose.getX(),
@@ -102,18 +105,17 @@ public class Telemetry {
         speed.set(velocities.getNorm());
         velocityX.set(velocities.getX());
         velocityY.set(velocities.getY());
-        odomPeriod.set(1.0 / state.OdometryPeriod);
 
         /* Telemeterize the module's states */
         for (int i = 0; i < 2; ++i) {  //4
-            m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+            swerveDrivetrain.getModuleStates();
+            m_moduleSpeeds[i].setAngle(swerveDrivetrain.getModuleStates()[i].angle);
+            m_moduleDirections[i].setAngle(swerveDrivetrain.getModuleStates()[i].angle);
+            m_moduleSpeeds[i].setLength(swerveDrivetrain.getModuleStates()[i].speedMetersPerSecond / (2 * MaxSpeed));
 
             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
         }
 
         DataLogManager.getLog().appendDoubleArray(logEntry, new double[] {pose.getX(), pose.getY(), pose.getRotation().getDegrees()}, (long)(Timer.getFPGATimestamp() * 1000000));
-        DataLogManager.getLog().appendDouble(odomEntry, state.OdometryPeriod, (long)(Timer.getFPGATimestamp() * 1000000));
     }
 }

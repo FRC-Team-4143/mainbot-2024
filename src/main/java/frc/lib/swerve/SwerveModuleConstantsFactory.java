@@ -7,7 +7,8 @@
 package frc.lib.swerve;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import frc.lib.swerve.SwerveModuleConstants.SwerveModuleSteerFeedbackType;
+import frc.lib.swerve.SwerveModule.ClosedLoopOutputType;
+import frc.lib.swerve.SwerveModuleConstants.SteerFeedbackType;
 
 /**
  * Constants that are common across the swerve modules, used
@@ -36,22 +37,26 @@ public class SwerveModuleConstantsFactory {
     /**
      * The steer motor closed-loop gains.
      * <p>
-     * The steer motor uses {@link com.ctre.phoenix6.controls.MotionMagicVoltage MotionMagicVoltage} control.
+     * The steer motor uses the control ouput type specified by
+     * {@link #SteerMotorClosedLoopOutput} and any {@link SwerveModule.SteerRequestType}.
      */
     public Slot0Configs SteerMotorGains = new Slot0Configs();
     /**
      * The drive motor closed-loop gains.
      * <p>
-     * When using closed-loop control, the drive motor uses:
-     * <ul>
-     *   <li>{@link com.ctre.phoenix6.controls.VelocityVoltage VelocityVoltage} if {@link SwerveDrivetrainConstants#SupportsPro} is false (default)
-     *   <li>{@link com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC VelocityTorqueCurrentFOC} if {@link SwerveDrivetrainConstants#SupportsPro} is true
-     * </ul>
+     * When using closed-loop control, the drive motor uses the control output
+     * type specified by {@link #DriveMotorClosedLoopOutput} and any closed-loop
+     * {@link SwerveModule.DriveRequestType}.
      */
     public Slot0Configs DriveMotorGains = new Slot0Configs();
 
+    /** The closed-loop output type to use for the steer motors. */
+    public ClosedLoopOutputType SteerMotorClosedLoopOutput = ClosedLoopOutputType.Voltage;
+    /** The closed-loop output type to use for the drive motors. */
+    public ClosedLoopOutputType DriveMotorClosedLoopOutput = ClosedLoopOutputType.Voltage;
+
     /** The maximum amount of stator current the drive motors can apply without slippage. */
-    public double SlipCurrent = 400;
+    public double SlipCurrent = 10;
 
     /** True if the steering motor is reversed from the CANcoder. */
     public boolean SteerMotorInverted = false;
@@ -65,9 +70,13 @@ public class SwerveModuleConstantsFactory {
 
     /** Sim-specific constants **/
     /** Simulated azimuthal inertia in kilogram meters squared. */
-    public double SteerInertia = 0.001;
+    public double SteerInertia = 0.00001;
     /** Simulated drive inertia in kilogram meters squared. */
     public double DriveInertia = 0.001;
+    /** Simulated steer voltage required to overcome friction. */
+    public double SteerFrictionVoltage = 0.25;
+    /** Simulated drive voltage required to overcome friction. */
+    public double DriveFrictionVoltage = 0.25;
 
     /**
      * Choose how the feedback sensors should be configured.
@@ -76,7 +85,7 @@ public class SwerveModuleConstantsFactory {
      * Otherwise, users have the option to use either FusedCANcoder or SyncCANcoder depending
      * on if there is a risk that the CANcoder can fail in a way to provide "good" data.
      */
-    public SwerveModuleSteerFeedbackType FeedbackSource = SwerveModuleSteerFeedbackType.RemoteCANcoder;
+    public SteerFeedbackType FeedbackSource = SteerFeedbackType.RemoteCANcoder;
 
     /**
      * Sets the gear ratio between the drive motor and the wheel.
@@ -130,7 +139,8 @@ public class SwerveModuleConstantsFactory {
     /**
      * Sets the steer motor closed-loop gains.
      * <p>
-     * The steer motor uses {@link com.ctre.phoenix6.controls.MotionMagicVoltage MotionMagicVoltage} control.
+     * The steer motor uses the control ouput type specified by
+     * {@link #SteerMotorClosedLoopOutput} and any {@link SwerveModule.SteerRequestType}.
      *
      * @param gains Steer motor closed-loop gains
      * @return this object
@@ -143,17 +153,37 @@ public class SwerveModuleConstantsFactory {
     /**
      * Sets the drive motor closed-loop gains.
      * <p>
-     * When using closed-loop control, the drive motor uses:
-     * <ul>
-     *   <li>{@link com.ctre.phoenix6.controls.VelocityVoltage VelocityVoltage} if {@link SwerveDrivetrainConstants#SupportsPro} is false (default)
-     *   <li>{@link com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC VelocityTorqueCurrentFOC} if {@link SwerveDrivetrainConstants#SupportsPro} is true
-     * </ul>
+     * When using closed-loop control, the drive motor uses the control output
+     * type specified by {@link #DriveMotorClosedLoopOutput} and any closed-loop
+     * {@link SwerveModule.DriveRequestType}.
      *
      * @param gains Drive motor closed-loop gains
      * @return this object
      */
     public SwerveModuleConstantsFactory withDriveMotorGains(Slot0Configs gains) {
         this.DriveMotorGains = gains;
+        return this;
+    }
+
+    /**
+     * Sets closed-loop output type to use for the steer motors.
+     *
+     * @param outputType Closed-loop output type to use for the steer motors
+     * @return this object
+     */
+    public SwerveModuleConstantsFactory withSteerMotorClosedLoopOutput(ClosedLoopOutputType outputType) {
+        this.SteerMotorClosedLoopOutput = outputType;
+        return this;
+    }
+
+    /**
+     * Sets closed-loop output type to use for the drive motors.
+     *
+     * @param outputType Closed-loop output type to use for the drive motors
+     * @return this object
+     */
+    public SwerveModuleConstantsFactory withDriveMotorClosedLoopOutput(ClosedLoopOutputType outputType) {
+        this.DriveMotorClosedLoopOutput = outputType;
         return this;
     }
 
@@ -217,6 +247,28 @@ public class SwerveModuleConstantsFactory {
     }
 
     /**
+     * Sets the simulated steer voltage required to overcome friction.
+     *
+     * @param voltage Steer voltage required to overcome friction
+     * @return this object
+     */
+    public SwerveModuleConstantsFactory withSteerFrictionVoltage(double voltage) {
+        this.SteerFrictionVoltage = voltage;
+        return this;
+    }
+
+    /**
+     * Sets the simulated drive voltage required to overcome friction.
+     *
+     * @param voltage Drive voltage required to overcome friction
+     * @return this object
+     */
+    public SwerveModuleConstantsFactory withDriveFrictionVoltage(double voltage) {
+        this.DriveFrictionVoltage = voltage;
+        return this;
+    }
+
+    /**
      * Chooses how the feedback sensors should be configured.
      * <p>
      * If the robot does not support Pro, then this should remain as RemoteCANcoder.
@@ -226,7 +278,7 @@ public class SwerveModuleConstantsFactory {
      * @param source The feedback sensor source
      * @return this object
      */
-    public SwerveModuleConstantsFactory withFeedbackSource(SwerveModuleSteerFeedbackType source) {
+    public SwerveModuleConstantsFactory withFeedbackSource(SteerFeedbackType source) {
         this.FeedbackSource = source;
         return this;
     }
@@ -267,11 +319,15 @@ public class SwerveModuleConstantsFactory {
                 .withSlipCurrent(SlipCurrent)
                 .withSteerMotorGains(SteerMotorGains)
                 .withDriveMotorGains(DriveMotorGains)
+                .withSteerMotorClosedLoopOutput(SteerMotorClosedLoopOutput)
+                .withDriveMotorClosedLoopOutput(DriveMotorClosedLoopOutput)
                 .withSteerMotorInverted(SteerMotorInverted)
                 .withDriveMotorInverted(driveMotorReversed)
                 .withSpeedAt12VoltsMps(SpeedAt12VoltsMps)
-                .withSimulationSteerInertia(SteerInertia)
-                .withSimulationDriveInertia(DriveInertia)
+                .withSteerInertia(SteerInertia)
+                .withDriveInertia(DriveInertia)
+                .withSteerFrictionVoltage(SteerFrictionVoltage)
+                .withDriveFrictionVoltage(DriveFrictionVoltage)
                 .withFeedbackSource(FeedbackSource);
     }
 }
