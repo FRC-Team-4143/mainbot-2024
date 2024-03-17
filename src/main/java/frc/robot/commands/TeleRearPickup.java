@@ -18,11 +18,6 @@ public class TeleRearPickup extends Command {
   @Override
   public void initialize() {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
-
-    if (!ShooterSubsystem.getInstance().hasNote()) {
-      ShooterSubsystem.getInstance().setRollerFeed();
-    }
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,12 +29,11 @@ public class TeleRearPickup extends Command {
   @Override
   public void end(boolean interrupted) {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
-    ShooterSubsystem.getInstance().rollerStop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ShooterSubsystem.getInstance().hasNote();
+    return PickupSubsystem.getShooterInstance().hasNote();
   }
 }

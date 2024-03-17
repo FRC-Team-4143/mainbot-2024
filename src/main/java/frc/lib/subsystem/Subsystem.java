@@ -1,11 +1,9 @@
 package frc.lib.subsystem;
 
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.logger.Logable;
+import monologue.Logged;
 
-public abstract class Subsystem extends SubsystemBase implements Logable  {
+public abstract class Subsystem extends SubsystemBase {
 
     /**
      * Reads all sensors and stores periodic data
@@ -28,12 +26,12 @@ public abstract class Subsystem extends SubsystemBase implements Logable  {
     public abstract void outputTelemetry(double timestamp);
 
     /**
+     * Get logging object from subsystem
+     */
+    public abstract Logged getLoggingObject();
+
+    /**
      * Called to reset and configure the subsystem
      */
     public abstract void reset();
-
-    /**
-     * Called to get access to all of the periodic class data
-     */
-    public abstract LoggableInputs getLogger();
 }

@@ -1,0 +1,92 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.7284778050297884,
+        "y": 4.42669621430541
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0940667872776535,
+        "y": 1.979131376237074
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.537052731737417,
+        "y": 1.5575412605889405
+      },
+      "prevControl": {
+        "x": 6.1782992219990716,
+        "y": 1.0194109959814244
+      },
+      "nextControl": {
+        "x": 6.724426116469923,
+        "y": 1.8386013376876982
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.293678213604645,
+        "y": 4.098792791023527
+      },
+      "prevControl": {
+        "x": 7.790112242136039,
+        "y": 3.3492992520935103
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.4,
+      "rotationDegrees": -121.53,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "Enable Vision",
+      "waypointRelativePos": 0.2,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AllowVision"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -121.53,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Far 4 Piece",
+  "previewStartingState": {
+    "rotation": 119.65910923599512,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

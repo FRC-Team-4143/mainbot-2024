@@ -7,10 +7,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SwerveDrivetrain;
 
 public class ScoreMailman extends Command {
   /** Creates a new ScoreMailman. */
@@ -23,12 +24,15 @@ public class ScoreMailman extends Command {
   public void initialize() {
     if(ShooterSubsystem.getInstance().hasNote()){
       CommandScheduler.getInstance().schedule(new HandoffToMailman().withTimeout(1).andThen(() -> MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP)));
+    } else {
+      MailmanSubsystem.getInstance().setHeight(HeightTarget.AMP);
     }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -39,6 +43,7 @@ public class ScoreMailman extends Command {
         MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
         MailmanSubsystem.getInstance().setRollerStop();
       }));
+    SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
   }
 
   // Returns true when the command should end.

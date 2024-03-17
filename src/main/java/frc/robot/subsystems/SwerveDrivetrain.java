@@ -6,19 +6,20 @@
  */
 package frc.robot.subsystems;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,6 +32,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.MathUtil;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -43,6 +45,9 @@ import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.Constants.DrivetrainConstants;
+
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -79,7 +84,8 @@ public class SwerveDrivetrain extends Subsystem {
         TARGET,
         AUTONOMOUS,
         AUTONOMOUS_TARGET,
-        CRAWL
+        CRAWL,
+        PROFILE,
     }
 
     private SwerveRequest.FieldCentric field_centric;
@@ -91,7 +97,7 @@ public class SwerveDrivetrain extends Subsystem {
     private final SwerveModule[] swerve_modules;
 
     // Subsystem data class
-    private SwerveDriverainPeriodicIoAutoLogged io_;
+    private SwerveDriverainPeriodicIo io_;
 
     // Drivetrain config
     final SwerveDriveKinematics kinematics;
@@ -106,9 +112,13 @@ public class SwerveDrivetrain extends Subsystem {
     public final Rotation2d blueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
     public final Rotation2d redAlliancePerspectiveRotation = Rotation2d.fromDegrees(180);
+    /* Keep track if we've ever applied the operator perspective before or not */
+    public boolean hasAppliedOperatorPerspective = false;
 
     // NT publishers
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
+    private ProtobufPublisher<Pose2d> pp_pose_pub_;
+
 
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
@@ -122,7 +132,7 @@ public class SwerveDrivetrain extends Subsystem {
     public SwerveDrivetrain(SwerveModuleConstants... modules) {
 
         // make new io instance
-        io_ = new SwerveDriverainPeriodicIoAutoLogged();
+        io_ = new SwerveDriverainPeriodicIo();
 
         // Setup the Pigeon IMU
         pigeon_imu = new Pigeon2(DrivetrainConstants.PIGEON2_ID, DrivetrainConstants.MODULE_CANBUS_NAME[0]);
@@ -163,7 +173,8 @@ public class SwerveDrivetrain extends Subsystem {
                 .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagic)
                 .withDeadband(Constants.DrivetrainConstants.MAX_DRIVE_SPEED * 0.01)
                 .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
-        auto_request = new SwerveRequest.ApplyChassisSpeeds();
+        auto_request = new SwerveRequest.ApplyChassisSpeeds()
+                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
 
@@ -172,6 +183,8 @@ public class SwerveDrivetrain extends Subsystem {
                 .getStructArrayTopic("module_states/requested", SwerveModuleState.struct).publish();
         current_state_pub = NetworkTableInstance.getDefault()
                 .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
+        pp_pose_pub_ = NetworkTableInstance.getDefault()
+                .getProtobufTopic("pp_target_pose", Pose2d.proto).publish();
     }
 
     @Override
@@ -180,6 +193,7 @@ public class SwerveDrivetrain extends Subsystem {
         for (int i = 0; i < swerve_modules.length; ++i) {
             BaseStatusSignal.setUpdateFrequencyForAll(100, swerve_modules[i].getSignals());
             swerve_modules[i].optimizeCan();
+            swerve_modules[i].resetToAbsolute();
         }
         BaseStatusSignal[] imuSignals = { pigeon_imu.getYaw() };
         BaseStatusSignal.setUpdateFrequencyForAll(100, imuSignals);
@@ -246,8 +260,7 @@ public class SwerveDrivetrain extends Subsystem {
         }
 
         /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_)
-                .relativeTo(new Pose2d(0, 0, io_.field_relative_offset_));
+        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_);        
         request_parameters.kinematics = kinematics;
         request_parameters.swervePositions = module_locations;
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
@@ -265,37 +278,28 @@ public class SwerveDrivetrain extends Subsystem {
         current_state_pub.set(io_.current_module_states_);
         requested_state_pub.set(io_.requested_module_states_);
 
-        SmartDashboard.putNumber("Target Rotation", io_.target_rotation_.getDegrees());
-        SmartDashboard.putNumber("Yaw", io_.robot_yaw_.getDegrees());
-        SmartDashboard.putNumber("Field relative offset", io_.field_relative_offset_.getDegrees());
+        SmartDashboard.putNumber("Rotation Control/Target Rotation", io_.target_rotation_.getDegrees());
+        SmartDashboard.putNumber("Rotation Control/Current Yaw", io_.robot_yaw_.getDegrees());
+        SmartDashboard.putNumber("Debug/Driver Prespective", io_.drivers_station_perspective_.getDegrees());
+        SmartDashboard.putNumber("Debug/X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Omega Chassis Speed", io_.chassis_speeds_.omegaRadiansPerSecond);
     }
 
     public Rotation2d getRobotRotation(){
-       return (new Pose2d(0, 0, io_.robot_yaw_).relativeTo(new Pose2d(0, 0, io_.field_relative_offset_))).getRotation();
+       return (new Pose2d(0, 0, io_.robot_yaw_).getRotation());
     }
 
     /**
      * Configures the PathPlanner AutoBuilder
      */
     public void configurePathPlanner() {
-        double driveBaseRadius = 0;
-        for (var moduleLocation : module_locations) {
-            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-        }
-
         AutoBuilder.configureHolonomic(
                 PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
                 PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
                 this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the
-                                                                              // robot
-                new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                        new PIDConstants(10, 0, 0),
-                        3,
-                        driveBaseRadius,
-                        new ReplanningConfig(false, false),
-                        0.008), // faster period than default
-
+                (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds
+               getHolonomicFollowerConfig(),
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red
                     // alliance
@@ -309,6 +313,54 @@ public class SwerveDrivetrain extends Subsystem {
                 },
                 this); // Subsystem for requirements
                 PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
+
+        // Logging callback for the active path, this is sent as a list of poses
+        PathPlannerLogging.setLogActivePathCallback((poses) -> {
+            // Do whatever you want with the poses here
+            PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
+            io_.pp_active_path_ = poses;
+        });
+
+        // Logging callback for target robot pose
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            pp_pose_pub_.set(pose);
+        });
+    }
+
+    public HolonomicPathFollowerConfig getHolonomicFollowerConfig(){
+        double driveBaseRadius = 0;
+        for (var moduleLocation : module_locations) {
+            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
+        }
+        return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
+                        new PIDConstants(5, 0, 0),
+                        5,
+                        driveBaseRadius,
+                        new ReplanningConfig(false, false), 
+                        0.01);
+    }
+
+    public Command followPathCommand(String pathName) {
+        return new FollowPathHolonomic(
+                PathPlannerPath.fromPathFile(pathName),
+                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+                this::getCurrentRobotChassisSpeeds,
+                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+                this.getHolonomicFollowerConfig(),
+
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this); // Subsystem for requirements
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -323,8 +375,9 @@ public class SwerveDrivetrain extends Subsystem {
      * Takes the current orientation of the robot and makes it X forward for
      * field-relative maneuvers.
      */
-    public void seedFieldRelative() {
-        io_.field_relative_offset_ = io_.robot_yaw_;
+    public void seedFieldRelative(Rotation2d offset) {
+        pigeon_imu.setYaw(offset.getDegrees());
+        io_.robot_yaw_ = Rotation2d.fromRadians(MathUtil.angleModulus(-pigeon_imu.getAngle() * Math.PI / 180));
     }
 
     /**
@@ -399,13 +452,16 @@ public class SwerveDrivetrain extends Subsystem {
         io_.drive_mode_ = mode;
     }
 
+    public DriveMode getDriveMode(){
+        return io_.drive_mode_;
+    }
+
     public void setDriverPrespective(Rotation2d prespective){
         io_.drivers_station_perspective_ = prespective;
     }
 
-    @Override
-    public LoggableInputs getLogger() {
-        return io_;
+    public Rotation2d getDriverPrespective(){
+        return io_.drivers_station_perspective_;
     }
 
     /**
@@ -413,20 +469,37 @@ public class SwerveDrivetrain extends Subsystem {
      * This encapsulates most data that is relevant for telemetry or
      * decision-making from the Swerve Drive.
      */
-    @AutoLog
-    public static class SwerveDriverainPeriodicIo extends LogData {
+    public class SwerveDriverainPeriodicIo implements Logged {
+        @Log.File
         public SwerveModuleState[] current_module_states_, requested_module_states_;
+        @Log.File
         public SwerveModulePosition[] module_positions;
-        public Rotation2d field_relative_offset_ = new Rotation2d();
+        @Log.File
         public Rotation2d robot_yaw_ = new Rotation2d();
+        @Log.File
         public double driver_joystick_leftX_ = 0.0;
+        @Log.File
         public double driver_joystick_leftY_ = 0.0;
+        @Log.File
         public double driver_joystick_rightX_ = 0.0;
+        @Log.File
         public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
+        @Log.File
         public Rotation2d target_rotation_ = new Rotation2d();
+        @Log.File
         public DriveMode drive_mode_ = DriveMode.FIELD_CENTRIC;
+        @Log.File
         public double driver_POVx = 0.0;
+        @Log.File
         public double driver_POVy = 0.0;
+        @Log.File
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
+        @Log.File
+        public List<Pose2d> pp_active_path_ = null;
+    }
+
+    @Override
+    public Logged getLoggingObject() {
+      return io_;
     }
 }

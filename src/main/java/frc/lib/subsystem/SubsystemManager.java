@@ -2,26 +2,28 @@ package frc.lib.subsystem;
 
 import java.util.ArrayList;
 
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import frc.lib.logger.Logable.LogData;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
+import monologue.Monologue;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 public abstract class SubsystemManager {
 
     // Supposedly 1 is a good starting point, but can increase if we have issues
     private static final int START_THREAD_PRIORITY = 99;
 
+    public class Contain implements Logged {
+        @Log.File
+        public ArrayList<Logged> subsystems_ios = new ArrayList<>();
+    }
+
     protected ArrayList<Subsystem> subsystems;
     protected Notifier loopThread;
     protected boolean log_init = false;
+    protected Contain ios;
 
     public SubsystemManager() {
         // Initialize the subsystem list
@@ -30,11 +32,15 @@ public abstract class SubsystemManager {
         // create the thread to loop the subsystems and mark as daemon thread so
         // the robot program can properly stop
         loopThread = new Notifier(this::doControlLoop);
-        // loopThread.setDaemon(true);
+
+        ios = new Contain();
 
         // Logger
-        Logger.recordMetadata("ProjectName", "mainbot-2024"); // Set a metadata value
-        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+    }
+
+    public void registerSubsystem(Subsystem system){
+        subsystems.add(system);
+        ios.subsystems_ios.add(system.getLoggingObject());
     }
 
     private void doControlLoop() {
@@ -75,8 +81,8 @@ public abstract class SubsystemManager {
         }
 
         // Run the logger!
-        if (log_init) {
-            // runLog(Timer.getFPGATimestamp());
+        if (log_init && DriverStation.isEnabled()) {
+            runLog(Timer.getFPGATimestamp());
         }
     }
 
@@ -86,6 +92,9 @@ public abstract class SubsystemManager {
      */
     protected void completeRegistration() {
         loopThread.startPeriodic(.01);
+
+        Monologue.setupMonologue(ios, "Robot", true, false);
+        log_init = true;
     }
 
     /**
@@ -95,34 +104,16 @@ public abstract class SubsystemManager {
      */
     protected void runLog(double timestamp) {
         // If it is valid, collect the subsystem I/Os
+        ios.subsystems_ios.clear();
         for (Subsystem subsystem : subsystems) {
-            try {
-                Logger.processInputs(subsystem.getClass().getCanonicalName().replace(".", "_"), subsystem.getLogger());
-            } catch (Exception e) {
-                DataLogManager.log(subsystem.getClass().getCanonicalName() + "failed to log io");
-            }
+            ios.subsystems_ios.add(subsystem.getLoggingObject());
         }
 
-    }
-
-    /**
-     * Once the subsystems have been registered, call this function to init logging
-     * capabilities
-     */
-    public void initLogfile(String ctrl_mode) {
-        Logger.recordMetadata("Control Mode", ctrl_mode);
-        Logger.start();
-        log_init = true;
-    }
-
-    /**
-     * When ready to stop a log file from being written to, call this function to
-     * close the log and shut the log process down. This call is reversible via the
-     * initLogFile method.
-     */
-    public void stopLog() {
-        Logger.end();
-        log_init = false;
+        try {
+            Monologue.updateAll();
+        } catch (Exception e) {
+            DataLogManager.log("Monologue failed to log io");
+        }
     }
 
     /**

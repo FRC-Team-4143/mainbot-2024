@@ -6,10 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.OI;
+import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.PickupSubsystem;
 
 public class TeleShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
@@ -17,12 +21,15 @@ public class TeleShootAtSpeaker extends Command {
   public TeleShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
+    addRequirements(MailmanSubsystem.getInstance());
+    addRequirements(PickupSubsystem.getMailmanInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
@@ -34,7 +41,7 @@ public class TeleShootAtSpeaker extends Command {
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
       CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && OI.getDriverJoystickRightY()){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
     } else {

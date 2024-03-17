@@ -4,17 +4,16 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
-import frc.robot.subsystems.PickupSubsystem.PickupMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import frc.lib.Util;
 import frc.robot.commands.*;
 
 public abstract class OI {
@@ -37,11 +36,25 @@ public abstract class OI {
                 () -> swerve_drivetrain_.tareEverything())
                 .ignoringDisable(true));
         SmartDashboard.putData("Seed Field Centric", Commands.runOnce(
-                () -> swerve_drivetrain_.seedFieldRelative())
+                () -> swerve_drivetrain_.seedFieldRelative(swerve_drivetrain_.getDriverPrespective()))
                 .ignoringDisable(true));
+        SmartDashboard.putData("Reset Climber Encoder", Commands.runOnce(
+                () -> ClimberSubsystem.getInstance().resetClimberEncoder())
+                .ignoringDisable(true));
+        SmartDashboard.putData("Pause Vision", Commands.runOnce(
+                () -> PoseEstimator.getInstance().pauseVisionFilter())
+                .ignoringDisable(true));
+
+        BooleanSupplier isTestMode = () -> DriverStation.isTest();
+
+        // ------------------        
+        // Driver Controls
+        // ------------------
 
         // Enagage Targeting
         driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker());
+
+        driver_joystick_.a().whileTrue(new TelePass());
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(new ScoreMailman());
@@ -49,20 +62,18 @@ public abstract class OI {
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
 
+        driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5));
+
         // Front Pickup
-        driver_joystick_.leftBumper().whileTrue(Commands.startEnd(
-                () -> {
-                        pickup_front_.setPickupMode(PickupMode.PICKUP);
-                        mailman_.setRollerIntake();
-                },
-                () -> {
-                        pickup_front_.setPickupMode(PickupMode.IDLE);
-                        mailman_.setRollerStop();
-                }));
+        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup());
 
         // Crawl
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
         crawlTrigger.whileTrue(new RobotCentricCrawl());
+
+        // ------------------        
+        // Operator Controls
+        // ------------------
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
@@ -71,7 +82,7 @@ public abstract class OI {
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerIntake(),
+                () -> mailman_.setRollerSpeed(0.25),
                 () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
@@ -88,46 +99,38 @@ public abstract class OI {
         // Handoff from Mailman to Shooter
         operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
 
+        // Manual Shoot
+        operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
 
-        // FOR PRACTICE MODE ONLY
-        // Feed Shooter
-        operator_joystick_.leftStick().whileTrue(Commands.startEnd(
-                () -> {
-                    shooter_.setRollerFeed();
-                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
-                },
-                () -> {
-                    shooter_.rollerStop();
-                    pickup_rear_.setPickupMode(PickupMode.IDLE);
-                }));
+        // Manual Pass
+        operator_joystick_.leftTrigger().whileTrue(new OverrideTelePass());
 
-        // Climb
-        operator_joystick_.leftTrigger(0.1).whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(-0.6 * operator_joystick_.getLeftTriggerAxis()),
-                () -> climber_.stopClimb()));
+        // Empty All Pickups
+        operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
 
-        // Reverse Climb
-        operator_joystick_.rightTrigger(0.1).whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(0.6 * operator_joystick_.getRightTriggerAxis()),
-                () -> climber_.stopClimb()));
+        if(Constants.IS_COMP_BOT){
+            // Endgame Climb step increment
+            operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
 
-        // Set Wrsit to Hook Position
-        operator_joystick_.start().whileTrue(Commands.runOnce(
-                () -> shooter_.setShootMode(ShootMode.CLIMB)));
+            // Endgame Climb step decrement
+            operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
 
-        // Set Elevator to Trap Target
-        operator_joystick_.back().whileTrue(Commands.runOnce(
-                () -> mailman_.setHeight(HeightTarget.TRAP)));
+            // Climb
+            operator_joystick_.povUp().whileTrue(Commands.startEnd(
+                    () -> climber_.setClimbSpeed(-0.6),
+                    () -> climber_.stopClimb()));
+
+        //     // Reverse Climb
+        //     operator_joystick_.povDown().whileTrue(Commands.startEnd(
+        //             () -> climber_.setClimbSpeed(0.6),
+        //             () -> climber_.stopClimb()));
+                
+            operator_joystick_.povDown().whileTrue(new ManuallyLowerElevator());
+        }
 
         // Test buttons
+        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
 
-
-
-        /* When we get alliance data from Driver Station, select what perspective is forward for operator control */
-        new Trigger(() -> DriverStation.getAlliance().isPresent())
-        .whileTrue(new RunCommand(() ->  swerve_drivetrain_.setDriverPrespective(
-                DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
-                : swerve_drivetrain_.blueAlliancePerspectiveRotation)));
     }
 
     static public double getDriverJoystickLeftX() {
@@ -149,6 +152,11 @@ public abstract class OI {
         double output = val * val;
         output = Math.copySign(output, val);
         return output;
+    }
+
+    static public boolean getDriverJoystickRightY() {
+        double val = driver_joystick_.getRightY();
+        return Util.epislonEquals(val, 0, 0.1);
     }
 
     static public double getDriverJoystickPOVangle() {

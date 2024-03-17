@@ -4,22 +4,26 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
+import frc.robot.Constants;
 import frc.robot.Constants.MailmanConstants;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 public class MailmanSubsystem extends Subsystem {
 
@@ -36,12 +40,16 @@ public class MailmanSubsystem extends Subsystem {
     /**
      * Class Members
      */
-    private MailmanPeriodicIoAutoLogged io_;
+    private MailmanPeriodicIo io_;
     private CANSparkMax elevator_motor_;
     private RelativeEncoder elevator_encoder_;
-    private CANSparkFlex dropper_motor_;
+    //private CANSparkFlex dropper_motor_;
+    private PWMSparkFlex dropper_motor_;
     private SparkPIDController elevator_controller_;
     private TimeOfFlight note_sensor_;
+
+    private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    private final Pose3d AMP = field_layout_.getTagPose(5).get();
 
     public enum HeightTarget {
         AMP,
@@ -50,8 +58,13 @@ public class MailmanSubsystem extends Subsystem {
     }
 
     private MailmanSubsystem() {
+        io_ = new MailmanPeriodicIo();
         elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-        dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        if (Constants.IS_COMP_BOT){ 
+            dropper_motor_ = new PWMSparkFlex(MailmanConstants.DROPPER_MOTOR_ID);
+        } else {
+            //dropper_motor_ = new CANSparkFlex(MailmanConstants.DROPPER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
+        }
         note_sensor_ = new TimeOfFlight(MailmanConstants.NOTE_SENSOR_ID);
         note_sensor_.setRangingMode(TimeOfFlight.RangingMode.Medium, MailmanConstants.SENSOR_SAMPLE_TIME);
         reset();
@@ -59,15 +72,13 @@ public class MailmanSubsystem extends Subsystem {
 
     @Override
     public void reset() {
-        io_ = new MailmanPeriodicIoAutoLogged();
-
         elevator_encoder_ = elevator_motor_.getEncoder();
         elevator_controller_ = elevator_motor_.getPIDController();
         elevator_controller_.setFeedbackDevice(elevator_encoder_);
         elevator_controller_.setP(MailmanConstants.ELEVATOR_CONTROLLER_P);
         elevator_controller_.setSmartMotionMaxVelocity(MailmanConstants.ELEVATOR_CONTROLLER_MAX_VEL, 0);
         elevator_controller_.setSmartMotionMaxAccel(MailmanConstants.ELEVATOR_CONTROLLER_MAX_ACC, 0);
-        dropper_motor_.setSmartCurrentLimit(80);
+        //if(!Constants.IS_COMP_BOT) dropper_motor_.setSmartCurrentLimit(80);
     }
 
     @Override
@@ -81,7 +92,7 @@ public class MailmanSubsystem extends Subsystem {
     public void updateLogic(double timestamp) {
         if (io_.has_note_ && io_.note_sensor_range_ > MailmanConstants.NO_NOTE_RANGE) {
             io_.has_note_ = false;
-        } else if (io_.has_note_ == false && io_.note_sensor_range_ < MailmanConstants.HAS_NOTE_RANGE) {
+        } else if (!io_.has_note_ && io_.note_sensor_range_ < MailmanConstants.HAS_NOTE_RANGE) {
             io_.has_note_ = true;
         }
     }
@@ -94,8 +105,13 @@ public class MailmanSubsystem extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
-        SmartDashboard.putNumber("Current Elevator Height", io_.current_height_);
-        SmartDashboard.putNumber("Elevator Applied Output", elevator_motor_.getAppliedOutput());
+
+        SmartDashboard.putBoolean("Mailman TOF/Has Note", io_.has_note_);
+        SmartDashboard.putNumber("Mailman TOF/Range", io_.note_sensor_range_);
+
+        SmartDashboard.putNumber("Elevator Control/Target Height", io_.target_height_);
+        SmartDashboard.putNumber("Elevator Control/Current Height", io_.current_height_);
+        SmartDashboard.putNumber("Elevator Control/Applied Output", elevator_motor_.getAppliedOutput()); 
     }
 
     public boolean atHeight() {
@@ -145,20 +161,47 @@ public class MailmanSubsystem extends Subsystem {
         io_.roller_speed_ = -0.15;
     }
 
-    @AutoLog
-    public static class MailmanPeriodicIo extends LogData {
+    public void setRollerSpeed(double speed){
+        io_.roller_speed_ = speed;  
+    }
+
+    public boolean hasNote(){
+        return io_.has_note_;
+    }
+
+    public void setTargetYaw() {
+        SwerveDrivetrain.getInstance().setTargetRotation(Rotation2d.fromDegrees(90).rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()));
+    }
+
+    public void resetElevatorEncoder() {
+        elevator_encoder_.setPosition(0);
+    }
+
+    public void lowerElevatorHeightTarget() {
+        io_.target_height_ -= 0.25;
+    }
+
+    public class MailmanPeriodicIo implements Logged {
+        @Log.File
         public double current_height_ = 0.0;
+        @Log.File
         public double target_height_ = 0.0;
-        public boolean is_holding_note_ = false;
+        @Log.File
         public boolean is_allinged_ = false;
+        @Log.File
         public boolean note_wanted_elsewhere_ = false;
+        @Log.File
         public double roller_speed_ = 0.0;
+        @Log.File
         public boolean has_note_ = false;
+        @Log.File
         public double note_sensor_range_= 0.0;
+        @Log.File
+        public Rotation2d target_rotation_ = new Rotation2d();
     }
 
     @Override
-    public LoggableInputs getLogger() {
-        return io_;
+    public Logged getLoggingObject() {
+      return io_;
     }
 }

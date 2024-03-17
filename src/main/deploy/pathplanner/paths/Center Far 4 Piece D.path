@@ -1,0 +1,74 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.2647271448389068,
+        "y": 5.525487974052871
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.115824231648465,
+        "y": 5.407084660323167
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.29,
+        "y": 0.77
+      },
+      "prevControl": {
+        "x": 8.24910855942609,
+        "y": 0.472799915733877
+      },
+      "nextControl": {
+        "x": 8.546530939215726,
+        "y": 2.6344737304859236
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.2,
+        "y": 5.2
+      },
+      "prevControl": {
+        "x": 4.168054011759616,
+        "y": 5.14921167619083
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Far 4 Piece Shoot Point"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 113.98645591492769,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 168.79,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Far 4 Piece",
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

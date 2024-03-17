@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7911138899200891,
+      "y": 6.571383911998593
+    },
+    "rotation": -121.70142966950579
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece H to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece H to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
