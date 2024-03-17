@@ -7,7 +7,9 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.PickupSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class TeleFrontPickup extends Command {
   boolean seen_note_ = false;
@@ -19,6 +21,7 @@ public class TeleFrontPickup extends Command {
   @Override
   public void initialize() {
     PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.PICKUP);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     MailmanSubsystem.getInstance().setRollerIntake();
     seen_note_ = false;
   }
