@@ -9,7 +9,6 @@ import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 
@@ -28,8 +27,7 @@ public class TelePass extends Command {
   @Override
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
-    ShooterSubsystem.getInstance().setTarget(ShootTarget.PASS);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.PASS);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     shot_note_ = false;
   }

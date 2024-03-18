@@ -92,7 +92,7 @@ public class ShooterSubsystem extends Subsystem {
         RECEIVE,
         CLIMB,
         PROFILE,
-        PASS
+        SPINUP
     }
 
     private ShooterPeriodicIo io_;
@@ -171,12 +171,17 @@ public class ShooterSubsystem extends Subsystem {
         io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
         io_.target_offset_tuned_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
-        switch (io_.target_mode_) {
+        switch (io_.shooter_mode) {
             case TARGET:
                 io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-                io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
-                        ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
-                io_.target_flywheel_speed_ = 550;
+            case SPINUP:
+                if(io_.target_mode_ == ShootTarget.SPEAKER){
+                    io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
+                    io_.target_flywheel_speed_ = 550;
+                } else if(io_.target_mode_ == ShootTarget.PASS){
+                    io_.target_wrist_angle_ = Math.toRadians(40);
+                    io_.target_flywheel_speed_ = 325;
+                }
                 break;
             case TRANSFER:
                 io_.target_wrist_angle_ = ShooterConstants.WRIST_HANDOFF_ANGLE;
@@ -193,11 +198,6 @@ public class ShooterSubsystem extends Subsystem {
             case PROFILE:
                 io_.target_wrist_angle_ = Math.toRadians(35);
                 io_.target_flywheel_speed_ = 550;
-                break;
-            case PASS:
-                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-                io_.target_wrist_angle_ = Math.toRadians(40);
-                io_.target_flywheel_speed_ = 325;
                 break;
             case IDLE:
             default:
@@ -218,7 +218,7 @@ public class ShooterSubsystem extends Subsystem {
         roller_motor_.set(io_.roller_speed_);
         setFlyWheelRPM(io_.target_flywheel_speed_);
         setWristAngle(io_.target_wrist_angle_);
-        if (io_.target_mode_ == ShootMode.PASS || io_.target_mode_ == ShootMode.TARGET) {
+        if (io_.shooter_mode == ShootMode.TARGET) {
             SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
         }
     }
@@ -250,8 +250,10 @@ public class ShooterSubsystem extends Subsystem {
                 PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
         
         SmartDashboard.putNumber("Distance to Target", io_.target_distance_);
-
         SmartDashboard.putNumber("Debug/Wrist Encoder Value", wrist_encoder_.getPosition());
+
+        SmartDashboard.putBoolean("Speaker Shooting Mode", io_.target_mode_ == ShootTarget.SPEAKER);
+        SmartDashboard.putBoolean("Pass Shooting Mode", io_.target_mode_ == ShootTarget.PASS);
 
     }
 
@@ -262,6 +264,15 @@ public class ShooterSubsystem extends Subsystem {
      */
     public boolean hasNote() {
         return io_.has_note_;
+    }
+
+    /**
+     * Returns target mode of shooter
+     * 
+     * @return target mode [SPEAKER, PASS]
+     */
+    public ShootTarget getShootTarget(){
+        return io_.target_mode_;
     }
 
     /**
@@ -345,7 +356,6 @@ public class ShooterSubsystem extends Subsystem {
             } else {
                 io_.target_ = RED_PASS;
             }
-
         } else {
             if (target == ShootTarget.SPEAKER) {
                 io_.target_ = BLUE_SPEAKER;
@@ -362,7 +372,19 @@ public class ShooterSubsystem extends Subsystem {
      * @param mode The mode to change the ShooterSubsystem to
      */
     public void setShootMode(ShootMode mode) {
-        io_.target_mode_ = mode;
+        io_.shooter_mode = mode;
+    }
+
+    public ShootMode getShootMode(){
+        return io_.shooter_mode;
+    }
+
+    /**
+     * Toggles the Target mode between SPEAKER and PASS
+     */
+    public void toggleShootTarget(){
+     io_.target_mode_ = (io_.target_mode_ == ShootTarget.SPEAKER)? ShootTarget.PASS : ShootTarget.SPEAKER;
+     setTarget(io_.target_mode_);
     }
 
     /**
@@ -505,7 +527,7 @@ public class ShooterSubsystem extends Subsystem {
         @Log.File
         public double current_wrist_angle_ = 0.0;
         @Log.File
-        public ShootMode target_mode_ = ShootMode.IDLE;
+        public ShootMode shooter_mode = ShootMode.IDLE;
         @Log.File
         public double roller_speed_ = 0.0;
         @Log.File
@@ -526,6 +548,8 @@ public class ShooterSubsystem extends Subsystem {
         public double target_distance_ = 0.0;
         @Log.File
         public Pose3d target_offset_pose = new Pose3d();
+        @Log.File
+        public ShootTarget target_mode_ = ShootTarget.SPEAKER;
     }
 
     @Override

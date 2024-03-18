@@ -314,13 +314,6 @@ public class SwerveDrivetrain extends Subsystem {
                 this); // Subsystem for requirements
                 PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
 
-        // Logging callback for the active path, this is sent as a list of poses
-        PathPlannerLogging.setLogActivePathCallback((poses) -> {
-            // Do whatever you want with the poses here
-            PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
-            io_.pp_active_path_ = poses;
-        });
-
         // Logging callback for target robot pose
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
             // Do whatever you want with the pose here
@@ -494,8 +487,6 @@ public class SwerveDrivetrain extends Subsystem {
         public double driver_POVy = 0.0;
         @Log.File
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
-        @Log.File
-        public List<Pose2d> pp_active_path_ = null;
     }
 
     @Override

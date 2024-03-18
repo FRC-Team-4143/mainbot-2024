@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import frc.robot.commands.AutoEnableDefaults;
 import frc.robot.subsystems.PickupSubsystem;
@@ -46,7 +47,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    //swerve_drivetrain_.seedFieldRelative(pose_estimator_.getRobotPose().getRotation());
     updateDriverPrespective();
   }
 
@@ -99,9 +99,10 @@ public class Robot extends TimedRobot {
 
   private void updateDriverPrespective(){
     if(DriverStation.getAlliance().isPresent()){
-    swerve_drivetrain_.setDriverPrespective(
+      swerve_drivetrain_.setDriverPrespective(
                 DriverStation.getAlliance().get() == Alliance.Red ? swerve_drivetrain_.redAlliancePerspectiveRotation
                 : swerve_drivetrain_.blueAlliancePerspectiveRotation);
+      ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
     }
   }
 

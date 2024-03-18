@@ -5,23 +5,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.OI;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
-import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
-import frc.robot.subsystems.PickupSubsystem;
 
-public class OverrideTelePass extends Command {
-  /** Creates a new OverrideTelePass. */
+public class ShooterSpinUp extends Command {
+  /** Creates a new ShootAtTarget. */
   boolean shot_note_;
-  public OverrideTelePass() {
+  public ShooterSpinUp() {
     addRequirements(ShooterSubsystem.getInstance());
-    addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
-    addRequirements(PickupSubsystem.getMailmanInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -29,26 +24,22 @@ public class OverrideTelePass extends Command {
   @Override
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
-    ShooterSubsystem.getInstance().setTarget(ShootTarget.PASS);
-    shot_note_ = false;
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
-      shot_note_ = true;
-    }
+
   }
+  
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ShooterSubsystem.getInstance().flyWheelStop();
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-    ShooterSubsystem.getInstance().rollerStop();
+    if(!OI.getDriverRightTriggerPulled()){
+      ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
+    }
   }
 
   // Returns true when the command should end.

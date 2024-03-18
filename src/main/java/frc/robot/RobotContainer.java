@@ -25,10 +25,7 @@ public class RobotContainer extends SubsystemManager {
     registerSubsystem(PickupSubsystem.getMailmanInstance());
     registerSubsystem(ShooterSubsystem.getInstance());
     registerSubsystem(MailmanSubsystem.getInstance());
-
-    if(Constants.IS_COMP_BOT){
-      registerSubsystem(ClimberSubsystem.getInstance());
-    }
+    registerSubsystem(ClimberSubsystem.getInstance());
 
     // !!!!! LEAVE THESE LINES AS THE LAST LINE IN THE CONSTRUCTOR !!!!!!
     reset();

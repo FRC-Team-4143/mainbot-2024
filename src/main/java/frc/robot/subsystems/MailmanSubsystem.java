@@ -11,6 +11,7 @@ import com.revrobotics.SparkPIDController;
 
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -58,6 +59,7 @@ public class MailmanSubsystem extends Subsystem {
     private MailmanSubsystem() {
         io_ = new MailmanPeriodicIo();
         dropper_motor_ = new PWMSparkFlex(MailmanConstants.DROPPER_MOTOR_ID);
+        elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, MotorType.kBrushless);
         reset();
     }
 

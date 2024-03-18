@@ -11,9 +11,10 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
-public class TeleFrontPickup extends Command {
+public class TeleFrontPickupIndex extends Command {
   boolean seen_note_ = false;
-  public TeleFrontPickup() {
+  
+  public TeleFrontPickupIndex() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -23,11 +24,15 @@ public class TeleFrontPickup extends Command {
     PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.PICKUP);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     MailmanSubsystem.getInstance().setRollerIntake();
+    seen_note_ = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (PickupSubsystem.getMailmanInstance().hasNote()) {
+      seen_note_ = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -40,6 +45,6 @@ public class TeleFrontPickup extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return PickupSubsystem.getMailmanInstance().hasNote();
+    return !PickupSubsystem.getMailmanInstance().hasNote() && seen_note_;
   }
 }

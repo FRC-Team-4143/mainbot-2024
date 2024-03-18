@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.lib.Util;
 import frc.robot.commands.*;
 
@@ -46,26 +48,28 @@ public abstract class OI {
                 .ignoringDisable(true));
 
         BooleanSupplier isTestMode = () -> DriverStation.isTest();
+        BooleanSupplier isTargetModeSpeaker = () -> shooter_.getShootTarget() == ShootTarget.SPEAKER;
+        BooleanSupplier isTargetModePass = () -> shooter_.getShootTarget() == ShootTarget.PASS;
 
         // ------------------        
         // Driver Controls
         // ------------------
 
-        // Enagage Targeting
-        driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker());
-
-        driver_joystick_.a().whileTrue(new TelePass());
+        // Shoot at Speaker
+        driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker().onlyIf(isTargetModeSpeaker));
+        // Shoot at Pass
+        driver_joystick_.rightTrigger(0.5).whileTrue(new TelePass().onlyIf(isTargetModePass));
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(new ScoreMailman());
 
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
-
         driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5));
 
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup());
+        driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex());
 
         // Crawl
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
@@ -100,33 +104,32 @@ public abstract class OI {
         operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
 
         // Manual Shoot
-        operator_joystick_.rightTrigger().whileTrue(new OverrideShootAtSpeaker());
-
+        operator_joystick_.rightTrigger(0.5).whileTrue(new OverrideShootAtSpeaker().onlyIf(isTargetModeSpeaker));
         // Manual Pass
-        operator_joystick_.leftTrigger().whileTrue(new OverrideTelePass());
+        operator_joystick_.rightTrigger(0.5).whileTrue(new OverrideTelePass().onlyIf(isTargetModePass));
+
+        // Spinup Shooter
+        operator_joystick_.leftTrigger(0.5).whileTrue(new ShooterSpinUp());
 
         // Empty All Pickups
         operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
 
-        if(Constants.IS_COMP_BOT){
-            // Endgame Climb step increment
-            operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
+         // Toggle Pass and Speaker Modes
+        operator_joystick_.rightStick().onTrue(Commands.runOnce(
+            () -> shooter_.toggleShootTarget()));
 
-            // Endgame Climb step decrement
-            operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
+        // Endgame Climb step increment
+        operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
 
-            // Climb
-            operator_joystick_.povUp().whileTrue(Commands.startEnd(
-                    () -> climber_.setClimbSpeed(-0.6),
-                    () -> climber_.stopClimb()));
+        // Endgame Climb step decrement
+        operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
 
-        //     // Reverse Climb
-        //     operator_joystick_.povDown().whileTrue(Commands.startEnd(
-        //             () -> climber_.setClimbSpeed(0.6),
-        //             () -> climber_.stopClimb()));
-                
-            operator_joystick_.povDown().whileTrue(new ManuallyLowerElevator());
-        }
+        // Climb
+        operator_joystick_.povUp().whileTrue(Commands.startEnd(
+                () -> climber_.setClimbSpeed(-0.6),
+                () -> climber_.stopClimb()));
+            
+        operator_joystick_.povDown().whileTrue(new ManuallyLowerElevator());
 
         // Test buttons
         driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
@@ -161,5 +164,14 @@ public abstract class OI {
 
     static public double getDriverJoystickPOVangle() {
         return driver_joystick_.getHID().getPOV();
+    }
+
+    static public boolean getDriverRightTriggerPulled(){
+        return driver_joystick_.getRightTriggerAxis() > 0.1;
+    }
+
+
+    static public boolean getOperatorLeftTriggerPulled(){
+        return driver_joystick_.getLeftTriggerAxis() > 0.1;
     }
 }

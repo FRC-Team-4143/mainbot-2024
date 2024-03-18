@@ -168,17 +168,10 @@ public final class Constants {
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
-      if (IS_COMP_BOT) { // Comp Bot
-        map.put(0.0, 0.0);
-        map.put(1.6, 0.2);
-        map.put(3.0, 0.2);
-        map.put(6.0, 0.2);
-      } else { // Practice Bot
-        map.put(0.0, 0.0);
-        map.put(1.6, 0.2);
-        map.put(3.0, 0.2); // 0.2
-        map.put(6.0, 0.45); // 0.6
-      }
+      map.put(0.0, 0.0);
+      map.put(1.6, 0.2);
+      map.put(3.0, 0.2);
+      map.put(6.0, 0.2);
       return map;
     }
 
@@ -190,9 +183,7 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_P = 13.0;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
-    public static final double WRIST_ZERO_ANGLE = ((IS_COMP_BOT) ? 0.289 : 0.293) * (2 * Math.PI); // 0.289 for Comp Bot
-                                                                                                   // // 0.293 for
-                                                                                                   // Practice Bot
+    public static final double WRIST_ZERO_ANGLE = 0.289 * (2 * Math.PI); // 0.289 for Comp Bot
     public static final double WRIST_HOME_ANGLE = 0.22689;
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
@@ -200,7 +191,7 @@ public final class Constants {
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
-    public static final boolean ROLLER_MOTOR_INVERTED = ((IS_COMP_BOT) ? false : true);
+    public static final boolean ROLLER_MOTOR_INVERTED = false;
 
     // Yaw Aiming Tolerance
     public static final double YAW_TOLERANCE = Math.toRadians(5);
@@ -254,7 +245,7 @@ public final class Constants {
     public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
 
     // Dropper Motor Constants
-    public static final int DROPPER_MOTOR_ID = (IS_COMP_BOT)? 0 : 32;
+    public static final int DROPPER_MOTOR_ID = 0; // PWM Channel
     public static final double DROPPER_IN_SPEED = 0.5;
     public static final double DROPPER_OUT_SPEED = -1.0;
   }

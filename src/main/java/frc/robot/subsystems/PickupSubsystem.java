@@ -60,11 +60,7 @@ public class PickupSubsystem extends Subsystem {
         name_ = name;
         settings_ = settings;
         io_ = new PickupPeriodicIo();
-        if(Constants.IS_COMP_BOT){
-            roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-        } else {
-            roller_motor_ = new CANSparkMax(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
-        }
+        roller_motor_ = new CANSparkFlex(settings.ROLLER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless);
 
         if (settings.PICKUP_NOTE_SENSOR_ID >= 0) {
             note_sensor_ = new TimeOfFlight(settings.PICKUP_NOTE_SENSOR_ID);

@@ -10,7 +10,6 @@ import frc.robot.OI;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem;
@@ -22,7 +21,7 @@ public class TeleShootAtSpeaker extends Command {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
-    addRequirements(PickupSubsystem.getMailmanInstance());
+    addRequirements(PickupSubsystem.getMailmanInstance()); // Prevent Notes from going under shooter
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -30,7 +29,6 @@ public class TeleShootAtSpeaker extends Command {
   @Override
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
-    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     shot_note_ = false;
@@ -40,8 +38,8 @@ public class TeleShootAtSpeaker extends Command {
   @Override
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
-      CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && OI.getDriverJoystickRightY()){
+      CommandScheduler.getInstance().schedule(new TeleRearPickupIndex());
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
     } else {
@@ -52,10 +50,11 @@ public class TeleShootAtSpeaker extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ShooterSubsystem.getInstance().flyWheelStop();
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
+    if(!OI.getOperatorLeftTriggerPulled()){
+      ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
+    }
   }
 
   // Returns true when the command should end.
