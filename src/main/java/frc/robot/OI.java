@@ -9,6 +9,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
@@ -49,27 +50,26 @@ public abstract class OI {
 
         BooleanSupplier isTestMode = () -> DriverStation.isTest();
         BooleanSupplier isTargetModeSpeaker = () -> shooter_.getShootTarget() == ShootTarget.SPEAKER;
-        BooleanSupplier isTargetModePass = () -> shooter_.getShootTarget() == ShootTarget.PASS;
+        BooleanSupplier isRobotHoldingNote = () -> shooter_.hasNote() || pickup_front_.hasNote() || pickup_rear_.hasNote();
+        BooleanSupplier isRearIntakeStagingNote = () -> pickup_rear_.hasNote() && !shooter_.hasNote() && !pickup_front_.hasNote();
 
         // ------------------        
         // Driver Controls
         // ------------------
 
-        // Shoot at Speaker
-        driver_joystick_.rightTrigger(0.5).whileTrue(new TeleShootAtSpeaker().onlyIf(isTargetModeSpeaker));
-        // Shoot at Pass
-        driver_joystick_.rightTrigger(0.5).whileTrue(new TelePass().onlyIf(isTargetModePass));
+        // Shoot at Speaker or Pass
+        driver_joystick_.rightTrigger(0.5).whileTrue(new ConditionalCommand(new TeleShootAtSpeaker(), new TelePass(), isTargetModeSpeaker));
 
         // Deliver the Mail
         driver_joystick_.leftTrigger(0.5).whileTrue(new ScoreMailman());
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup());
-        driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5));
-
+        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote));
+        driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5).onlyIf(isRearIntakeStagingNote));
+        
         // Front Pickup
-        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup());
-        driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex());
+        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote));
+        //driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex());
 
         // Crawl
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
@@ -104,9 +104,7 @@ public abstract class OI {
         operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
 
         // Manual Shoot
-        operator_joystick_.rightTrigger(0.5).whileTrue(new OverrideShootAtSpeaker().onlyIf(isTargetModeSpeaker));
-        // Manual Pass
-        operator_joystick_.rightTrigger(0.5).whileTrue(new OverrideTelePass().onlyIf(isTargetModePass));
+        operator_joystick_.rightTrigger(0.5).whileTrue(new ConditionalCommand(new OverrideShootAtSpeaker(), new OverrideTelePass(), isTargetModeSpeaker));
 
         // Spinup Shooter
         operator_joystick_.leftTrigger(0.5).whileTrue(new ShooterSpinUp());
@@ -170,8 +168,7 @@ public abstract class OI {
         return driver_joystick_.getRightTriggerAxis() > 0.1;
     }
 
-
     static public boolean getOperatorLeftTriggerPulled(){
-        return driver_joystick_.getLeftTriggerAxis() > 0.1;
+        return operator_joystick_.getLeftTriggerAxis() > 0.1;
     }
 }
