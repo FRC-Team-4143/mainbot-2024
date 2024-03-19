@@ -38,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
@@ -242,9 +242,9 @@ public class SwerveDrivetrain extends Subsystem {
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityX(Util.clamp(-io_.driver_joystick_leftY_, Constants.DrivetrainConstants.MAX_TARGET_SPEED) * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityY(Util.clamp(-io_.driver_joystick_leftX_, Constants.DrivetrainConstants.MAX_TARGET_SPEED) * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         //
                         .withTargetDirection(io_.target_rotation_));
                 break;

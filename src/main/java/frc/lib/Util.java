@@ -1,6 +1,5 @@
 package frc.lib;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
@@ -19,5 +18,13 @@ public abstract class Util {
 
     public static boolean epislonEquals(Translation2d x, Translation2d y, double epislon) {
         return x.getDistance(y) < epislon;
+    }
+
+    public static double clamp(double x, double range) {
+        if(x > range)
+            x = range;
+        if(x < -range)
+            x = -range;
+        return x;
     }
 }

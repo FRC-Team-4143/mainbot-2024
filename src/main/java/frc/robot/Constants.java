@@ -37,6 +37,7 @@ public final class Constants {
   }
 
   public class DrivetrainConstants {
+
     // Can bus names for each of the swerve modules
     public static final String[] MODULE_CANBUS_NAME = { "CANivore", "CANivore", "CANivore", "CANivore" };
 
@@ -82,6 +83,7 @@ public final class Constants {
     public static final double MAX_DRIVE_SPEED = 5; // 6 meters per second desired top speed
     public static final double MAX_DRIVE_ANGULAR_RATE = Math.PI * 2; // Rotation per second max angular velocity
     public static final double CRAWL_DRIVE_SPEED = 0.4;
+    public static final double MAX_TARGET_SPEED = 0.5;
 
     private static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()
         .withDriveMotorGearRatio(DRIVE_GEAR_RATIO)
