@@ -20,6 +20,7 @@ public class HandoffToMailman extends Command {
 
     /** Creates a new HandoffToMailman. */
     public HandoffToMailman() {
+        addRequirements(shooter_);
         // Use addRequirements() here to declare subsystem dependencies.
     }
 

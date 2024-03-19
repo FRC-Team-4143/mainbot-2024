@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.ShooterSpinUp;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -28,6 +31,8 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+
+import java.util.function.BooleanSupplier;
 
 import com.playingwithfusion.TimeOfFlight;
 
@@ -95,6 +100,9 @@ public class ShooterSubsystem extends Subsystem {
         SPINUP
     }
 
+    Debouncer rearNoteDebouncer = new Debouncer(0.25, DebounceType.kFalling);
+    BooleanSupplier isNoteBehindShooter = () -> hasNote() || rearNoteDebouncer.calculate(PickupSubsystem.getShooterInstance().hasNote());
+
     private ShooterPeriodicIo io_;
 
     public ShooterSubsystem() {
@@ -110,7 +118,7 @@ public class ShooterSubsystem extends Subsystem {
 
         target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
         rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
-
+        setDefaultCommand(new ShooterSpinUp().onlyIf(isNoteBehindShooter));
     }
 
     @Override
