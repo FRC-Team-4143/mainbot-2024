@@ -8,38 +8,47 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class TeleFrontPickup extends Command {
-  boolean seen_note_ = false;
-  public TeleFrontPickup() {
-    // Use addRequirements() here to declare subsystem dependencies.
-  }
+    boolean seen_note_ = false;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.PICKUP);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-    MailmanSubsystem.getInstance().setRollerIntake();
-  }
+    public TeleFrontPickup() {
+        // Use addRequirements() here to declare subsystem dependencies.
+    }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
+        MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.IDLE);
-    MailmanSubsystem.getInstance().setRollerStop();
-  }
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        if (MailmanSubsystem.getInstance().atHeight() && ShooterSubsystem.getInstance().wristLocked()) {
+            PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.PICKUP);
+            MailmanSubsystem.getInstance().setRollerIntake();
+        } else {
+            PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.IDLE);
+            ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
+            MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
+        }
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return PickupSubsystem.getMailmanInstance().hasNote();
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.IDLE);
+        MailmanSubsystem.getInstance().setRollerStop();
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return PickupSubsystem.getMailmanInstance().hasNote();
+    }
 }

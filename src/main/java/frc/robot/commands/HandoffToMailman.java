@@ -14,40 +14,50 @@ import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class HandoffToMailman extends Command {
     static ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
+    static PickupSubsystem pickup_front_ = PickupSubsystem.getMailmanInstance();
     static PickupSubsystem pickup_rear_ = PickupSubsystem.getShooterInstance();
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
 
-  /** Creates a new HandoffToMailman. */
-  public HandoffToMailman() {
-    // Use addRequirements() here to declare subsystem dependencies.
-  }
+    /** Creates a new HandoffToMailman. */
+    public HandoffToMailman() {
+        // Use addRequirements() here to declare subsystem dependencies.
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    mailman_.setHeight(HeightTarget.HOME);
-    shooter_.setShootMode(ShootMode.TRANSFER);
-    mailman_.setRollerRecieve();
-    pickup_rear_.setPickupMode(PickupMode.PICKUP);
-    shooter_.setRollerFeed();
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        mailman_.setHeight(HeightTarget.HOME);
+        shooter_.setShootMode(ShootMode.TRANSFER);
+    }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        if (mailman_.atHeight() && shooter_.wristLocked()) {
+            mailman_.setRollerRecieve();
+            pickup_rear_.setPickupMode(PickupMode.PICKUP);
+            shooter_.setRollerFeed();
+        } else {
+            mailman_.setHeight(HeightTarget.HOME);
+            shooter_.setShootMode(ShootMode.TRANSFER);
+            mailman_.setRollerStop();
+            pickup_rear_.setPickupMode(PickupMode.IDLE);
+            shooter_.rollerStop();
+        }
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    shooter_.setShootMode(ShootMode.IDLE);
-    shooter_.rollerStop();
-    mailman_.setRollerStop();
-    pickup_rear_.setPickupMode(PickupMode.IDLE);
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        shooter_.setShootMode(ShootMode.IDLE);
+        shooter_.rollerStop();
+        mailman_.setRollerStop();
+        pickup_rear_.setPickupMode(PickupMode.IDLE);
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false; //mailman_.hasNote();
-  }
+    // Returns true when the command should end.y
+    @Override
+    public boolean isFinished() {
+        return pickup_front_.hasNote();
+    }
 }

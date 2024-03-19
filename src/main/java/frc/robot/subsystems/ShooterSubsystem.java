@@ -174,12 +174,15 @@ public class ShooterSubsystem extends Subsystem {
         switch (io_.shooter_mode) {
             case TARGET:
                 io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-            case SPINUP:
                 if(io_.target_mode_ == ShootTarget.SPEAKER){
                     io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
-                    io_.target_flywheel_speed_ = 550;
                 } else if(io_.target_mode_ == ShootTarget.PASS){
                     io_.target_wrist_angle_ = Math.toRadians(40);
+                }
+            case SPINUP:
+                if(io_.target_mode_ == ShootTarget.SPEAKER){
+                    io_.target_flywheel_speed_ = 550;
+                } else if(io_.target_mode_ == ShootTarget.PASS){
                     io_.target_flywheel_speed_ = 325;
                 }
                 break;
@@ -254,6 +257,7 @@ public class ShooterSubsystem extends Subsystem {
 
         SmartDashboard.putBoolean("Speaker Shooting Mode", io_.target_mode_ == ShootTarget.SPEAKER);
         SmartDashboard.putBoolean("Pass Shooting Mode", io_.target_mode_ == ShootTarget.PASS);
+        SmartDashboard.putBoolean("Auto Aim", isAutomaticAimMode());
 
     }
 
@@ -385,6 +389,17 @@ public class ShooterSubsystem extends Subsystem {
     public void toggleShootTarget(){
      io_.target_mode_ = (io_.target_mode_ == ShootTarget.SPEAKER)? ShootTarget.PASS : ShootTarget.SPEAKER;
      setTarget(io_.target_mode_);
+    }
+
+    public boolean isAutomaticAimMode(){
+        return io_.auto_aim_mode_;
+    }
+
+    /**
+     * Toggles the Auto Aiming Mode
+     */
+    public void toggleAutomaticAimMode(){
+        io_.auto_aim_mode_ = !io_.auto_aim_mode_;
     }
 
     /**
@@ -550,6 +565,8 @@ public class ShooterSubsystem extends Subsystem {
         public Pose3d target_offset_pose = new Pose3d();
         @Log.File
         public ShootTarget target_mode_ = ShootTarget.SPEAKER;
+        @Log.File
+        public boolean auto_aim_mode_= true; 
     }
 
     @Override

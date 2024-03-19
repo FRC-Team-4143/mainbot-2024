@@ -38,7 +38,7 @@ public class TeleShootAtSpeaker extends Command {
   @Override
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
-      CommandScheduler.getInstance().schedule(new TeleRearPickupIndex());
+      CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(1));
     } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
@@ -52,9 +52,7 @@ public class TeleShootAtSpeaker extends Command {
   public void end(boolean interrupted) {
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
     ShooterSubsystem.getInstance().rollerStop();
-    if(!OI.getOperatorLeftTriggerPulled()){
-      ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-    }
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Returns true when the command should end.

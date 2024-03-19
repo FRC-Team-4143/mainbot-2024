@@ -5,13 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
-import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import frc.robot.subsystems.MailmanSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SwerveDrivetrain;
 
 public class ScoreMailman extends Command {
   /** Creates a new ScoreMailman. */

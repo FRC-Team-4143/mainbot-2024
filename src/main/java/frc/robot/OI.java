@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
-import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.lib.Util;
 import frc.robot.commands.*;
@@ -50,18 +49,37 @@ public abstract class OI {
 
         BooleanSupplier isTestMode = () -> DriverStation.isTest();
         BooleanSupplier isTargetModeSpeaker = () -> shooter_.getShootTarget() == ShootTarget.SPEAKER;
+        BooleanSupplier isAutomaticShotMode = () -> shooter_.isAutomaticAimMode(); 
         BooleanSupplier isRobotHoldingNote = () -> shooter_.hasNote() || pickup_front_.hasNote() || pickup_rear_.hasNote();
         BooleanSupplier isRearIntakeStagingNote = () -> pickup_rear_.hasNote() && !shooter_.hasNote() && !pickup_front_.hasNote();
+        BooleanSupplier isFrontIntakeStagingNote = () -> pickup_front_.hasNote() && !shooter_.hasNote();
+        BooleanSupplier isMailmanReady = () -> (mailman_.getTarget() != HeightTarget.HOME);
 
         // ------------------        
         // Driver Controls
         // ------------------
 
         // Shoot at Speaker or Pass
-        driver_joystick_.rightTrigger(0.5).whileTrue(new ConditionalCommand(new TeleShootAtSpeaker(), new TelePass(), isTargetModeSpeaker));
+        driver_joystick_.rightTrigger(0.5).whileTrue(
+            new ConditionalCommand(
+                new ScoreMailman(), 
+                new ConditionalCommand(
+                    new ConditionalCommand(
+                        new TeleShootAtSpeaker().unless(isMailmanReady), 
+                        new TelePass().unless(isFrontIntakeStagingNote), 
+                    isTargetModeSpeaker),
+                    new ConditionalCommand(
+                        new OverrideShootAtSpeaker(), 
+                        new OverrideTelePass(), 
+                    isTargetModeSpeaker),
+                isAutomaticShotMode),
+            isMailmanReady));
+            
 
-        // Deliver the Mail
-        driver_joystick_.leftTrigger(0.5).whileTrue(new ScoreMailman());
+        // Move the Elevator to Amp Position
+        driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
+            () -> mailman_.setHeight(HeightTarget.AMP), 
+            () -> mailman_.setHeight(HeightTarget.HOME)));
 
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote));
@@ -69,7 +87,7 @@ public abstract class OI {
         
         // Front Pickup
         driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote));
-        //driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex());
+        //driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex().withTimeout(5).onlyIf(isFrontIntakeStagingNote));
 
         // Crawl
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
@@ -97,24 +115,25 @@ public abstract class OI {
         operator_joystick_.a().whileTrue(Commands.runOnce(
                 () -> mailman_.setHeight(HeightTarget.HOME)));
 
-        // Handoff from Shooter to Mailman
-        operator_joystick_.rightBumper().whileTrue(new HandoffToMailman());
-
         // Handoff from Mailman to Shooter
-        operator_joystick_.leftBumper().whileTrue(new HandoffToShooter());
+        operator_joystick_.leftBumper().onTrue(new HandoffToShooter().withTimeout(2.0));
 
-        // Manual Shoot
-        operator_joystick_.rightTrigger(0.5).whileTrue(new ConditionalCommand(new OverrideShootAtSpeaker(), new OverrideTelePass(), isTargetModeSpeaker));
+        // Handoff from Shooter to Mailman
+        operator_joystick_.rightBumper().onTrue(new HandoffToMailman().withTimeout(2.0));
 
         // Spinup Shooter
-        operator_joystick_.leftTrigger(0.5).whileTrue(new ShooterSpinUp());
+        operator_joystick_.leftTrigger(0.5).whileTrue(new ShooterSpinUp().unless(isFrontIntakeStagingNote));
 
         // Empty All Pickups
-        operator_joystick_.leftStick().whileTrue(new CleanAllPickups());
+        operator_joystick_.rightTrigger(0.5).whileTrue(new CleanAllPickups());
 
-         // Toggle Pass and Speaker Modes
+        // Toggle Pass and Speaker Modes
         operator_joystick_.rightStick().onTrue(Commands.runOnce(
             () -> shooter_.toggleShootTarget()));
+
+        // Toggle Manual vs Automatic
+        operator_joystick_.leftStick().onTrue(Commands.runOnce(
+            ()-> shooter_.toggleAutomaticAimMode()));
 
         // Endgame Climb step increment
         operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
@@ -124,7 +143,7 @@ public abstract class OI {
 
         // Climb
         operator_joystick_.povUp().whileTrue(Commands.startEnd(
-                () -> climber_.setClimbSpeed(-0.6),
+                () -> climber_.setClimbSpeed(0.6),
                 () -> climber_.stopClimb()));
             
         operator_joystick_.povDown().whileTrue(new ManuallyLowerElevator());

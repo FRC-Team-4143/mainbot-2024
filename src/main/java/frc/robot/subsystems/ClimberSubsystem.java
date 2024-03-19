@@ -93,7 +93,11 @@ public class ClimberSubsystem extends Subsystem {
       rio_climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P);
       io_.controller_ff_ = ClimberConstants.CLIMBER_CONTROLLER_FF;
     }
-    io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_) + io_.controller_ff_;
+    if(io_.manual_control_){
+      io_.winch_speed_ = io_.manual_winch_speed_;
+    } else {
+      io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_) + io_.controller_ff_;
+    }
   }
 
   @Override
@@ -116,14 +120,16 @@ public class ClimberSubsystem extends Subsystem {
   }
 
   public void setClimbSpeed(double speed) {
-    io_.winch_speed_ = speed;
+    io_.manual_control_ = true;
+    io_.manual_winch_speed_ = speed;
   }
 
   public void stopClimb() {
-    io_.winch_speed_ = 0.0;
+    io_.manual_winch_speed_ = 0.0;
   }
 
   public void setHeight(ClimbTarget target, int slot) {
+    io_.manual_control_ = false;
     io_.climb_target_ = target;
     if (target == ClimbTarget.MAX) {
       io_.target_height_ = ClimberConstants.MAX_HEIGHT;
@@ -182,6 +188,10 @@ public class ClimberSubsystem extends Subsystem {
     public int pid_slot_ = 0;
     @Log.File
     public ClimbTarget climb_target_ = ClimbTarget.HOME;
+    @Log.File
+    public boolean manual_control_ = false;
+    @Log.File
+    public double manual_winch_speed_ = 0.0;
   }
 
   @Override
