@@ -29,7 +29,6 @@ public class ScoreMailman extends Command {
   @Override
   public void end(boolean interrupted) {
     MailmanSubsystem.getInstance().setRollerStop();
-    MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
   }
 
   // Returns true when the command should end.
