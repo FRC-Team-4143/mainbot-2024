@@ -267,4 +267,9 @@ public final class Constants {
     public static final double MAX_HEIGHT = -32.0;
     public static final double HEIGHT_TOLERANCE = 1.0;
   }
+
+  public static class LEDConstants {
+    public static final int LED_PORT = 8;
+    public static final int LED_LENGTH = 21;
+  }
 }
