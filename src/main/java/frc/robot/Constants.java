@@ -182,7 +182,8 @@ public final class Constants {
     public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double WRIST_CONTROLLER_P = 10.0;
+    public static final double WRIST_CONTROLLER_P = 9.0;
+    public static final double WRIST_CONTROLLER_D = 0.0;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
     public static final double WRIST_ZERO_ANGLE = 0.289 * (2 * Math.PI); // 0.289 for Comp Bot
@@ -256,15 +257,14 @@ public final class Constants {
   // IDs range from 40 - 49
   public static class ClimberConstants {
     public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
-    public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
     public static final double CLIMBER_CONTROLLER_P = 0.05;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_P = 0.1;
     public static final double CLIMBER_CONTROLLER_FF = 0.0;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_FF = -0.1;
-    public static final double CLIMB_HEIGHT = 5.0;
+    public static final double CLIMB_HEIGHT = 10.0;
     public static final double HOME_HEIGHT = 0.0;
     public static final double HALF_HEIGHT = -16.0;
-    public static final double MAX_HEIGHT = -32.0;
+    public static final double MAX_HEIGHT = -72.85;
     public static final double HEIGHT_TOLERANCE = 1.0;
   }
 

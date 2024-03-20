@@ -322,7 +322,7 @@ public class ShooterSubsystem extends Subsystem {
             return false;
         }
 
-        return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked() && orientationLocked();
+        return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked() && orientationLocked() && (getShootMode() == ShootMode.TARGET);
     }
 
     /**
