@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7284778050297884,
-      "y": 6.651755158003897
+      "x": 0.7636103146671328,
+      "y": 4.450117887396973
     },
-    "rotation": -116.71900274436635
+    "rotation": 123.23171106797939
   },
   "command": {
     "type": "sequential",
@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Short 4 Piece - A"
+            "pathName": "Wide 4 Piece - A"
           }
         },
         {
@@ -56,6 +56,6 @@
       ]
     }
   },
-  "folder": "ABC - 4 Piece",
+  "folder": "ABC",
   "choreoAuto": false
 }

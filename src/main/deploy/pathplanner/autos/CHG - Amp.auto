@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7401886415755699,
-      "y": 6.640044321458116
+      "x": 0.7220452902444284,
+      "y": 6.670053340106681
     },
-    "rotation": -119.60507704189853
+    "rotation": -121.70142966950573
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,7 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Short 5 Piece - A"
+            "pathName": "A Amp side"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AllowVision"
           }
         },
         {
@@ -32,7 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - B"
+            "pathName": "A to H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A to H to shoot"
           }
         },
         {
@@ -44,25 +62,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - C"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShootAtSpeaker"
+            "pathName": "H to G"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "5 Piece - G"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "5 Piece - G to shoot"
+            "pathName": "H to G to shoot"
           }
         },
         {
@@ -74,6 +80,6 @@
       ]
     }
   },
-  "folder": "ABCG - 5 Piece",
+  "folder": null,
   "choreoAuto": false
 }

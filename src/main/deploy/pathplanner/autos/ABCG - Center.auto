@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7636103146671328,
-      "y": 4.450117887396973
+      "x": 1.32,
+      "y": 5.582122633683789
     },
-    "rotation": 123.23171106797939
+    "rotation": 178.95165666234564
   },
   "command": {
     "type": "sequential",
@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Wide 4 Piece - A"
+            "pathName": "Center 4 Piece - A"
           }
         },
         {
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 Piece - B"
+            "pathName": "5 Piece - B"
           }
         },
         {
@@ -44,7 +44,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 Piece - C"
+            "pathName": "5 Piece - C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5 Piece - G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5 Piece - G to shoot"
           }
         },
         {
@@ -56,6 +74,6 @@
       ]
     }
   },
-  "folder": "ABC - 4 Piece",
+  "folder": "ABCG",
   "choreoAuto": false
 }
