@@ -100,11 +100,10 @@ public class ShooterSubsystem extends Subsystem {
         SPINUP
     }
 
-    Debouncer rearNoteDebouncer = new Debouncer(0.25, DebounceType.kFalling);
-    BooleanSupplier isNoteBehindShooter = () -> hasNote() || rearNoteDebouncer.calculate(PickupSubsystem.getShooterInstance().hasNote());
-
     private ShooterPeriodicIo io_;
 
+    Debouncer rearNoteDebouncer = new Debouncer(0.25, DebounceType.kFalling);
+    
     public ShooterSubsystem() {
         io_ = new ShooterPeriodicIo();
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
@@ -118,7 +117,7 @@ public class ShooterSubsystem extends Subsystem {
 
         target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
         rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
-        setDefaultCommand(new ShooterSpinUp().onlyIf(isNoteBehindShooter));
+        
     }
 
     @Override
@@ -155,6 +154,7 @@ public class ShooterSubsystem extends Subsystem {
         wrist_controller_ = wrist_motor_.getPIDController();
         wrist_controller_.setFeedbackDevice(wrist_encoder_);
         wrist_controller_.setP(ShooterConstants.WRIST_CONTROLLER_P);
+        wrist_controller_.setD(ShooterConstants.WRIST_CONTROLLER_D);
         wrist_motor_.burnFlash();
 
         // Roller motor configuration
@@ -212,8 +212,16 @@ public class ShooterSubsystem extends Subsystem {
                 break;
             case IDLE:
             default:
+                if(isNoteBehindFlywheels()) {
+                    if(io_.target_mode_ == ShootTarget.SPEAKER){
+                        io_.target_flywheel_speed_ = 550;
+                    } else if(io_.target_mode_ == ShootTarget.PASS){
+                        io_.target_flywheel_speed_ = 325;
+                    }
+                } else {
+                    io_.target_flywheel_speed_ = 0;
+                }
                 io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
-                io_.target_flywheel_speed_ = 0;
                 break;
         }
     
@@ -276,6 +284,10 @@ public class ShooterSubsystem extends Subsystem {
      */
     public boolean hasNote() {
         return io_.has_note_;
+    }
+
+    public boolean isNoteBehindFlywheels() {
+        return hasNote() || rearNoteDebouncer.calculate(PickupSubsystem.getShooterInstance().hasNote());
     }
 
     /**
