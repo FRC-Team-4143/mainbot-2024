@@ -14,7 +14,7 @@ import monologue.Logged;
 
 public class LEDSubsystem extends Subsystem {
 
-    private static LEDSubsystem LEDSubsystemInstance; // Target locked, pretend target locked, has note no note,
+    private static LEDSubsystem LEDSubsystemInstance;
 
     public static LEDSubsystem getInstance() {
         if (LEDSubsystemInstance == null) {
@@ -27,15 +27,8 @@ public class LEDSubsystem extends Subsystem {
     private AddressableLED led_ = new AddressableLED(LEDConstants.LED_PORT);
     private AddressableLEDBuffer led_buffer_ = new AddressableLEDBuffer(LEDConstants.LED_LENGTH);
 
-    private BooleanSupplier noNoteSupplier;
-    private BooleanSupplier hasNoteSupplier;
-    private BooleanSupplier targetLockedSupplier;
-    private BooleanSupplier passingSupplier;
-
-    private BooleanEvent noNoteEvent;
-    private BooleanEvent hasNoteEvent;
-    private BooleanEvent targetLockedEvent;
-    private BooleanEvent passingEvent;
+    private BooleanSupplier noNoteSupplier, hasNoteSupplier, targetLockedSupplier, passingSupplier;
+    private BooleanEvent noNoteEvent, hasNoteEvent, targetLockedEvent, passingEvent;
 
     private EventLoop led_eventloop_;
 
@@ -56,7 +49,7 @@ public class LEDSubsystem extends Subsystem {
         targetLockedEvent.ifHigh(() -> setColorHSV(0, 100, 100)); // Red
 
         passingEvent = new BooleanEvent(led_eventloop_, passingSupplier);
-        passingEvent.ifHigh(() -> setColorHSV(240, 100, 100)); // Yellow
+        passingEvent.ifHigh(() -> setColorHSV(60, 100, 100)); // Yellow
 
         noNoteSupplier = () -> !ShooterSubsystem.getInstance().hasNote() && !PickupSubsystem.getMailmanInstance().hasNote() && !PickupSubsystem.getShooterInstance().hasNote();
         hasNoteSupplier = () -> ShooterSubsystem.getInstance().hasNote() || PickupSubsystem.getMailmanInstance().hasNote() || PickupSubsystem.getShooterInstance().hasNote();
@@ -72,7 +65,11 @@ public class LEDSubsystem extends Subsystem {
     }
 
     @Override
-    public void reset() {}
+    public void reset() {
+        led_buffer_ = new AddressableLEDBuffer(LEDConstants.LED_LENGTH);
+        led_.setData(led_buffer_);
+        led_.start();
+    }
 
     @Override
     public void readPeriodicInputs(double timestamp) {}
