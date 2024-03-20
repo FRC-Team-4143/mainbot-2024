@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.32,
-      "y": 5.582122633683789
+      "x": 1.3337957445145674,
+      "y": 5.527514849606139
     },
-    "rotation": 179.8643532678696
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,7 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center 4 Piece - A"
+            "pathName": "New 4 Piece - B"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AllowVision"
           }
         },
         {
@@ -32,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 Piece - B"
+            "pathName": "New 4 Piece - C"
           }
         },
         {
@@ -44,18 +56,24 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 Piece - C"
+            "pathName": "New 4 Piece - A"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "New 4 Piece - D"
           }
         }
       ]
     }
   },
-  "folder": "ABC - 4 Piece",
+  "folder": null,
   "choreoAuto": false
 }
