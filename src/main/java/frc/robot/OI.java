@@ -128,11 +128,11 @@ public abstract class OI {
         operator_joystick_.rightTrigger(0.5).whileTrue(new CleanAllPickups());
 
         // Toggle Pass and Speaker Modes
-        operator_joystick_.rightStick().onTrue(Commands.runOnce(
+        operator_joystick_.leftStick().onTrue(Commands.runOnce(
             () -> shooter_.toggleShootTarget()));
 
         // Toggle Manual vs Automatic
-        operator_joystick_.leftStick().onTrue(Commands.runOnce(
+        operator_joystick_.rightStick().onTrue(Commands.runOnce(
             ()-> shooter_.toggleAutomaticAimMode()));
 
         // Endgame Climb step increment
