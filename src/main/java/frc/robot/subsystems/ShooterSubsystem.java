@@ -299,6 +299,10 @@ public class ShooterSubsystem extends Subsystem {
         return io_.target_mode_;
     }
 
+    public boolean isShooterHandoffState() {
+        return (io_.shooter_mode == ShootMode.RECEIVE || io_.shooter_mode ==  ShootMode.TRANSFER);
+    }
+
     /**
      * Gets the angle of the shooter, in radians. The home position is approximately
      * 0 radians.

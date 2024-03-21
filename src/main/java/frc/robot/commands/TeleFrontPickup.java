@@ -22,6 +22,7 @@ public class TeleFrontPickup extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        seen_note_ = false;
         ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
         MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
     }
@@ -29,6 +30,10 @@ public class TeleFrontPickup extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        if (PickupSubsystem.getMailmanInstance().hasNote()) {
+            seen_note_ = true;
+        }
+
         if (MailmanSubsystem.getInstance().atHeight() && ShooterSubsystem.getInstance().wristLocked()) {
             PickupSubsystem.getMailmanInstance().setPickupMode(PickupMode.PICKUP);
             MailmanSubsystem.getInstance().setRollerIntake();
@@ -49,6 +54,6 @@ public class TeleFrontPickup extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return PickupSubsystem.getMailmanInstance().hasNote();
+        return (!PickupSubsystem.getMailmanInstance().hasNote() && seen_note_);
     }
 }

@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -29,8 +30,8 @@ public class LEDSubsystem extends Subsystem {
     private AddressableLED led_ = new AddressableLED(LEDConstants.LED_PORT);
     private AddressableLEDBuffer led_buffer_ = new AddressableLEDBuffer(LEDConstants.LED_LENGTH);
 
-    private BooleanSupplier noNoteSupplier, hasNoteSupplier, targetLockedSupplier, passingSupplier, shootingSupplier;
-    private BooleanEvent noNoteEvent, hasNoteEvent, targetLockedEvent, passingEvent, shootingEvent;
+    private BooleanSupplier hasNoteSupplier, passingSupplier, shootingSupplier;
+    private BooleanEvent passingEvent, shootingEvent;
 
     Debouncer pickupNoteDebouncer = new Debouncer(0.5, DebounceType.kFalling);
 
@@ -46,26 +47,15 @@ public class LEDSubsystem extends Subsystem {
         led_.setData(led_buffer_);
         led_.start();
 
-        noNoteSupplier = () -> !ShooterSubsystem.getInstance().hasNote() && !PickupSubsystem.getMailmanInstance().hasNote() && !PickupSubsystem.getShooterInstance().hasNote();
         hasNoteSupplier = () -> ShooterSubsystem.getInstance().hasNote() || pickupNoteDebouncer.calculate(PickupSubsystem.getMailmanInstance().hasNote()) || pickupNoteDebouncer.calculate(PickupSubsystem.getShooterInstance().hasNote());
-        targetLockedSupplier = () -> ShooterSubsystem.getInstance().isTargetLocked();
         passingSupplier = () -> ShooterSubsystem.getInstance().getShootTarget() == ShootTarget.PASS;
         shootingSupplier = () -> ShooterSubsystem.getInstance().getShootTarget() == ShootTarget.SPEAKER;
 
-        noNoteEvent = new BooleanEvent(led_eventloop_, noNoteSupplier);
-        noNoteEvent.ifHigh(() -> setColorRGBCycle(0, 0, 0, io_.led_cycle_upper)); // Off
-
-        hasNoteEvent = new BooleanEvent(led_eventloop_, hasNoteSupplier);
-        hasNoteEvent.ifHigh(() -> setColorRGBCycle(255, 165, 0, io_.led_cycle_upper)); // Orange
-
-        // targetLockedEvent = new BooleanEvent(led_eventloop_, targetLockedSupplier);
-        // targetLockedEvent.ifHigh(() -> setColorRGB(0, 255, 0)); // Green
-
         passingEvent = new BooleanEvent(led_eventloop_, passingSupplier);
-        passingEvent.ifHigh(() -> setColorRGBCycle(255, 0, 235, !io_.led_cycle_upper)); // Purple
+        passingEvent.ifHigh(() -> setColorRGBFlash(255, 0, 235, (hasNoteSupplier.getAsBoolean())? io_.led_cycle_state : true)); // Purple
 
         shootingEvent = new BooleanEvent(led_eventloop_, shootingSupplier);
-        shootingEvent.ifHigh(() -> setColorRGBCycle(0, 255, 0, !io_.led_cycle_upper)); // Green
+        shootingEvent.ifHigh(() -> setColorRGBFlash(0, 255, 0, (hasNoteSupplier.getAsBoolean())? io_.led_cycle_state : true)); // Green
     }
 
     @Override
@@ -88,16 +78,16 @@ public class LEDSubsystem extends Subsystem {
         if(DriverStation.isDisabled()){
             if(DriverStation.getAlliance().isPresent()){
                 if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
-                    setColorRGBCycle(255, 0, 0, io_.led_cycle_upper);
-                    setColorRGBCycle(0, 0, 0, !io_.led_cycle_upper);
+                    setColorRGBCycle(255, 0, 0, io_.led_cycle_state);
+                    setColorRGBCycle(0, 0, 0, !io_.led_cycle_state);
 
                 } else {
-                    setColorRGBCycle(0, 0, 255, io_.led_cycle_upper);
-                    setColorRGBCycle(0, 0, 0, !io_.led_cycle_upper);
+                    setColorRGBCycle(0, 0, 255, io_.led_cycle_state);
+                    setColorRGBCycle(0, 0, 0, !io_.led_cycle_state);
                 }
             } else {
-                setColorRGBCycle(255, 0, 0, io_.led_cycle_upper);
-                setColorRGBCycle(0, 0, 255, !io_.led_cycle_upper);
+                setColorRGBCycle(255, 0, 0, io_.led_cycle_state);
+                setColorRGBCycle(0, 0, 255, !io_.led_cycle_state);
             }
         }
     }
@@ -136,17 +126,25 @@ public class LEDSubsystem extends Subsystem {
         }
     }
 
+    public void setColorRGBFlash(int r, int g, int b, boolean cycle){
+        if(cycle){
+            setColorRGB(r, g, b);
+        } else {
+            setColorRGB(0, 0, 0);
+        }
+    }
+
     public void ledCycle(){
         io_.led_cycle_counter--;
         if(io_.led_cycle_counter <= 0){
-            io_.led_cycle_upper = !io_.led_cycle_upper;
-            io_.led_cycle_counter = 50;
+            io_.led_cycle_state = !io_.led_cycle_state;
+            io_.led_cycle_counter = 25;
         }
     }
 
     public class LEDSubsystemPeriodicIo implements Logged {
-        public boolean led_cycle_upper = true;
-        public int led_cycle_counter = 50;
+        public boolean led_cycle_state = true;
+        public int led_cycle_counter = 25;
     }
 
     @Override

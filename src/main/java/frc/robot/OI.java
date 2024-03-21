@@ -54,6 +54,7 @@ public abstract class OI {
         BooleanSupplier isRearIntakeStagingNote = () -> pickup_rear_.hasNote() && !shooter_.hasNote() && !pickup_front_.hasNote();
         BooleanSupplier isFrontIntakeStagingNote = () -> pickup_front_.hasNote() && !shooter_.hasNote();
         BooleanSupplier isMailmanReady = () -> (mailman_.getTarget() != HeightTarget.HOME);
+        BooleanSupplier isHandingOff = () -> (shooter_.isShooterHandoffState());
 
         // ------------------        
         // Driver Controls
@@ -79,14 +80,14 @@ public abstract class OI {
         // Move the Elevator to Amp Position
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
             () -> mailman_.setHeight(HeightTarget.AMP), 
-            () -> mailman_.setHeight(HeightTarget.HOME)));
+            () -> mailman_.setHeight(HeightTarget.HOME)).unless(isHandingOff));
 
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote));
         driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5).onlyIf(isRearIntakeStagingNote));
         
         // Front Pickup
-        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote));
+        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote).withTimeout(2));
         //driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex().withTimeout(5).onlyIf(isFrontIntakeStagingNote));
 
         // Crawl
@@ -104,7 +105,7 @@ public abstract class OI {
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerSpeed(0.25),
+                () -> mailman_.setRollerSpeed(0.12),
                 () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
