@@ -173,7 +173,7 @@ public final class Constants {
       map.put(0.0, 0.0);
       map.put(1.6, 0.2);
       map.put(3.0, 0.2);
-      map.put(6.0, 0.2);
+      map.put(6.0, 0.35);
       return map;
     }
 
@@ -183,7 +183,7 @@ public final class Constants {
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
     public static final double WRIST_CONTROLLER_P = 9.0;
-    public static final double WRIST_CONTROLLER_D = 0.0;
+    public static final double WRIST_CONTROLLER_D = 1.8;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
     public static final double WRIST_ZERO_ANGLE = 0.289 * (2 * Math.PI); // 0.289 for Comp Bot

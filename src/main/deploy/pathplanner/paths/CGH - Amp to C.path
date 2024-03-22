@@ -3,32 +3,38 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.534123991324907,
-        "y": 6.304976456106759
+        "x": 0.7319122330552369,
+        "y": 6.640452511674254
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.409292510892716,
-        "y": 6.008968171782499
+        "x": 1.5903362575955933,
+        "y": 6.956194681620133
       },
       "isLocked": false,
-      "linkedName": "5 Piece Shoot Marker"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9026396514331507,
-        "y": 7.003080254377342
+        "x": 2.8927727086223416,
+        "y": 6.985795510052559
       },
       "prevControl": {
-        "x": 1.254860202028098,
-        "y": 7.042548025620577
+        "x": 1.9455461987847067,
+        "y": 6.531916140755359
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7,
+      "rotationDegrees": -157.93,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -39,13 +45,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -178.9769698113322,
+    "rotation": -157.93,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 5 Piece",
+  "folder": "CGH",
   "previewStartingState": {
-    "rotation": -178.60281897270374,
+    "rotation": -120.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

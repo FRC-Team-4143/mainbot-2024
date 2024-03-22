@@ -145,6 +145,10 @@ public class ClimberSubsystem extends Subsystem {
     io_.target_height_ = Math.max(adjusted, ClimberConstants.MAX_HEIGHT);
   }
 
+  public void lowerHeightTarget() {
+    io_.target_height_ += 1.0;
+  }
+
   public double getTargetHeight() {
     return io_.target_height_;
   }
@@ -163,6 +167,10 @@ public class ClimberSubsystem extends Subsystem {
     } else {
       endgame_commands_[io_.endgame_state_].schedule();
     }
+  }
+
+  public int getEndgameState() {
+    return io_.endgame_state_;
   }
 
   public class ClimberPeriodicIo implements Logged {

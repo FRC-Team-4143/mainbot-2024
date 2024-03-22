@@ -5,16 +5,17 @@
   "pathFolders": [
     "3 Piece",
     "4 Piece",
+    "5 Piece (4+1)",
     "Far 4 Piece",
     "Far 5 Piece",
-    "5 Piece (4+1)"
+    "CGH"
   ],
   "autoFolders": [
     "ABC",
     "ABCG"
   ],
-  "defaultMaxVel": 3.5,
-  "defaultMaxAccel": 3.5,
+  "defaultMaxVel": 3.0,
+  "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "maxModuleSpeed": 4.5

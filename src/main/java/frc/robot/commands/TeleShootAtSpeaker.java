@@ -17,6 +17,8 @@ import frc.robot.subsystems.PickupSubsystem;
 public class TeleShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
+  int ready_count_;
+
   public TeleShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
@@ -32,18 +34,20 @@ public class TeleShootAtSpeaker extends Command {
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     shot_note_ = false;
+    ready_count_ = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
+    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_) {
       CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(1));
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) {
+      ready_count_++;
+    }
+    if (ready_count_ >= 5) {
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
-    } else {
-      //ShooterSubsystem.getInstance().rollerStop();
     }
   }
 

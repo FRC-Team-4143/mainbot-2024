@@ -55,6 +55,7 @@ public abstract class OI {
         BooleanSupplier isFrontIntakeStagingNote = () -> pickup_front_.hasNote() && !shooter_.hasNote();
         BooleanSupplier isMailmanReady = () -> (mailman_.getTarget() != HeightTarget.HOME);
         BooleanSupplier isHandingOff = () -> (shooter_.isShooterHandoffState());
+        BooleanSupplier isClimbing = () -> (climber_.getEndgameState() >= 2);
 
         // ------------------        
         // Driver Controls
@@ -83,11 +84,11 @@ public abstract class OI {
             () -> mailman_.setHeight(HeightTarget.HOME)).unless(isHandingOff));
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote));
+        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote).ignoringDisable(true));
         driver_joystick_.rightBumper().onFalse(new TeleRearPickupIndex().withTimeout(5).onlyIf(isRearIntakeStagingNote));
         
         // Front Pickup
-        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote).withTimeout(2));
+        driver_joystick_.leftBumper().whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote).withTimeout(2).ignoringDisable(true));
         //driver_joystick_.leftBumper().onFalse(new TeleFrontPickupIndex().withTimeout(5).onlyIf(isFrontIntakeStagingNote));
 
         // Crawl
@@ -105,7 +106,7 @@ public abstract class OI {
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerSpeed(0.12),
+                () -> mailman_.setRollerSpeed(0.182),
                 () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
@@ -137,10 +138,10 @@ public abstract class OI {
             ()-> shooter_.toggleAutomaticAimMode()));
 
         // Endgame Climb step increment
-        operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()));
+        operator_joystick_.start().whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()).unless(isHandingOff));
 
         // Endgame Climb step decrement
-        operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()));
+        operator_joystick_.back().whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()).unless(isHandingOff));
 
         // Climb
         operator_joystick_.povUp().whileTrue(Commands.startEnd(
@@ -151,6 +152,9 @@ public abstract class OI {
 
         // Test buttons
         driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
+
+        driver_joystick_.a().onTrue(Commands.runOnce(
+            () -> climber_.lowerHeightTarget()).onlyIf(isClimbing));
 
     }
 

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7401886415755699,
-      "y": 6.663465994549679
+      "x": 0.7319122330552369,
+      "y": 6.640452511674254
     },
-    "rotation": -121.70142966950579
+    "rotation": -120.0
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,25 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoShootAtSpeaker"
+            "name": "IgnoreVision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeakerPreload"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3 Piece H"
+            "pathName": "CGH - Amp to C"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "3 Piece H to shoot"
+            "name": "AllowVision"
           }
         },
         {
@@ -38,13 +44,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "3 Piece G"
+            "pathName": "CGH - C to G"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3 Piece H to shoot"
+            "pathName": "CGH - G to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CGH - Shoot to H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CGH - H to shoot"
           }
         },
         {

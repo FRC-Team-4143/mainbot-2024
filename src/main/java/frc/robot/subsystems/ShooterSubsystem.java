@@ -230,6 +230,8 @@ public class ShooterSubsystem extends Subsystem {
         } else if (io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE) {
             io_.has_note_ = true;
         }
+
+        io_.last_shoot_mode_ = io_.shooter_mode;
     }
 
     @Override
@@ -404,7 +406,7 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public ShootMode getShootMode(){
-        return io_.shooter_mode;
+        return io_.last_shoot_mode_;
     }
 
     /**
@@ -567,6 +569,8 @@ public class ShooterSubsystem extends Subsystem {
         public double current_wrist_angle_ = 0.0;
         @Log.File
         public ShootMode shooter_mode = ShootMode.IDLE;
+        @Log.File
+        public ShootMode last_shoot_mode_ = ShootMode.IDLE;
         @Log.File
         public double roller_speed_ = 0.0;
         @Log.File
