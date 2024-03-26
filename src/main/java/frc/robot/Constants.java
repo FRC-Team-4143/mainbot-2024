@@ -187,7 +187,7 @@ public final class Constants {
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
     public static final double WRIST_ZERO_ANGLE = 0.289 * (2 * Math.PI); // 0.289 for Comp Bot
-    public static final double WRIST_HOME_ANGLE = 0.22689;
+    public static final double WRIST_HOME_ANGLE = Math.toRadians(11);
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
 
