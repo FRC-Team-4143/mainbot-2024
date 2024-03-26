@@ -38,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
@@ -242,9 +242,9 @@ public class SwerveDrivetrain extends Subsystem {
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityX(Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityY(Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         //
                         .withTargetDirection(io_.target_rotation_));
                 break;
@@ -266,6 +266,8 @@ public class SwerveDrivetrain extends Subsystem {
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
         request_parameters.timestamp = timestamp;
         request_parameters.operatorForwardDirection = io_.drivers_station_perspective_;
+
+        io_.chassis_speed_magnitude_ = calculateChassisSpeedMagnitude(io_.chassis_speeds_);
     }
 
     @Override
@@ -287,7 +289,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public Rotation2d getRobotRotation(){
-       return (new Pose2d(0, 0, io_.robot_yaw_).getRotation());
+       return io_.robot_yaw_;
     }
 
     /**
@@ -313,13 +315,6 @@ public class SwerveDrivetrain extends Subsystem {
                 },
                 this); // Subsystem for requirements
                 PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
-
-        // Logging callback for the active path, this is sent as a list of poses
-        PathPlannerLogging.setLogActivePathCallback((poses) -> {
-            // Do whatever you want with the poses here
-            PoseEstimator.getInstance().getFieldWidget().getObject("path").setPoses(poses);
-            io_.pp_active_path_ = poses;
-        });
 
         // Logging callback for target robot pose
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
@@ -464,6 +459,10 @@ public class SwerveDrivetrain extends Subsystem {
         return io_.drivers_station_perspective_;
     }
 
+    public double calculateChassisSpeedMagnitude(ChassisSpeeds chassis) {
+        return Math.sqrt((chassis.vxMetersPerSecond*chassis.vxMetersPerSecond) + (chassis.vyMetersPerSecond*chassis.vyMetersPerSecond));
+    }
+
     /**
      * Plain-Old-Data class holding the state of the swerve drivetrain.
      * This encapsulates most data that is relevant for telemetry or
@@ -495,7 +494,7 @@ public class SwerveDrivetrain extends Subsystem {
         @Log.File
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
         @Log.File
-        public List<Pose2d> pp_active_path_ = null;
+        public double chassis_speed_magnitude_;
     }
 
     @Override

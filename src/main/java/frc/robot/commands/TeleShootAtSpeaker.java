@@ -10,7 +10,6 @@ import frc.robot.OI;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
-import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem;
@@ -18,11 +17,13 @@ import frc.robot.subsystems.PickupSubsystem;
 public class TeleShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
+  int ready_count_;
+
   public TeleShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
-    addRequirements(PickupSubsystem.getMailmanInstance());
+    addRequirements(PickupSubsystem.getMailmanInstance()); // Prevent Notes from going under shooter
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -30,32 +31,32 @@ public class TeleShootAtSpeaker extends Command {
   @Override
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
-    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     shot_note_ = false;
+    ready_count_ = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_){
-      CommandScheduler.getInstance().schedule(new TeleRearPickup());
-    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked() && OI.getDriverJoystickRightY()){
+    if (!ShooterSubsystem.getInstance().hasNote() && !shot_note_) {
+      CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(1));
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) {
+      ready_count_++;
+    }
+    if (ready_count_ >= 5) {
       ShooterSubsystem.getInstance().setRollerFeed();
       shot_note_ = true;
-    } else {
-      //ShooterSubsystem.getInstance().rollerStop();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ShooterSubsystem.getInstance().flyWheelStop();
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ShooterSubsystem.getInstance().rollerStop();
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Returns true when the command should end.

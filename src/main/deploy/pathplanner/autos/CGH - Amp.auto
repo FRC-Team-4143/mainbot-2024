@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7284778050297884,
-      "y": 6.651755158003897
+      "x": 0.7319122330552369,
+      "y": 6.640452511674254
     },
-    "rotation": -116.71900274436635
+    "rotation": -120.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,7 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Short 4 Piece - A"
+            "pathName": "CGH - Amp to C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AllowVision"
           }
         },
         {
@@ -32,7 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 Piece - B"
+            "pathName": "CGH - C to G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CGH - G to shoot"
           }
         },
         {
@@ -44,7 +62,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 Piece - C"
+            "pathName": "CGH - Shoot to H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CGH - H to shoot"
           }
         },
         {
@@ -56,6 +80,6 @@
       ]
     }
   },
-  "folder": "ABC - 4 Piece",
+  "folder": null,
   "choreoAuto": false
 }

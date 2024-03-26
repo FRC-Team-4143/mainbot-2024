@@ -37,6 +37,7 @@ public final class Constants {
   }
 
   public class DrivetrainConstants {
+
     // Can bus names for each of the swerve modules
     public static final String[] MODULE_CANBUS_NAME = { "CANivore", "CANivore", "CANivore", "CANivore" };
 
@@ -82,6 +83,7 @@ public final class Constants {
     public static final double MAX_DRIVE_SPEED = 5; // 6 meters per second desired top speed
     public static final double MAX_DRIVE_ANGULAR_RATE = Math.PI * 2; // Rotation per second max angular velocity
     public static final double CRAWL_DRIVE_SPEED = 0.4;
+    public static final double MAX_TARGET_SPEED = 1;
 
     private static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()
         .withDriveMotorGearRatio(DRIVE_GEAR_RATIO)
@@ -161,39 +163,17 @@ public final class Constants {
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30;
-    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear
-                                                                                                              // Shooter
-                                                                                                              // Velocity
-                                                                                                              // (80%
-                                                                                                              // for
-                                                                                                              // loss)
-    public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32
-                                                                                                                       // :
-                                                                                                                       // 250
-                                                                                                                       // |
-                                                                                                                       // 2626.056
-                                                                                                                       // :
-                                                                                                                       // 275
-                                                                                                                       // |
-                                                                                                                       // 300
-                                                                                                                       // :
-                                                                                                                       // 2864.78
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
+    public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32 : 250 | 2626.056 : 275 | 300 : 2864.78
     public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
     public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
-      if (IS_COMP_BOT) { // Comp Bot
-        map.put(0.0, 0.0);
-        map.put(1.6, 0.2);
-        map.put(3.0, 0.2);
-        map.put(6.0, 0.2);
-      } else { // Practice Bot
-        map.put(0.0, 0.0);
-        map.put(1.6, 0.2);
-        map.put(3.0, 0.2); // 0.2
-        map.put(6.0, 0.45); // 0.6
-      }
+      map.put(0.0, 0.0);
+      map.put(1.6, 0.2);
+      map.put(3.0, 0.2);
+      map.put(6.0, 0.35);
       return map;
     }
 
@@ -202,20 +182,19 @@ public final class Constants {
     public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double WRIST_CONTROLLER_P = 13.0;
+    public static final double WRIST_CONTROLLER_P = 9.0;
+    public static final double WRIST_CONTROLLER_D = 1.8;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
-    public static final double WRIST_ZERO_ANGLE = ((IS_COMP_BOT) ? 0.289 : 0.293) * (2 * Math.PI); // 0.289 for Comp Bot
-                                                                                                   // // 0.293 for
-                                                                                                   // Practice Bot
-    public static final double WRIST_HOME_ANGLE = 0.22689;
+    public static final double WRIST_ZERO_ANGLE = 0.289 * (2 * Math.PI); // 0.289 for Comp Bot
+    public static final double WRIST_HOME_ANGLE = Math.toRadians(11);
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
 
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
-    public static final boolean ROLLER_MOTOR_INVERTED = ((IS_COMP_BOT) ? false : true);
+    public static final boolean ROLLER_MOTOR_INVERTED = false;
 
     // Yaw Aiming Tolerance
     public static final double YAW_TOLERANCE = Math.toRadians(5);
@@ -232,24 +211,26 @@ public final class Constants {
     public static final double ROLLER_FORWARD = 1.0;
     public static final double ROLLER_REVERSE = -0.5;
     public static final int ROLLER_AMP_LIMIT = 40;
-    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, -1);
-    public static final double HAS_NOTE_RANGE = 150;
-    public static final double NO_NOTE_RANGE = 200;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
+    public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3, 180, 200);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, 2, 105, 130);
   }
 
   // Pickup Settings Class
   public class PickupSettings {
-    public PickupSettings(int id, boolean invert, int sense_id) {
+    public PickupSettings(int id, boolean invert, int sense_id, double has_note_range, double no_note_range) {
       ROLLER_MOTOR_ID = id;
       ROLLER_MOTOR_INVERTED = invert;
       PICKUP_NOTE_SENSOR_ID = sense_id;
+      HAS_NOTE_RANGE = has_note_range;
+      NO_NOTE_RANGE = no_note_range;
     }
 
     public final int ROLLER_MOTOR_ID;
     public final boolean ROLLER_MOTOR_INVERTED;
     public final int PICKUP_NOTE_SENSOR_ID;
+    public final double HAS_NOTE_RANGE;
+    public final double NO_NOTE_RANGE;
   }
 
   // IDs Range from 30 - 39
@@ -265,31 +246,30 @@ public final class Constants {
     public static final double ELEVATOR_CONTROLLER_D = 0.0;
     public static final double ELEVATOR_CONTROLLER_MAX_VEL = 0.0;
     public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
+    public static final double ELEVATOR_HEIGHT_TOLERANCE = 1.0;
 
     // Dropper Motor Constants
-    public static final int DROPPER_MOTOR_ID = (IS_COMP_BOT)? 0 : 32;
+    public static final int DROPPER_MOTOR_ID = 0; // PWM Channel
     public static final double DROPPER_IN_SPEED = 0.5;
     public static final double DROPPER_OUT_SPEED = -1.0;
-
-    // Mailman TOF Constants
-    public static final int NOTE_SENSOR_ID = 2;
-    public static final double SENSOR_SAMPLE_TIME = 50.0;
-    public static final double HAS_NOTE_RANGE = 105;
-    public static final double NO_NOTE_RANGE = 130;
   }
 
   // IDs range from 40 - 49
   public static class ClimberConstants {
     public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
-    public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
     public static final double CLIMBER_CONTROLLER_P = 0.05;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_P = 0.1;
     public static final double CLIMBER_CONTROLLER_FF = 0.0;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_FF = -0.1;
-    public static final double CLIMB_HEIGHT = 5.0;
+    public static final double CLIMB_HEIGHT = 10.0;
     public static final double HOME_HEIGHT = 0.0;
     public static final double HALF_HEIGHT = -16.0;
-    public static final double MAX_HEIGHT = -32.0;
+    public static final double MAX_HEIGHT = -72.85;
     public static final double HEIGHT_TOLERANCE = 1.0;
+  }
+
+  public static class LEDConstants {
+    public static final int LED_PORT = 8;
+    public static final int LED_LENGTH = 21;
   }
 }

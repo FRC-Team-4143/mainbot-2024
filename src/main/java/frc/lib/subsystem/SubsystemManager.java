@@ -94,6 +94,7 @@ public abstract class SubsystemManager {
         loopThread.startPeriodic(.01);
 
         Monologue.setupMonologue(ios, "Robot", true, false);
+        DriverStation.startDataLog(DataLogManager.getLog());
         log_init = true;
     }
 

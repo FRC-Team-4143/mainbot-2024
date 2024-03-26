@@ -30,7 +30,7 @@ public class OverrideTelePass extends Command {
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
     ShooterSubsystem.getInstance().setTarget(ShootTarget.PASS);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.PASS);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     shot_note_ = false;
   }
 

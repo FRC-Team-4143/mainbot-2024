@@ -20,48 +20,57 @@ public class HandoffToShooter extends Command {
 
     boolean seen_note_ = false;
 
-  /** Creates a new HandoffToShooter. */
-  public HandoffToShooter() {
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooter_);
-    addRequirements(pickup_front_);
-    addRequirements(mailman_);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    seen_note_ = false;
-    if (!shooter_.hasNote()){
-      mailman_.setHeight(HeightTarget.HOME);
-      shooter_.setShootMode(ShootMode.RECEIVE);
-      mailman_.setRollerIntake();
-      pickup_front_.setPickupMode(PickupMode.PICKUP);
-      shooter_.setRollerReverse();
+    /** Creates a new HandoffToShooter. */
+    public HandoffToShooter() {
+        // Use addRequirements() here to declare subsystem dependencies.
+        addRequirements(shooter_);
+        addRequirements(pickup_front_);
+        addRequirements(mailman_);
     }
-  }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    if (shooter_.hasNote()){
-          seen_note_ = true;
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        seen_note_ = false;
+        if (!shooter_.hasNote()) {
+            mailman_.setHeight(HeightTarget.HOME);
+        }
     }
-  }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    shooter_.setShootMode(ShootMode.IDLE);
-    shooter_.rollerStop();
-    mailman_.setRollerStop();
-    pickup_front_.setPickupMode(PickupMode.IDLE);
-    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex());
-  }
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        if (shooter_.hasNote()) {
+            seen_note_ = true;
+        }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return (seen_note_ == true && !shooter_.hasNote());
-  }
+        if (mailman_.atHeight() && shooter_.wristLocked() && shooter_.getShootMode() == ShootMode.RECEIVE) {
+            mailman_.setRollerIntake();
+            pickup_front_.setPickupMode(PickupMode.PICKUP);
+            shooter_.setRollerReverse();
+        } else if (mailman_.atHeight()) {
+            shooter_.setShootMode(ShootMode.RECEIVE);
+        } else {
+            mailman_.setHeight(HeightTarget.HOME);
+            mailman_.setRollerStop();
+            pickup_front_.setPickupMode(PickupMode.IDLE);
+            shooter_.rollerStop();
+        }
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        shooter_.setShootMode(ShootMode.IDLE);
+        shooter_.rollerStop();
+        mailman_.setRollerStop();
+        pickup_front_.setPickupMode(PickupMode.IDLE);
+        CommandScheduler.getInstance().schedule(new TeleRearPickupIndex());
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return (seen_note_ == true && !shooter_.hasNote());
+    }
 }

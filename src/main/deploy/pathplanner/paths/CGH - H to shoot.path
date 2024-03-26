@@ -3,32 +3,38 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.28012348332389,
-        "y": 2.49
+        "x": 8.270256540513081,
+        "y": 7.429807936538951
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.044015252740264,
-        "y": 1.1000419364231777
+        "x": 7.5993044293780905,
+        "y": 7.271936851566012
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0589342776403092,
-        "y": 2.9862633191742836
+        "x": 4.284011644946369,
+        "y": 6.8
       },
       "prevControl": {
-        "x": 4.540552158027394,
-        "y": 1.2925695082159403
+        "x": 4.984564584513786,
+        "y": 6.90685996756609
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Far 4 Piece to shoot point"
+      "linkedName": "CGH shoot point"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.75,
+      "rotationDegrees": -163.92,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -39,13 +45,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 140.06361685303003,
+    "rotation": -163.92,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 4 Piece",
+  "folder": "CGH",
   "previewStartingState": {
-    "rotation": -151.93,
+    "rotation": -163.2,
     "velocity": 0
   },
   "useDefaultConstraints": true

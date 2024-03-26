@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7911138899200891,
-      "y": 6.571383911998593
+      "x": 1.3337957445145674,
+      "y": 5.527514849606139
     },
-    "rotation": -121.70142966950579
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,25 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoShootAtSpeaker"
+            "name": "IgnoreVision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeakerPreload"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3 Piece H"
+            "pathName": "New 4 Piece - B"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "3 Piece H to shoot"
+            "name": "AllowVision"
           }
         },
         {
@@ -38,19 +44,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "3 Piece G"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3 Piece H to shoot"
+            "pathName": "New 4 Piece - C"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "New 4 Piece - A"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "New 4 Piece - D"
           }
         }
       ]

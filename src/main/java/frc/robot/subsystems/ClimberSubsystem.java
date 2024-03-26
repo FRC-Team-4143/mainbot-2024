@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
@@ -35,8 +36,7 @@ public class ClimberSubsystem extends Subsystem {
     return climberInstance;
   }
 
-  private CANSparkFlex left_climber_motor_;
-  private CANSparkFlex right_climber_motor_;
+  private CANSparkMax left_climber_motor_;
   private RelativeEncoder climber_encoder_;
   private PIDController rio_climber_controller_;
 
@@ -58,8 +58,7 @@ public class ClimberSubsystem extends Subsystem {
 
   private ClimberSubsystem() {
     io_ = new ClimberPeriodicIo();
-    left_climber_motor_ = new CANSparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
-    right_climber_motor_ = new CANSparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
+    left_climber_motor_ = new CANSparkMax(ClimberConstants.LEFT_CLIMBER_MOTOR_ID_, MotorType.kBrushless);
     climber_encoder_ = left_climber_motor_.getEncoder();
     rio_climber_controller_ = new PIDController(ClimberConstants.CLIMBER_CONTROLLER_P, 0, 0);
 
@@ -72,11 +71,6 @@ public class ClimberSubsystem extends Subsystem {
     left_climber_motor_.setIdleMode(IdleMode.kBrake);
     left_climber_motor_.setSmartCurrentLimit(200);
     left_climber_motor_.burnFlash();
-
-    right_climber_motor_.setInverted(false);
-    right_climber_motor_.setIdleMode(IdleMode.kBrake);
-    right_climber_motor_.setSmartCurrentLimit(200);
-    right_climber_motor_.burnFlash();
   }
 
   @Override
@@ -93,13 +87,16 @@ public class ClimberSubsystem extends Subsystem {
       rio_climber_controller_.setP(ClimberConstants.CLIMBER_CONTROLLER_P);
       io_.controller_ff_ = ClimberConstants.CLIMBER_CONTROLLER_FF;
     }
-    io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_) + io_.controller_ff_;
+    if(io_.manual_control_){
+      io_.winch_speed_ = io_.manual_winch_speed_;
+    } else {
+      io_.winch_speed_ = rio_climber_controller_.calculate(io_.current_height_, io_.target_height_) + io_.controller_ff_;
+    }
   }
 
   @Override
   public void writePeriodicOutputs(double timestamp) {
     left_climber_motor_.set(io_.winch_speed_);
-    right_climber_motor_.set(io_.winch_speed_);
   }
 
   @Override
@@ -108,7 +105,6 @@ public class ClimberSubsystem extends Subsystem {
     SmartDashboard.putNumber("Climber Control/Target Height", io_.target_height_);
     SmartDashboard.putNumber("Climber Control/Winch Speed", io_.winch_speed_);
     SmartDashboard.putNumber("Climber Control/Motor1 Applied Output", left_climber_motor_.getAppliedOutput());
-    SmartDashboard.putNumber("Climber Control/Motor2 Applied Output", right_climber_motor_.getAppliedOutput());
   }
 
   public void resetClimberEncoder() {
@@ -116,14 +112,16 @@ public class ClimberSubsystem extends Subsystem {
   }
 
   public void setClimbSpeed(double speed) {
-    io_.winch_speed_ = speed;
+    io_.manual_control_ = true;
+    io_.manual_winch_speed_ = speed;
   }
 
   public void stopClimb() {
-    io_.winch_speed_ = 0.0;
+    io_.manual_winch_speed_ = 0.0;
   }
 
   public void setHeight(ClimbTarget target, int slot) {
+    io_.manual_control_ = false;
     io_.climb_target_ = target;
     if (target == ClimbTarget.MAX) {
       io_.target_height_ = ClimberConstants.MAX_HEIGHT;
@@ -147,6 +145,10 @@ public class ClimberSubsystem extends Subsystem {
     io_.target_height_ = Math.max(adjusted, ClimberConstants.MAX_HEIGHT);
   }
 
+  public void lowerHeightTarget() {
+    io_.target_height_ += 1.0;
+  }
+
   public double getTargetHeight() {
     return io_.target_height_;
   }
@@ -167,6 +169,10 @@ public class ClimberSubsystem extends Subsystem {
     }
   }
 
+  public int getEndgameState() {
+    return io_.endgame_state_;
+  }
+
   public class ClimberPeriodicIo implements Logged {
     @Log.File
     public double current_height_ = 0.0;
@@ -182,6 +188,10 @@ public class ClimberSubsystem extends Subsystem {
     public int pid_slot_ = 0;
     @Log.File
     public ClimbTarget climb_target_ = ClimbTarget.HOME;
+    @Log.File
+    public boolean manual_control_ = false;
+    @Log.File
+    public double manual_winch_speed_ = 0.0;
   }
 
   @Override

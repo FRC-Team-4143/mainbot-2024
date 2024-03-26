@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 8.293678213604645,
-        "y": 4.098792791023527
+        "x": 8.28,
+        "y": 4.17
       },
       "prevControl": {
-        "x": 7.790112242136039,
-        "y": 3.3492992520935103
+        "x": 7.776434028531393,
+        "y": 3.420506461069983
       },
       "nextControl": null,
       "isLocked": false,
@@ -55,7 +55,7 @@
   "eventMarkers": [
     {
       "name": "Enable Vision",
-      "waypointRelativePos": 0.2,
+      "waypointRelativePos": 0.4,
       "command": {
         "type": "parallel",
         "data": {
