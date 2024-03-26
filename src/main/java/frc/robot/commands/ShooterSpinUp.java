@@ -23,7 +23,6 @@ public class ShooterSpinUp extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP);
   }
 
@@ -37,9 +36,6 @@ public class ShooterSpinUp extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if(!OI.getDriverRightTriggerPulled()){
-      ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-    }
   }
 
   // Returns true when the command should end.

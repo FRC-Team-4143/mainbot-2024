@@ -83,7 +83,7 @@ public final class Constants {
     public static final double MAX_DRIVE_SPEED = 5; // 6 meters per second desired top speed
     public static final double MAX_DRIVE_ANGULAR_RATE = Math.PI * 2; // Rotation per second max angular velocity
     public static final double CRAWL_DRIVE_SPEED = 0.4;
-    public static final double MAX_TARGET_SPEED = 0.5;
+    public static final double MAX_TARGET_SPEED = 1;
 
     private static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()
         .withDriveMotorGearRatio(DRIVE_GEAR_RATIO)
@@ -173,7 +173,7 @@ public final class Constants {
       map.put(0.0, 0.0);
       map.put(1.6, 0.2);
       map.put(3.0, 0.2);
-      map.put(6.0, 0.2);
+      map.put(6.0, 0.35);
       return map;
     }
 
@@ -182,11 +182,12 @@ public final class Constants {
     public static final int WRIST_ENCODER_ID = 0;
     public static final double WRIST_ANGLE_MAX = 0;
     public static final double WRIST_ANGLE_MIN = 0;
-    public static final double WRIST_CONTROLLER_P = 13.0;
+    public static final double WRIST_CONTROLLER_P = 9.0;
+    public static final double WRIST_CONTROLLER_D = 1.8;
     public static final double WRIST_CONTROLLER_FF = 0.2;
     public static final double WRIST_TOLERANCE = Math.toRadians(4);
     public static final double WRIST_ZERO_ANGLE = 0.289 * (2 * Math.PI); // 0.289 for Comp Bot
-    public static final double WRIST_HOME_ANGLE = 0.22689;
+    public static final double WRIST_HOME_ANGLE = Math.toRadians(11);
     public static final double WRIST_HANDOFF_ANGLE = 0.1222;
     public static final double WRIST_CLIMB_ANGLE = Math.toRadians(60);
 
@@ -245,6 +246,7 @@ public final class Constants {
     public static final double ELEVATOR_CONTROLLER_D = 0.0;
     public static final double ELEVATOR_CONTROLLER_MAX_VEL = 0.0;
     public static final double ELEVATOR_CONTROLLER_MAX_ACC = 0.0;
+    public static final double ELEVATOR_HEIGHT_TOLERANCE = 1.0;
 
     // Dropper Motor Constants
     public static final int DROPPER_MOTOR_ID = 0; // PWM Channel
@@ -255,15 +257,19 @@ public final class Constants {
   // IDs range from 40 - 49
   public static class ClimberConstants {
     public static final int LEFT_CLIMBER_MOTOR_ID_ = 40;
-    public static final int RIGHT_CLIMBER_MOTOR_ID_ = 41;
     public static final double CLIMBER_CONTROLLER_P = 0.05;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_P = 0.1;
     public static final double CLIMBER_CONTROLLER_FF = 0.0;
     public static final double WEIGHTED_CLIMBER_CONTROLLER_FF = -0.1;
-    public static final double CLIMB_HEIGHT = 5.0;
+    public static final double CLIMB_HEIGHT = 10.0;
     public static final double HOME_HEIGHT = 0.0;
     public static final double HALF_HEIGHT = -16.0;
-    public static final double MAX_HEIGHT = -32.0;
+    public static final double MAX_HEIGHT = -72.85;
     public static final double HEIGHT_TOLERANCE = 1.0;
+  }
+
+  public static class LEDConstants {
+    public static final int LED_PORT = 8;
+    public static final int LED_LENGTH = 21;
   }
 }

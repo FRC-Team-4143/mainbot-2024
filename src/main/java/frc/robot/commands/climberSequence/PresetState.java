@@ -1,6 +1,7 @@
 package frc.robot.commands.climberSequence;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -29,12 +30,12 @@ public class PresetState extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
+    ClimberSubsystem.getInstance().setClimbSpeed(0.0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return true;
+    return ClimberSubsystem.getInstance().atHeight() && (ClimberSubsystem.getInstance().getTargetHeight() == ClimberConstants.HOME_HEIGHT);
   }
 }

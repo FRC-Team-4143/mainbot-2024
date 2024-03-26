@@ -242,9 +242,9 @@ public class SwerveDrivetrain extends Subsystem {
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(Util.clamp(-io_.driver_joystick_leftY_, Constants.DrivetrainConstants.MAX_TARGET_SPEED) * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityX(Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
-                        .withVelocityY(Util.clamp(-io_.driver_joystick_leftX_, Constants.DrivetrainConstants.MAX_TARGET_SPEED) * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityY(Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         //
                         .withTargetDirection(io_.target_rotation_));
                 break;
@@ -266,6 +266,8 @@ public class SwerveDrivetrain extends Subsystem {
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
         request_parameters.timestamp = timestamp;
         request_parameters.operatorForwardDirection = io_.drivers_station_perspective_;
+
+        io_.chassis_speed_magnitude_ = calculateChassisSpeedMagnitude(io_.chassis_speeds_);
     }
 
     @Override
@@ -457,6 +459,10 @@ public class SwerveDrivetrain extends Subsystem {
         return io_.drivers_station_perspective_;
     }
 
+    public double calculateChassisSpeedMagnitude(ChassisSpeeds chassis) {
+        return Math.sqrt((chassis.vxMetersPerSecond*chassis.vxMetersPerSecond) + (chassis.vyMetersPerSecond*chassis.vyMetersPerSecond));
+    }
+
     /**
      * Plain-Old-Data class holding the state of the swerve drivetrain.
      * This encapsulates most data that is relevant for telemetry or
@@ -487,6 +493,8 @@ public class SwerveDrivetrain extends Subsystem {
         public double driver_POVy = 0.0;
         @Log.File
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
+        @Log.File
+        public double chassis_speed_magnitude_;
     }
 
     @Override

@@ -2,19 +2,25 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7284778050297884,
-      "y": 4.42669621430541
+      "x": 0.7636103146671328,
+      "y": 4.450117887396973
     },
-    "rotation": -90.0
+    "rotation": 123.23171106797939
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeakerPreload"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece Start"
+            "pathName": "Wide 4 Piece - A"
           }
         },
         {
@@ -26,13 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece D"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far 4 Piece D to shoot"
+            "pathName": "4 Piece - B"
           }
         },
         {
@@ -44,31 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece E"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far 4 Piece E to shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShootAtSpeaker"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far 4 Piece F"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far 4 Piece F to shoot"
+            "pathName": "4 Piece - C"
           }
         },
         {
@@ -80,6 +56,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "ABC",
   "choreoAuto": false
 }

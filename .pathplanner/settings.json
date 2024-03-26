@@ -5,13 +5,14 @@
   "pathFolders": [
     "3 Piece",
     "4 Piece",
+    "5 Piece (4+1)",
     "Far 4 Piece",
     "Far 5 Piece",
-    "5 Piece (4+1)"
+    "CGH"
   ],
   "autoFolders": [
-    "ABCG - 5 Piece",
-    "ABC - 4 Piece"
+    "ABC",
+    "ABCG"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

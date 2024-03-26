@@ -81,6 +81,18 @@ public class MailmanSubsystem extends Subsystem {
 
     @Override
     public void updateLogic(double timestamp) {
+        switch (io_.target_){
+            case AMP:
+                io_.target_height_ = MailmanConstants.AMP_HEIGHT;
+                break;
+            case TRAP:
+                io_.target_height_ = MailmanConstants.TRAP_HEIGHT;
+                break;
+            case HOME:
+            default:
+                io_.target_height_ = MailmanConstants.HOME_HEIGHT;
+                break;
+        }
     }
 
     @Override
@@ -97,7 +109,11 @@ public class MailmanSubsystem extends Subsystem {
     }
 
     public boolean atHeight() {
-        return Util.epislonEquals(io_.current_height_, io_.target_height_);
+        return Util.epislonEquals(io_.current_height_, io_.target_height_, MailmanConstants.ELEVATOR_HEIGHT_TOLERANCE);
+    }
+
+    public HeightTarget getTarget(){
+        return io_.target_;
     }
 
     /**
@@ -106,13 +122,7 @@ public class MailmanSubsystem extends Subsystem {
      * @see HeightTarget
      */
     public void setHeight(HeightTarget target) {
-        if (target == HeightTarget.AMP) {
-            io_.target_height_ = MailmanConstants.AMP_HEIGHT;
-        } else if (target == HeightTarget.TRAP) {
-            io_.target_height_ = MailmanConstants.TRAP_HEIGHT;
-        } else {
-            io_.target_height_ = MailmanConstants.HOME_HEIGHT;
-        }
+        io_.target_ = target;
     }
 
     /**
@@ -170,6 +180,8 @@ public class MailmanSubsystem extends Subsystem {
         public double roller_speed_ = 0.0;
         @Log.File
         public Rotation2d target_rotation_ = new Rotation2d();
+        @Log.File
+        public HeightTarget target_ = HeightTarget.HOME;
     }
 
     @Override
