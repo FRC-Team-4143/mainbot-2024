@@ -111,15 +111,14 @@ public class PoseEstimator extends Subsystem {
             supression_publisher_.set(!io_.vision_ready_status_);   
         }
 
-        update_counter_--;
-        if (update_counter_ <= 0) {
+        if(DriverStation.isDisabled()){
+            update_counter_--;
+            if (update_counter_ <= 0) {
             odom_publisher_.set(io_.pose_);
-            if (DriverStation.isDisabled()) {
                 update_counter_ = 50;
-            } else {
-                update_counter_ = 2;
             }
-
+        } else {
+            odom_publisher_.set(io_.pose_);
         }
     }
 

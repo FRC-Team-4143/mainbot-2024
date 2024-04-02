@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.AddressableLED;

@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import frc.lib.Util;
 import frc.robot.commands.*;
 
@@ -80,8 +82,16 @@ public abstract class OI {
 
         // Move the Elevator to Amp Position
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
-            () -> mailman_.setHeight(HeightTarget.AMP), 
-            () -> mailman_.setHeight(HeightTarget.HOME)).unless(isHandingOff));
+            () -> {
+                mailman_.setHeight(HeightTarget.AMP);
+                swerve_drivetrain_.setTargetRotation(swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
+                swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
+                }, 
+            () -> {
+                mailman_.setHeight(HeightTarget.HOME);
+                swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
+                }
+            ).unless(isHandingOff));
 
         // Rear Pickup
         driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote).ignoringDisable(true));

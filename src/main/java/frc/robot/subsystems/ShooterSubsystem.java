@@ -249,8 +249,8 @@ public class ShooterSubsystem extends Subsystem {
         target_pub.set(io_.target_offset_pose);
         rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
 
-        SmartDashboard.putBoolean("Shooter TOF/Has Note", io_.has_note_);
-        SmartDashboard.putNumber("Shooter TOF/Range", io_.note_sensor_range_);
+        SmartDashboard.putBoolean("TOF/Shooter/Has Note", io_.has_note_);
+        SmartDashboard.putNumber("TOF/Shooter/Range", io_.note_sensor_range_);
 
         // Target Locked Tests
         SmartDashboard.putBoolean("Target Locked Check/Target Locked", this.isTargetLocked());
@@ -478,7 +478,7 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     private ChassisSpeeds transformChassisVelocity() {
-        ChassisSpeeds temp_chassis_speed = SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds();
+        ChassisSpeeds temp_chassis_speed = ChassisSpeeds.fromRobotRelativeSpeeds(SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds(), SwerveDrivetrain.getInstance().getRobotRotation());
         io_.target_transform_ = new Transform3d(io_.target_.getTranslation(), io_.target_.getRotation());
         Translation3d temp_translation = new Translation3d(temp_chassis_speed.vxMetersPerSecond,
                 temp_chassis_speed.vyMetersPerSecond, 0.0);
@@ -524,24 +524,6 @@ public class ShooterSubsystem extends Subsystem {
         }
         return result;
     }
-
-    // private double calculateWristAnglePass(Pose2d robot_pose, Pose3d target_pose,
-    // double velocity) {
-    // Pose3d shooter_pose = (new
-    // Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
-
-    // double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) +
-    // io_.target_offset_lookup_;
-    // double d = calculateLinearDist(robot_pose, target_pose);
-    // double G = 9.81;
-    // double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity *
-    // velocity * z);
-    // double result = Math.atan2((velocity * velocity) + Math.sqrt(root), G * d);
-    // if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
-    // return ShooterConstants.WRIST_HOME_ANGLE;
-    // }
-    // return result;
-    // }
 
     private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target_pose) {
         Pose2d pose_difference = robot_pose.relativeTo(target_pose.toPose2d());

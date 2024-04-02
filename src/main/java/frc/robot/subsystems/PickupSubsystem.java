@@ -10,10 +10,8 @@ import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import frc.robot.Constants.PickupConstants;
 import frc.robot.Constants.PickupSettings;
 import frc.robot.Constants.ShooterConstants;
@@ -35,14 +33,14 @@ public class PickupSubsystem extends Subsystem {
 
     public static PickupSubsystem getShooterInstance() {
         if (shooterPickupInstance == null) {
-            shooterPickupInstance = new PickupSubsystem(PickupConstants.SHOOTER_PICKUP, "shooter");
+            shooterPickupInstance = new PickupSubsystem(PickupConstants.SHOOTER_PICKUP, "Shooter Pickup");
         }
         return shooterPickupInstance;
     }
 
     public static PickupSubsystem getMailmanInstance() {
         if (mailmainPickupInstance == null) {
-            mailmainPickupInstance = new PickupSubsystem(PickupConstants.MAILMAN_PICKUP, "mailman");
+            mailmainPickupInstance = new PickupSubsystem(PickupConstants.MAILMAN_PICKUP, "Mailman Pickup");
         }
         return mailmainPickupInstance;
     }
@@ -120,8 +118,8 @@ public class PickupSubsystem extends Subsystem {
 
     @Override
     public void outputTelemetry(double timestamp) {
-        SmartDashboard.putBoolean(name_ + "/has_note", hasNote());
-        SmartDashboard.putNumber(name_ + "/range", io_.note_sensor_range_);
+        SmartDashboard.putBoolean("TOF/" + name_ + "/Has Note", hasNote());
+        SmartDashboard.putNumber("TOF/" + name_ + "/Range", io_.note_sensor_range_);
     }
 
     public void tellShooterReady() {
