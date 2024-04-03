@@ -36,6 +36,12 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class LimelightConstants {
+    public static final double LENS_HEIGHT_METERS = 20.0; 
+    public static final double MOUNT_ANGLE_DEGREES = 25.0; 
+    public static final double goalHeightInches = 0.0; 
+  }
+
   public class DrivetrainConstants {
 
     // Can bus names for each of the swerve modules
