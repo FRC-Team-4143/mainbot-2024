@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.ShooterSpinUp;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -31,8 +30,6 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-
-import java.util.function.BooleanSupplier;
 
 import com.playingwithfusion.TimeOfFlight;
 
@@ -190,8 +187,10 @@ public class ShooterSubsystem extends Subsystem {
             case SPINUP:
                 if(io_.target_mode_ == ShootTarget.SPEAKER){
                     io_.target_flywheel_speed_ = 550;
+                    io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
                 } else if(io_.target_mode_ == ShootTarget.PASS){
                     io_.target_flywheel_speed_ = 325;
+                    io_.target_wrist_angle_ = Math.toRadians(40);
                 }
                 break;
             case TRANSFER:

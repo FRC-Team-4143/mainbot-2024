@@ -15,8 +15,6 @@ public class ShooterSpinUp extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
   public ShooterSpinUp() {
-    addRequirements(ShooterSubsystem.getInstance());
-    addRequirements(MailmanSubsystem.getInstance());
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -36,6 +34,7 @@ public class ShooterSpinUp extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Returns true when the command should end.
