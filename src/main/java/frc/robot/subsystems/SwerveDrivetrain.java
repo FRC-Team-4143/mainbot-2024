@@ -93,10 +93,6 @@ public class SwerveDrivetrain extends Subsystem {
         NOTE_TARGET
     }
 
-    private SwerveRequest.FieldCentric field_centric;
-    private SwerveRequest.RobotCentric robot_centric;
-    private SwerveRequest.FieldCentricFacingAngle target_facing;
-
     // Robot Hardware
     private final Pigeon2 pigeon_imu;
     private final SwerveModule[] swerve_modules;
@@ -109,7 +105,11 @@ public class SwerveDrivetrain extends Subsystem {
     private final Translation2d[] module_locations;
 
     // Drive requests
-    private SwerveRequest.ApplyChassisSpeeds auto_request, note_request;
+    private SwerveRequest.ApplyChassisSpeeds auto_request, chassis_speed_request;
+    private SwerveRequest.FieldCentric field_centric;
+    private SwerveRequest.RobotCentric robot_centric;
+    private SwerveRequest.FieldCentricFacingAngle target_facing;
+
     private SwerveRequest request_to_apply;
     private SwerveControlRequestParameters request_parameters;
 
@@ -181,7 +181,7 @@ public class SwerveDrivetrain extends Subsystem {
                 .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
         auto_request = new SwerveRequest.ApplyChassisSpeeds()
                 .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
-        note_request = new SwerveRequest.ApplyChassisSpeeds()
+        chassis_speed_request = new SwerveRequest.ApplyChassisSpeeds()
                 .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
@@ -272,7 +272,7 @@ public class SwerveDrivetrain extends Subsystem {
                                 -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case NOTE_TARGET:
-                setControl(note_request.withSpeeds(calculateNoteControl()));
+                setControl(chassis_speed_request.withSpeeds(calculateNoteRequest()));
                 break;
             default:
                 // yes these dont do anything for auto...
@@ -487,15 +487,9 @@ public class SwerveDrivetrain extends Subsystem {
                 + (chassis.vyMetersPerSecond * chassis.vyMetersPerSecond));
     }
 
-    public ChassisSpeeds calculateNoteControl() {
-        
-
-        // note_drive_controller_.getXController().calculate(PoseEstimator.getInstance().getOdomPose().getX(), LimeLightSubsystem.getInstance().getNotePose().getX());
-        // note_drive_controller_.getYController().calculate(PoseEstimator.getInstance().getOdomPose().getY(), LimeLightSubsystem.getInstance().getNotePose().getY());
-        // note_drive_controller_.getThetaController().calculate(PoseEstimator.getInstance().getOdomPose().getRotation().getDegrees(), LimeLightSubsystem.getInstance().getNoteRotation());
-        
-        calculate(PoseEstimator.getInstance().getOdomPose(),
-                LimeLightSubsystem.getInstance().getNotePose(), LimeLightSubsystem.getInstance().getNoteRotation());
+    public ChassisSpeeds calculateNoteRequest() {
+        return note_drive_controller_.calculate(PoseEstimator.getInstance().getOdomPose(),
+                LimeLightSubsystem.getInstance().getNotePose(), 0.0, LimeLightSubsystem.getInstance().getNoteRotation());
     }
 
     /**
