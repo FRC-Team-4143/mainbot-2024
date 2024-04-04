@@ -17,6 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory.State;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -30,7 +31,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.MathUtil;
-
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -72,7 +75,8 @@ public class SwerveDrivetrain extends Subsystem {
     public static SwerveDrivetrain getInstance() {
         if (instance == null) {
             instance = new SwerveDrivetrain(DrivetrainConstants.FL_MODULE_CONSTANTS,
-                    DrivetrainConstants.FR_MODULE_CONSTANTS, DrivetrainConstants.BL_MODULE_CONSTANTS, DrivetrainConstants.BR_MODULE_CONSTANTS);
+                    DrivetrainConstants.FR_MODULE_CONSTANTS, DrivetrainConstants.BL_MODULE_CONSTANTS,
+                    DrivetrainConstants.BR_MODULE_CONSTANTS);
         }
         return instance;
     }
@@ -86,6 +90,7 @@ public class SwerveDrivetrain extends Subsystem {
         AUTONOMOUS_TARGET,
         CRAWL,
         PROFILE,
+        NOTE_TARGET
     }
 
     private SwerveRequest.FieldCentric field_centric;
@@ -104,7 +109,7 @@ public class SwerveDrivetrain extends Subsystem {
     private final Translation2d[] module_locations;
 
     // Drive requests
-    private SwerveRequest.ApplyChassisSpeeds auto_request;
+    private SwerveRequest.ApplyChassisSpeeds auto_request, note_request;
     private SwerveRequest request_to_apply;
     private SwerveControlRequestParameters request_parameters;
 
@@ -119,6 +124,7 @@ public class SwerveDrivetrain extends Subsystem {
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
     private ProtobufPublisher<Pose2d> pp_pose_pub_;
 
+    private HolonomicDriveController note_drive_controller_;
 
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
@@ -127,7 +133,7 @@ public class SwerveDrivetrain extends Subsystem {
      * the devices themselves. If they need the devices, they can access them
      * through getters in the classes.
      *
-     * @param modules             Constants for each specific module
+     * @param modules Constants for each specific module
      */
     public SwerveDrivetrain(SwerveModuleConstants... modules) {
 
@@ -175,6 +181,8 @@ public class SwerveDrivetrain extends Subsystem {
                 .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
         auto_request = new SwerveRequest.ApplyChassisSpeeds()
                 .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+        note_request = new SwerveRequest.ApplyChassisSpeeds()
+                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
 
@@ -185,6 +193,10 @@ public class SwerveDrivetrain extends Subsystem {
                 .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
         pp_pose_pub_ = NetworkTableInstance.getDefault()
                 .getProtobufTopic("pp_target_pose", Pose2d.proto).publish();
+
+        note_drive_controller_ = new HolonomicDriveController(new PIDController(0, 0, 0),
+                new PIDController(0, 0, 0),
+                new ProfiledPIDController(0, 0, 0, null));
     }
 
     @Override
@@ -242,9 +254,13 @@ public class SwerveDrivetrain extends Subsystem {
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
+                        .withVelocityX(
+                                Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
-                        .withVelocityY(Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
+                        .withVelocityY(
+                                Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         //
                         .withTargetDirection(io_.target_rotation_));
                 break;
@@ -252,7 +268,11 @@ public class SwerveDrivetrain extends Subsystem {
                 setControl(robot_centric
                         .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
                         .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
-                        .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                        .withRotationalRate(
+                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                break;
+            case NOTE_TARGET:
+                setControl(note_request.withSpeeds(calculateNoteControl()));
                 break;
             default:
                 // yes these dont do anything for auto...
@@ -260,7 +280,7 @@ public class SwerveDrivetrain extends Subsystem {
         }
 
         /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_);        
+        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_);
         request_parameters.kinematics = kinematics;
         request_parameters.swervePositions = module_locations;
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
@@ -288,8 +308,8 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Debug/Omega Chassis Speed", io_.chassis_speeds_.omegaRadiansPerSecond);
     }
 
-    public Rotation2d getRobotRotation(){
-       return io_.robot_yaw_;
+    public Rotation2d getRobotRotation() {
+        return io_.robot_yaw_;
     }
 
     /**
@@ -301,7 +321,7 @@ public class SwerveDrivetrain extends Subsystem {
                 PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
                 this::getCurrentRobotChassisSpeeds,
                 (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds
-               getHolonomicFollowerConfig(),
+                getHolonomicFollowerConfig(),
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red
                     // alliance
@@ -314,7 +334,7 @@ public class SwerveDrivetrain extends Subsystem {
                     return false;
                 },
                 this); // Subsystem for requirements
-                PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
+        PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
 
         // Logging callback for target robot pose
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
@@ -323,17 +343,17 @@ public class SwerveDrivetrain extends Subsystem {
         });
     }
 
-    public HolonomicPathFollowerConfig getHolonomicFollowerConfig(){
+    public HolonomicPathFollowerConfig getHolonomicFollowerConfig() {
         double driveBaseRadius = 0;
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
         return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                        new PIDConstants(5, 0, 0),
-                        5,
-                        driveBaseRadius,
-                        new ReplanningConfig(false, false), 
-                        0.01);
+                new PIDConstants(5, 0, 0),
+                5,
+                driveBaseRadius,
+                new ReplanningConfig(false, false),
+                0.01);
     }
 
     public Command followPathCommand(String pathName) {
@@ -341,7 +361,10 @@ public class SwerveDrivetrain extends Subsystem {
                 PathPlannerPath.fromPathFile(pathName),
                 PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
                 this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of
+                                                                                                        // ChassisSpeeds
+                                                                                                        // to drive the
+                                                                                                        // robot
                 this.getHolonomicFollowerConfig(),
 
                 () -> {
@@ -431,7 +454,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public Optional<Rotation2d> getAutoTargetRotation() {
-        if(io_.drive_mode_ == DriveMode.AUTONOMOUS_TARGET) {
+        if (io_.drive_mode_ == DriveMode.AUTONOMOUS_TARGET) {
             return Optional.of(io_.target_rotation_.rotateBy(Rotation2d.fromDegrees(180)));
         }
         return Optional.empty();
@@ -447,20 +470,32 @@ public class SwerveDrivetrain extends Subsystem {
         io_.drive_mode_ = mode;
     }
 
-    public DriveMode getDriveMode(){
+    public DriveMode getDriveMode() {
         return io_.drive_mode_;
     }
 
-    public void setDriverPrespective(Rotation2d prespective){
+    public void setDriverPrespective(Rotation2d prespective) {
         io_.drivers_station_perspective_ = prespective;
     }
 
-    public Rotation2d getDriverPrespective(){
+    public Rotation2d getDriverPrespective() {
         return io_.drivers_station_perspective_;
     }
 
     public double calculateChassisSpeedMagnitude(ChassisSpeeds chassis) {
-        return Math.sqrt((chassis.vxMetersPerSecond*chassis.vxMetersPerSecond) + (chassis.vyMetersPerSecond*chassis.vyMetersPerSecond));
+        return Math.sqrt((chassis.vxMetersPerSecond * chassis.vxMetersPerSecond)
+                + (chassis.vyMetersPerSecond * chassis.vyMetersPerSecond));
+    }
+
+    public ChassisSpeeds calculateNoteControl() {
+        
+
+        // note_drive_controller_.getXController().calculate(PoseEstimator.getInstance().getOdomPose().getX(), LimeLightSubsystem.getInstance().getNotePose().getX());
+        // note_drive_controller_.getYController().calculate(PoseEstimator.getInstance().getOdomPose().getY(), LimeLightSubsystem.getInstance().getNotePose().getY());
+        // note_drive_controller_.getThetaController().calculate(PoseEstimator.getInstance().getOdomPose().getRotation().getDegrees(), LimeLightSubsystem.getInstance().getNoteRotation());
+        
+        calculate(PoseEstimator.getInstance().getOdomPose(),
+                LimeLightSubsystem.getInstance().getNotePose(), LimeLightSubsystem.getInstance().getNoteRotation());
     }
 
     /**
@@ -499,6 +534,6 @@ public class SwerveDrivetrain extends Subsystem {
 
     @Override
     public Logged getLoggingObject() {
-      return io_;
+        return io_;
     }
 }

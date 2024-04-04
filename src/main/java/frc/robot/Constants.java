@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
@@ -37,9 +39,11 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double LENS_HEIGHT_METERS = 20.0; 
+    public static final double LENS_HEIGHT_METERS = 0.20; 
     public static final double MOUNT_ANGLE_DEGREES = 25.0; 
-    public static final double goalHeightInches = 0.0; 
+    public static final double NOTE_HEIGHT_METERS = 0.02; 
+    public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(0.0, 0.0, Rotation2d.fromDegrees(180)); //TODO: find the offset of the limelight
+    
   }
 
   public class DrivetrainConstants {

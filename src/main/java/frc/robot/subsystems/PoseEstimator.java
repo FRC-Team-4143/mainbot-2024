@@ -163,6 +163,10 @@ public class PoseEstimator extends Subsystem {
         io_.ignore_vision = ignore;
     }
 
+    public Pose2d getOdomPose() {
+        return io_.pose_;
+    }
+
     /**
      * Resets the robot odom and set the robot pose to supplier Pose
      * 
