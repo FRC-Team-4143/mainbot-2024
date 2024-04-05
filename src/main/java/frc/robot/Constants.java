@@ -4,11 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 
@@ -39,11 +42,11 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double LENS_HEIGHT_METERS = 0.20; 
-    public static final double MOUNT_ANGLE_DEGREES = 25.0; 
+    public static final double MOUNT_ANGLE = Math.toRadians(20.0); 
     public static final double NOTE_HEIGHT_METERS = 0.02; 
-    public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(0.0, 0.0, Rotation2d.fromDegrees(180)); //TODO: find the offset of the limelight
-    
+    public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.319;
+    public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(-0.337, 0.0, Rotation2d.fromDegrees(0)); 
+    //13.277 in back from center // 12.577 in off the ground
   }
 
   public class DrivetrainConstants {
@@ -158,6 +161,9 @@ public final class Constants {
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
         Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
+    public static PIDController X_CONTROLLER = new PIDController(0, 0, 0);
+    public static PIDController Y_CONTROLLER = new PIDController(0, 0, 0);
+    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(MAX_DRIVE_ANGULAR_RATE, MAX_DRIVE_ANGULAR_RATE*0.25));
   }
 
   // IDs Range from 10 - 19

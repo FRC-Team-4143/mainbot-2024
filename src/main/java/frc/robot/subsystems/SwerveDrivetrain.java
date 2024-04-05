@@ -194,9 +194,11 @@ public class SwerveDrivetrain extends Subsystem {
         pp_pose_pub_ = NetworkTableInstance.getDefault()
                 .getProtobufTopic("pp_target_pose", Pose2d.proto).publish();
 
-        note_drive_controller_ = new HolonomicDriveController(new PIDController(0, 0, 0),
-                new PIDController(0, 0, 0),
-                new ProfiledPIDController(0, 0, 0, null));
+        note_drive_controller_ = new HolonomicDriveController(DrivetrainConstants.X_CONTROLLER,
+                DrivetrainConstants.Y_CONTROLLER,
+                DrivetrainConstants.T_CONTROLLER);
+
+        
     }
 
     @Override
@@ -306,6 +308,10 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Debug/X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
         SmartDashboard.putNumber("Debug/Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
         SmartDashboard.putNumber("Debug/Omega Chassis Speed", io_.chassis_speeds_.omegaRadiansPerSecond);
+
+        SmartDashboard.putData("X_Controler", DrivetrainConstants.X_CONTROLLER);
+        SmartDashboard.putData("Y_Controler", DrivetrainConstants.Y_CONTROLLER);
+        SmartDashboard.putData("T_Controler", DrivetrainConstants.T_CONTROLLER);
     }
 
     public Rotation2d getRobotRotation() {
@@ -488,8 +494,9 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public ChassisSpeeds calculateNoteRequest() {
+        Pose2d notePose = LimeLightSubsystem.getInstance().getRobotNotePose();
         return note_drive_controller_.calculate(PoseEstimator.getInstance().getOdomPose(),
-                LimeLightSubsystem.getInstance().getNotePose(), 0.0, LimeLightSubsystem.getInstance().getNoteRotation());
+                notePose, 0.0, notePose.getRotation());
     }
 
     /**
