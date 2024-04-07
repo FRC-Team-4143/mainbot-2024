@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -9,6 +10,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.LimelightConstants;
 import monologue.Annotations.Log;
@@ -30,6 +33,9 @@ public class LimeLightSubsystem extends Subsystem {
     private NetworkTable table;
     private NetworkTableEntry table_entry_tx, table_entry_ty, table_entry_ta, table_entry_tv;
     private ProtobufPublisher<Pose2d> note_pose_pub_;
+
+    private Debouncer onDebouncer = new Debouncer(0.25, Debouncer.DebounceType.kRising);
+    private Debouncer offDebouncer = new Debouncer(3, Debouncer.DebounceType.kFalling);
 
     public LimeLightSubsystem() {
         io_ = new LimeLightSubsystemIo();
@@ -76,12 +82,32 @@ public class LimeLightSubsystem extends Subsystem {
         return io_.robot_note_pose_;
     }
 
+    public boolean getCanSeeNote() {
+        return io_.can_see_note_;
+    }
+
+    public Command updateNoteRangeFlag() {
+        return Commands.runOnce(() -> io_.near_note_flag_ = true);
+    }
+
+    public void resetNoteRangeFlag() {
+        io_.near_note_flag_ = false;
+    }
+
+    public boolean isNoteAvaibale() {
+        return io_.near_note_flag_ && io_.can_see_note_;
+    }
+
     @Override
     public void updateLogic(double timestamp) {
+        io_.can_see_note_ = onDebouncer.calculate(io_.target_valid_ == 1) || offDebouncer.calculate(io_.target_valid_ == 1);
         io_.target_distance_ = calculateDist(io_.limelight_target_y_);
-        if (io_.target_valid_ == 1) {
+        if (io_.can_see_note_) {
             io_.robot_note_pose_ = caluclateNotePose(PoseEstimator.getInstance().getOdomPose());
             io_.field_note_pose_ = caluclateNotePose(PoseEstimator.getInstance().getRobotPose());
+        } else {
+            io_.robot_note_pose_ = PoseEstimator.getInstance().getOdomPose();
+            io_.field_note_pose_ = PoseEstimator.getInstance().getRobotPose();
         }
     }
 
@@ -94,7 +120,6 @@ public class LimeLightSubsystem extends Subsystem {
     public void outputTelemetry(double timestamp) {
         SmartDashboard.putNumber("Dist To Note", io_.target_distance_);
         note_pose_pub_.set(io_.robot_note_pose_);
-
     }
 
     public class LimeLightSubsystemIo implements Logged {
@@ -112,6 +137,10 @@ public class LimeLightSubsystem extends Subsystem {
         Pose2d robot_note_pose_ = new Pose2d();
         @Log.File
         Pose2d field_note_pose_ = new Pose2d();
+        @Log.File
+        boolean can_see_note_ = false;
+        @Log.File
+        boolean near_note_flag_ = false;
     }
 
     @Override
