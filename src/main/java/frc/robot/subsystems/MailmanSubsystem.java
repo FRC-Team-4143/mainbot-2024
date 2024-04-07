@@ -4,12 +4,10 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
-import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -18,10 +16,10 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkFlex;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
-import frc.robot.Constants;
 import frc.robot.Constants.MailmanConstants;
 import monologue.Logged;
 import monologue.Annotations.Log;
@@ -44,11 +42,11 @@ public class MailmanSubsystem extends Subsystem {
     private MailmanPeriodicIo io_;
     private CANSparkMax elevator_motor_;
     private RelativeEncoder elevator_encoder_;
-    private PWMSparkFlex dropper_motor_;
+    private PWMSparkMax dropper_motor_;
     private SparkPIDController elevator_controller_;
 
-    private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-    private final Pose3d AMP = field_layout_.getTagPose(5).get();
+    //private AprilTagFieldLayout field_layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    //private final Pose3d AMP = field_layout_.getTagPose(5).get();
 
     public enum HeightTarget {
         AMP,
@@ -58,7 +56,7 @@ public class MailmanSubsystem extends Subsystem {
 
     private MailmanSubsystem() {
         io_ = new MailmanPeriodicIo();
-        dropper_motor_ = new PWMSparkFlex(MailmanConstants.DROPPER_MOTOR_ID);
+        dropper_motor_ = new PWMSparkMax(MailmanConstants.DROPPER_MOTOR_ID);
         elevator_motor_ = new CANSparkMax(MailmanConstants.ELEVATOR_MOTOR_ID, MotorType.kBrushless);
         reset();
     }
@@ -150,7 +148,11 @@ public class MailmanSubsystem extends Subsystem {
      * Runs the rollers slowly, to recieve from the shooter handoff
      */
     public void setRollerRecieve() {
-        io_.roller_speed_ = -0.15;
+        io_.roller_speed_ = -0.50;
+    }
+
+    public void setRollerBump() {
+        io_.roller_speed_ = MailmanConstants.DROPPER_BUMP_SPEED;
     }
 
     public void setRollerSpeed(double speed){

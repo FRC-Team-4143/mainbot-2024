@@ -69,7 +69,7 @@ public class LimeLightSubsystem extends Subsystem {
     }
 
     private Rotation2d getNoteRotation(Pose2d pose) {
-        return pose.getRotation().rotateBy(Rotation2d.fromRadians(io_.limelight_target_x_));
+        return Rotation2d.fromRadians(io_.limelight_target_x_);
     }
 
     public Pose2d getRobotNotePose() {

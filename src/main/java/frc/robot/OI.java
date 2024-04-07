@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
+import frc.robot.subsystems.PickupSubsystem.PickupMode;
 import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import frc.lib.Util;
@@ -111,6 +113,10 @@ public abstract class OI {
         crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
         crawlTrigger.whileTrue(new RobotCentricCrawl());
 
+        // Bump Climber Setpoint Down
+        driver_joystick_.a().onTrue(Commands.runOnce(
+                () -> climber_.lowerHeightTarget()).onlyIf(isClimbing));
+
         // ------------------
         // Operator Controls
         // ------------------
@@ -122,7 +128,7 @@ public abstract class OI {
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerSpeed(0.25),
+                () -> mailman_.setRollerIntake(),
                 () -> mailman_.setRollerStop()));
 
         // Set Elevator to Amp Target
@@ -168,15 +174,21 @@ public abstract class OI {
 
         operator_joystick_.povDown().whileTrue(new ManuallyLowerElevator());
 
+        // -------------
         // Test buttons
+        // -------------
         driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
 
-        driver_joystick_.a().onTrue(Commands.runOnce(
-                () -> climber_.lowerHeightTarget()).onlyIf(isClimbing));
-
         driver_joystick_.x().whileTrue(Commands.startEnd(
-                () -> swerve_drivetrain_.setDriveMode(DriveMode.NOTE_TARGET),
-                () -> swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC)).onlyIf(isTestMode));
+                () -> {
+                    swerve_drivetrain_.setDriveMode(DriveMode.NOTE_TARGET);
+                    pickup_rear_.setPickupMode(PickupMode.PICKUP);
+                },
+                () -> {
+                    swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
+                    pickup_rear_.setPickupMode(PickupMode.IDLE);
+                    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(2));
+                }).onlyIf(isTestMode));
 
     }
 

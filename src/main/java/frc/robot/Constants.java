@@ -42,9 +42,9 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double MOUNT_ANGLE = Math.toRadians(20.0); 
+    public static final double MOUNT_ANGLE = Math.toRadians(24.0); 
     public static final double NOTE_HEIGHT_METERS = 0.02; 
-    public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.319;
+    public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.349; // 0.319 V1 Mount
     public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(-0.337, 0.0, Rotation2d.fromDegrees(0)); 
     //13.277 in back from center // 12.577 in off the ground
   }
@@ -71,7 +71,7 @@ public final class Constants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final double SLIP_CURRENT_AMPS = 80.0;
+    private static final double SLIP_CURRENT_AMPS = 120.0;
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot
@@ -81,7 +81,7 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double COUPLE_RATIO = 3.5;
 
-    private static final double DRIVE_GEAR_RATIO = 6.12; // L3: 6.12, L2: 5.14
+    private static final double DRIVE_GEAR_RATIO = 6.99; // L3: 6.12, L2: 5.14
     private static final double STEER_GEAR_RATIO = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
     private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
                                                                // make odom match record
@@ -163,7 +163,7 @@ public final class Constants {
         Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
     public static PIDController X_CONTROLLER = new PIDController(0, 0, 0);
     public static PIDController Y_CONTROLLER = new PIDController(0, 0, 0);
-    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(MAX_DRIVE_ANGULAR_RATE, MAX_DRIVE_ANGULAR_RATE*0.25));
+    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
   }
 
   // IDs Range from 10 - 19
@@ -252,9 +252,9 @@ public final class Constants {
   // IDs Range from 30 - 39
   public static class MailmanConstants {
     // Preset Elevator Heights
-    public static final double AMP_HEIGHT = 63;
+    public static final double AMP_HEIGHT = 77;
     public static final double HOME_HEIGHT = 0;
-    public static final double TRAP_HEIGHT = 120;
+    public static final double TRAP_HEIGHT = 124;
 
     // Elevator Constants
     public static final int ELEVATOR_MOTOR_ID = 31;
@@ -266,8 +266,9 @@ public final class Constants {
 
     // Dropper Motor Constants
     public static final int DROPPER_MOTOR_ID = 0; // PWM Channel
-    public static final double DROPPER_IN_SPEED = 0.5;
+    public static final double DROPPER_IN_SPEED = 1.0;
     public static final double DROPPER_OUT_SPEED = -1.0;
+    public static final double DROPPER_BUMP_SPEED = 0.6;
   }
 
   // IDs range from 40 - 49
