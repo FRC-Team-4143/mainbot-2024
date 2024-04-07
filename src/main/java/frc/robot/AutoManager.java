@@ -35,12 +35,14 @@ public class AutoManager {
         NamedCommands.registerCommand("IgnoreVision", new SetIgnoreVision(true));
         NamedCommands.registerCommand("UpdateNoteRangeFlag", LimeLightSubsystem.getInstance().updateNoteRangeFlag());
         //NamedCommands.registerCommand("AutoFrontPickupToShooter", new HandoffToShooter().withTimeout(2).andThen(new AutoEnableDefaults()));
+        
+        SwerveDrivetrain.getInstance().configurePathPlanner();
 
         // Register each of the autos
-        registerAuto(new SomeAuto());
+        autoChooser = new SendableChooser<>();
+        //registerAuto(new SomeAuto());
         registerAuto(new TestAuto());
 
-        SwerveDrivetrain.getInstance().configurePathPlanner();
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 

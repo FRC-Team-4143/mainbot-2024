@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3,
-        "y": 5.55
+        "x": 0.7319122330552369,
+        "y": 4.469725093296342
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7727582630794365,
-        "y": 4.25110734732866
+        "x": 1.2046704961346735,
+        "y": 3.170832440625002
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.3170512494871156,
-        "y": 1.8352513628104188
+        "x": 3.35651902073035,
+        "y": 1.7563158203239486
       },
       "prevControl": {
-        "x": 2.784236337703446,
-        "y": 1.8352513628104188
+        "x": 2.695433852406168,
+        "y": 2.1904613039995318
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "UpdateNoteRangeFlag",
-      "waypointRelativePos": 0.6,
+      "waypointRelativePos": 0.3,
       "command": {
         "type": "sequential",
         "data": {
@@ -63,7 +63,7 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -178.24980969906866,
+    "rotation": 120.46554491945989,
     "velocity": 0
   },
   "useDefaultConstraints": true
