@@ -11,7 +11,6 @@ public class SomeAuto extends AutoSequenceCommand {
         addBranchAuto("D - Shoot - E", "D - E");
         addBranchAuto("E - Shoot - F", "E - F");
         addBranchWaitAuto("F - Shoot");
-        AutoManager.getInstance().getAutoChooser().addOption(getName(), this);
     }
     
 }

@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveDrivetrain;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import frc.lib.AutoSequenceCommand;
 import frc.robot.autos.SomeAuto;
 import frc.robot.commands.*;
 
@@ -25,8 +26,6 @@ public class AutoManager {
 
     private SendableChooser<Command> autoChooser;
 
-    private SomeAuto someAuto = new SomeAuto();
-
     private AutoManager() {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker());//.withTimeout(2));
         NamedCommands.registerCommand("AutoShootAtSpeakerPreload", new AutoShootAtSpeakerPreload().withTimeout(2));
@@ -34,12 +33,19 @@ public class AutoManager {
         NamedCommands.registerCommand("IgnoreVision", new SetIgnoreVision(true));
         //NamedCommands.registerCommand("AutoFrontPickupToShooter", new HandoffToShooter().withTimeout(2).andThen(new AutoEnableDefaults()));
 
+        // Register each of the autos
+        registerAuto(new SomeAuto());
+
         SwerveDrivetrain.getInstance().configurePathPlanner();
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 
     public SendableChooser<Command> getAutoChooser(){
         return autoChooser;
+    }
+
+    public void registerAuto(AutoSequenceCommand auto){
+        autoChooser.addOption(auto.getName(), auto);
     }
 
     public Command getAutonomousCommand() {
