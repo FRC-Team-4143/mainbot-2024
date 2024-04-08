@@ -47,6 +47,8 @@ public final class Constants {
     public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.349; // 0.319 V1 Mount
     public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(-0.337, 0.0, Rotation2d.fromDegrees(0)); 
     //13.277 in back from center // 12.577 in off the ground
+    public static final double NOTE_DETECT_RISING = 0.25;
+    public static final double NOTE_DETECT_FALLING = 3.0;
   }
 
   public class DrivetrainConstants {

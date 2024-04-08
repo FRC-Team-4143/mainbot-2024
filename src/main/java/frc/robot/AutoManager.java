@@ -26,7 +26,7 @@ public class AutoManager {
         return autoManagerInstance;
     }
 
-    private SendableChooser<Command> autoChooser;
+    private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     private AutoManager() {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker());//.withTimeout(2));
@@ -39,7 +39,6 @@ public class AutoManager {
         SwerveDrivetrain.getInstance().configurePathPlanner();
 
         // Register each of the autos
-        autoChooser = new SendableChooser<>();
         //registerAuto(new SomeAuto());
         registerAuto(new TestAuto());
 

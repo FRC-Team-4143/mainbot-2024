@@ -16,11 +16,16 @@ public class SwitchCommand extends Command{
         switch_condition_ = switchCondition;
     }
 
+    // Called when the command is initially scheduled.
+    @Override
     public void initialize() {
         c1_.initialize();
         c1_active = false;
     }
 
+    // Called every time the scheduler runs while the command is scheduled.
+    // Toggles which command is executed based of condition
+    @Override
     public void execute() {
         if(c1_active) {
             c1_.execute();
@@ -34,6 +39,8 @@ public class SwitchCommand extends Command{
         }
     }
 
+    // Called once the command ends or is interrupted.
+    @Override
     public void end(boolean interrupted) {
         if(c1_active) {
             c1_.end(interrupted);
@@ -42,6 +49,8 @@ public class SwitchCommand extends Command{
         }
     }
 
+    // Returns true when the command should end.
+    @Override
     public boolean isFinished() {
         if(c1_active) {
             return c1_.isFinished();
