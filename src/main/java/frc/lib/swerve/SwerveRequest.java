@@ -407,7 +407,7 @@ public interface SwerveRequest {
                 angleToFace = angleToFace.rotateBy(parameters.operatorForwardDirection);
             }
 
-            double rotationRate = HeadingController.calculate(PoseEstimator.getInstance().getRobotPose().getRotation().getRadians(), //parameters.currentPose.getRotation().getRadians(),
+            double rotationRate = HeadingController.calculate(PoseEstimator.getInstance().getFieldPose().getRotation().getRadians(), //parameters.currentPose.getRotation().getRadians(),
                     angleToFace.getRadians(), parameters.timestamp);
 
             double toApplyOmega = rotationRate;

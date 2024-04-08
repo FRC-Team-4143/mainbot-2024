@@ -169,7 +169,7 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void updateLogic(double timestamp) {
-        Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
+        Pose2d robot_pose = PoseEstimator.getInstance().getFieldPose();
         io_.note_travel_time_ = calculateNoteTravelTime(robot_pose, io_.target_offset_pose);
         io_.relative_chassis_speed_ = transformChassisVelocity();
         io_.target_offset_pose = io_.target_.transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
@@ -246,7 +246,7 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void outputTelemetry(double timestamp) {
         target_pub.set(io_.target_offset_pose);
-        rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
+        rot_pub.set(new Pose2d(PoseEstimator.getInstance().getFieldPose().getTranslation(), io_.target_robot_yaw_));
 
         SmartDashboard.putBoolean("TOF/Shooter/Has Note", io_.has_note_);
         SmartDashboard.putNumber("TOF/Shooter/Range", io_.note_sensor_range_);
@@ -267,7 +267,7 @@ public class ShooterSubsystem extends Subsystem {
 
         SmartDashboard.putNumber("Shooter Control/Target/Robot Yaw", io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()).getRadians());
         SmartDashboard.putNumber("Shooter Control/Current/Robot Yaw",
-                PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
+                PoseEstimator.getInstance().getFieldPose().getRotation().getRadians());
         
         SmartDashboard.putNumber("Distance to Target", io_.target_distance_);
         SmartDashboard.putNumber("Debug/Wrist Encoder Value", wrist_encoder_.getPosition());
@@ -366,7 +366,7 @@ public class ShooterSubsystem extends Subsystem {
 
     public boolean orientationLocked() {
         return Util.epislonEquals(io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()),
-                PoseEstimator.getInstance().getRobotPose().getRotation(),
+                PoseEstimator.getInstance().getFieldPose().getRotation(),
                 ShooterConstants.YAW_TOLERANCE);
     }
 

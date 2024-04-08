@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
-import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 import monologue.Logged;
 import monologue.Annotations.Log;
 
@@ -98,7 +97,7 @@ public class PoseEstimator extends Subsystem {
     @Override
     public void updateLogic(double timestamp) {
         var drive = SwerveDrivetrain.getInstance();
-        io_.pose_ = odometry_.update(drive.getImuYaw(), drive.getModulePositions());
+        io_.odom_pose_ = odometry_.update(drive.getImuYaw(), drive.getModulePositions());
         io_.vision_filtered_pose_ = vision_filtered_odometry_.update(drive.getImuYaw(), drive.getModulePositions());
     }
 
@@ -114,11 +113,11 @@ public class PoseEstimator extends Subsystem {
         if(DriverStation.isDisabled()){
             update_counter_--;
             if (update_counter_ <= 0) {
-            odom_publisher_.set(io_.pose_);
+            odom_publisher_.set(io_.odom_pose_);
                 update_counter_ = 50;
             }
         } else {
-            odom_publisher_.set(io_.pose_);
+            odom_publisher_.set(io_.odom_pose_);
         }
     }
 
@@ -128,28 +127,31 @@ public class PoseEstimator extends Subsystem {
         pose_publisher_.set(io_.vision_filtered_pose_);
 
         SmartDashboard.putData("Field", field_);
-        SmartDashboard.putBoolean("target close", isCloseToTarget());
-        SmartDashboard.putBoolean("Is vision paused", io_.vision_paused);
+        SmartDashboard.putBoolean("Is Vision Paused", io_.vision_paused);
     }
 
     public Field2d getFieldWidget() {
         return field_;
     }
 
-    public Pose2d getRobotPose() {
+    public Pose2d getFieldPose() {
         return io_.vision_filtered_pose_;
     }
 
-    public boolean isRobotInMidFeild() {
-        return Util.epislonEquals(io_.vision_filtered_pose_.getX(), 8.29564, 2.423); // 8.29564 is the center field line
-                                                                                     // | 2.423 is the center line to
-                                                                                     // wing line
+     public Pose2d getOdomPose() {
+        return io_.odom_pose_;
     }
 
-    public boolean isCloseToTarget() {
-        return Util.epislonEquals(io_.vision_filtered_pose_.getTranslation(),
-                ShooterSubsystem.getInstance().getTarget().toPose2d().getTranslation(), 1.9);
-    }
+    // public boolean isRobotInMidFeild() {
+    //     return Util.epislonEquals(io_.vision_filtered_pose_.getX(), 8.29564, 2.423); // 8.29564 is the center field line
+    //                                                                                  // | 2.423 is the center line to
+    //                                                                                  // wing line
+    // }
+
+    // public boolean isCloseToTarget() {
+    //     return Util.epislonEquals(io_.vision_filtered_pose_.getTranslation(),
+    //             ShooterSubsystem.getInstance().getTarget().toPose2d().getTranslation(), 1.9);
+    // }
 
     public SwerveDrivePoseEstimator getOdometryPose() {
         return vision_filtered_odometry_;
@@ -161,10 +163,6 @@ public class PoseEstimator extends Subsystem {
 
     public void setIgnoreVision(boolean ignore){
         io_.ignore_vision = ignore;
-    }
-
-    public Pose2d getOdomPose() {
-        return io_.pose_;
     }
 
     /**
@@ -181,7 +179,7 @@ public class PoseEstimator extends Subsystem {
 
     public class PoseEstimatorPeriodicIo implements Logged {
         @Log.File
-        public Pose2d pose_ = new Pose2d();
+        public Pose2d odom_pose_ = new Pose2d();
         @Log.File
         public Pose2d vision_filtered_pose_ = new Pose2d();
         @Log.File

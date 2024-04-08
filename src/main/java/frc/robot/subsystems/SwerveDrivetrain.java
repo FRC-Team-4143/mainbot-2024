@@ -319,7 +319,7 @@ public class SwerveDrivetrain extends Subsystem {
      */
     public void configurePathPlanner() {
         AutoBuilder.configureHolonomic(
-                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+                PoseEstimator.getInstance()::getFieldPose, // Supplier of current robot pose
                 PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
                 this::getCurrentRobotChassisSpeeds,
                 (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds
@@ -361,7 +361,7 @@ public class SwerveDrivetrain extends Subsystem {
     public Command followPathCommand(String pathName) {
         return new FollowPathHolonomic(
                 PathPlannerPath.fromPathFile(pathName),
-                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+                PoseEstimator.getInstance()::getFieldPose, // Supplier of current robot pose
                 this::getCurrentRobotChassisSpeeds,
                 (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of
                                                                                                         // ChassisSpeeds
@@ -490,7 +490,7 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public ChassisSpeeds calculateNoteRequest() {
-        Pose2d notePose = LimeLightSubsystem.getInstance().getRobotNotePose();
+        Pose2d notePose = LimeLightSubsystem.getInstance().getNotePoseOdomRef();
         return note_drive_controller_.calculate(PoseEstimator.getInstance().getOdomPose(),
                 notePose, 0.0, notePose.getRotation());
     }
