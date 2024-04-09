@@ -187,8 +187,8 @@ public abstract class OI {
                 () -> {
                     swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
                     pickup_rear_.setPickupMode(PickupMode.IDLE);
-                    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(2));
-                }).onlyIf(isTestMode));
+                    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(2).onlyIf(isRearIntakeStagingNote));
+                }).until(isRearIntakeStagingNote));
 
     }
 
