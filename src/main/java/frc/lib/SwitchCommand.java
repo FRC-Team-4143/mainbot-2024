@@ -20,7 +20,7 @@ public class SwitchCommand extends Command{
     @Override
     public void initialize() {
         c1_.initialize();
-        c1_active = false;
+        c1_active = true;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
