@@ -33,8 +33,10 @@ public class LimeLightSubsystem extends Subsystem {
     private NetworkTableEntry table_entry_tx_, table_entry_ty_, table_entry_ta_, table_entry_tv_;
     private ProtobufPublisher<Pose2d> note_pose_pub_;
 
-    private Debouncer rising_debouncer_ = new Debouncer(LimelightConstants.NOTE_DETECT_RISING, Debouncer.DebounceType.kRising);
-    private Debouncer falling_debouncer_ = new Debouncer(LimelightConstants.NOTE_DETECT_FALLING, Debouncer.DebounceType.kFalling);
+    private Debouncer rising_debouncer_ = new Debouncer(LimelightConstants.NOTE_DETECT_RISING,
+            Debouncer.DebounceType.kRising);
+    private Debouncer falling_debouncer_ = new Debouncer(LimelightConstants.NOTE_DETECT_FALLING,
+            Debouncer.DebounceType.kFalling);
 
     public LimeLightSubsystem() {
         io_ = new LimeLightSubsystemIo();
@@ -85,16 +87,21 @@ public class LimeLightSubsystem extends Subsystem {
     }
 
     public boolean isNoteAvaibale() {
-        return io_.near_note_flag_ && io_.can_see_note_;
+        return io_.near_note_flag_ && io_.can_see_note_latch_;
     }
 
     @Override
     public void updateLogic(double timestamp) {
-        io_.can_see_note_ = rising_debouncer_.calculate(io_.target_valid_ == 1) || falling_debouncer_.calculate(io_.target_valid_ == 1);
+        io_.can_see_note_ = rising_debouncer_.calculate(io_.target_valid_ == 1);
+        io_.can_see_note_latch_ = falling_debouncer_.calculate(io_.can_see_note_);
         if (io_.can_see_note_) {
             io_.target_distance_ = calculateDist(io_.limelight_target_y_);
-            io_.note_pose_odom_ref_ = caluclateNotePose(PoseEstimator.getInstance().getOdomPose(), io_.target_distance_, io_.limelight_target_x_);
-            io_.note_pose_field_ref_ = caluclateNotePose(PoseEstimator.getInstance().getFieldPose(), io_.target_distance_, io_.limelight_target_x_);
+            io_.note_pose_odom_ref_ = caluclateNotePose(PoseEstimator.getInstance().getOdomPose(), io_.target_distance_,
+                    io_.limelight_target_x_);
+            io_.note_pose_field_ref_ = caluclateNotePose(PoseEstimator.getInstance().getFieldPose(),
+                    io_.target_distance_, io_.limelight_target_x_);
+        } else if (io_.can_see_note_latch_) {
+
         } else {
             io_.note_pose_odom_ref_ = PoseEstimator.getInstance().getOdomPose();
             io_.note_pose_field_ref_ = PoseEstimator.getInstance().getFieldPose();
@@ -109,6 +116,9 @@ public class LimeLightSubsystem extends Subsystem {
     @Override
     public void outputTelemetry(double timestamp) {
         SmartDashboard.putNumber("Dist To Note", io_.target_distance_);
+        SmartDashboard.putBoolean("Can see note", io_.can_see_note_);
+        SmartDashboard.putBoolean("Can see note latch", io_.can_see_note_latch_);
+        SmartDashboard.putBoolean("Near note", io_.near_note_flag_);
         note_pose_pub_.set(io_.note_pose_odom_ref_);
     }
 
@@ -129,6 +139,8 @@ public class LimeLightSubsystem extends Subsystem {
         Pose2d note_pose_field_ref_ = new Pose2d();
         @Log.File
         boolean can_see_note_ = false;
+        @Log.File
+        boolean can_see_note_latch_ = false;
         @Log.File
         boolean near_note_flag_ = false;
     }
