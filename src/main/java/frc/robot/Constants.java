@@ -163,9 +163,9 @@ public final class Constants {
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
         Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
-    public static PIDController X_CONTROLLER = new PIDController(0, 0, 0);
-    public static PIDController Y_CONTROLLER = new PIDController(0, 0, 0);
-    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
+    public static PIDController X_CONTROLLER = new PIDController(1, 0, 0);
+    public static PIDController Y_CONTROLLER = new PIDController(1, 0, 0);
+    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
   }
 
   // IDs Range from 10 - 19
