@@ -42,12 +42,12 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double MOUNT_ANGLE = Math.toRadians(24.0); 
+    public static final double MOUNT_ANGLE = Math.toRadians(18.0); 
     public static final double NOTE_HEIGHT_METERS = 0.02; 
-    public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.349; // 0.319 V1 Mount
+    public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.381; // 0.319 V1 Mount // 0.381 v2 Mount
     public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(-0.337, 0.0, Rotation2d.fromDegrees(0)); 
     //13.277 in back from center // 12.577 in off the ground
-    public static final double NOTE_DETECT_RISING = 0.25;
+    public static final double NOTE_DETECT_RISING = 0.1;
     public static final double NOTE_DETECT_FALLING = 3.0;
   }
 
@@ -163,9 +163,9 @@ public final class Constants {
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
         Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
-    public static PIDController X_CONTROLLER = new PIDController(1, 0, 0);
-    public static PIDController Y_CONTROLLER = new PIDController(1, 0, 0);
-    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
+    public static PIDController X_CONTROLLER = new PIDController(1.65, 0, 0);
+    public static PIDController Y_CONTROLLER = new PIDController(1.65, 0, 0);
+    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(5.5, 0, 1.5, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
   }
 
   // IDs Range from 10 - 19

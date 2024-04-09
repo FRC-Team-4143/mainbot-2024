@@ -36,6 +36,7 @@ public abstract class OI {
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
     static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
     static ClimberSubsystem climber_ = ClimberSubsystem.getInstance();
+    static LimeLightSubsystem limelight_ = LimeLightSubsystem.getInstance();
     static Trigger crawlTrigger;
 
     public static void configureBindings() {
@@ -179,7 +180,7 @@ public abstract class OI {
         // -------------
         driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
 
-        driver_joystick_.x().whileTrue(Commands.startEnd(
+        driver_joystick_.rightStick().and(limelight_.isTrackingNote()).whileTrue(Commands.startEnd(
                 () -> {
                     swerve_drivetrain_.setDriveMode(DriveMode.NOTE_TARGET);
                     pickup_rear_.setPickupMode(PickupMode.PICKUP);

@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.2046704961346735,
-        "y": 3.170832440625002
+        "x": 1.1364568882983936,
+        "y": 2.34833238897247
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.35651902073035,
-        "y": 1.7563158203239486
+        "x": 8.299857368945508,
+        "y": 2.4075340458373238
       },
       "prevControl": {
-        "x": 2.695433852406168,
-        "y": 2.1904613039995318
+        "x": 5.418710068189369,
+        "y": 0.3650768839999229
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "UpdateNoteRangeFlag",
-      "waypointRelativePos": 0.3,
+      "waypointRelativePos": 0.85,
       "command": {
         "type": "sequential",
         "data": {
@@ -57,7 +57,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 146.3099324740202,
+    "rotation": -156.80140948635176,
     "rotateFast": false
   },
   "reversed": false,

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -37,6 +39,8 @@ public class LimeLightSubsystem extends Subsystem {
             Debouncer.DebounceType.kRising);
     private Debouncer falling_debouncer_ = new Debouncer(LimelightConstants.NOTE_DETECT_FALLING,
             Debouncer.DebounceType.kFalling);
+
+    private BooleanSupplier isTrackingNoteSupplier = () -> io_.can_see_note_latch_;
 
     public LimeLightSubsystem() {
         io_ = new LimeLightSubsystemIo();
@@ -88,6 +92,10 @@ public class LimeLightSubsystem extends Subsystem {
 
     public boolean isNoteAvaibale() {
         return io_.near_note_flag_ && io_.can_see_note_latch_;
+    }
+
+    public BooleanSupplier isTrackingNote(){
+        return isTrackingNoteSupplier;
     }
 
     @Override
