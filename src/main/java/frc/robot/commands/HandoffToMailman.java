@@ -17,7 +17,6 @@ public class HandoffToMailman extends Command {
     static PickupSubsystem pickup_front_ = PickupSubsystem.getMailmanInstance();
     static PickupSubsystem pickup_rear_ = PickupSubsystem.getShooterInstance();
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
-    private boolean has_seen_note_ = false;
 
     /** Creates a new HandoffToMailman. */
     public HandoffToMailman() {
@@ -30,7 +29,6 @@ public class HandoffToMailman extends Command {
     public void initialize() {
         mailman_.setHeight(HeightTarget.HOME);
         shooter_.setShootMode(ShootMode.TRANSFER);
-        has_seen_note_ = false;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -57,12 +55,11 @@ public class HandoffToMailman extends Command {
         shooter_.rollerStop();
         mailman_.setRollerStop();
         pickup_rear_.setPickupMode(PickupMode.IDLE);
-        has_seen_note_ = has_seen_note_ | pickup_front_.hasNote();
     }
 
     // Returns true when the command should end.y
     @Override
     public boolean isFinished() {
-        return has_seen_note_ && !pickup_front_.hasNote();
+        return pickup_front_.hasNote();
     }
 }
