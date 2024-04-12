@@ -102,14 +102,14 @@ public abstract class OI {
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> {
                     mailman_.setHeight(HeightTarget.AMP);
-                    // swerve_drivetrain_.setTargetRotation(
-                    //         swerve_drivetrain_.getDriverPrespective()
-                    //                 .rotateBy(Rotation2d.fromDegrees(90)));
-                    // swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
+                    swerve_drivetrain_.rotationTargetAmp(true);
+                    swerve_drivetrain_.setTargetRotation(swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
+                    swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
                 },
                 () -> {
                     mailman_.setHeight(HeightTarget.HOME);
-                    // swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
+                    swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
+                    swerve_drivetrain_.rotationTargetAmp(false);
                 }).unless(isHandingOff));
 
         // Rear Pickup

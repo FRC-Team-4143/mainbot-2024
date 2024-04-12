@@ -392,6 +392,8 @@ public interface SwerveRequest {
          */
         public ForwardReference ForwardReference = SwerveRequest.ForwardReference.OperatorPerspective;
 
+        public boolean useGyroForRotation = false;
+
         public StatusCode apply(SwerveControlRequestParameters parameters, SwerveModule... modulesToApply) {
             double toApplyX = VelocityX;
             double toApplyY = VelocityY;
@@ -407,7 +409,14 @@ public interface SwerveRequest {
                 angleToFace = angleToFace.rotateBy(parameters.operatorForwardDirection);
             }
 
-            double rotationRate = HeadingController.calculate(PoseEstimator.getInstance().getFieldPose().getRotation().getRadians(), //parameters.currentPose.getRotation().getRadians(),
+            Pose2d currentRobotPose;
+            if(useGyroForRotation){
+                currentRobotPose = parameters.currentPose;
+            } else {
+                currentRobotPose = PoseEstimator.getInstance().getFieldPose();
+            }
+
+            double rotationRate = HeadingController.calculate(currentRobotPose.getRotation().getRadians(),
                     angleToFace.getRadians(), parameters.timestamp);
 
             double toApplyOmega = rotationRate;
@@ -520,6 +529,16 @@ public interface SwerveRequest {
          */
         public FieldCentricFacingAngle withSteerRequestType(SwerveModule.SteerRequestType steerRequestType) {
             this.SteerRequestType = steerRequestType;
+            return this;
+        }
+
+        /**
+         * Determines which robot rotation is used for current in PID
+         * @param useGyroForRotation TTrue will use the gyro for rotation and False will use PoseEstimator
+         * @return this request
+         */
+        public FieldCentricFacingAngle useGyroForRotation(boolean useGyroForRotation){
+            this.useGyroForRotation = useGyroForRotation;
             return this;
         }
     }

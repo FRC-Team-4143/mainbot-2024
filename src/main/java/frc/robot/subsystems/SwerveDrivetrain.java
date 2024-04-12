@@ -259,8 +259,10 @@ public class SwerveDrivetrain extends Subsystem {
                         .withVelocityY(
                                 Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
                                         Constants.DrivetrainConstants.MAX_TARGET_SPEED))
-                        //
-                        .withTargetDirection(io_.target_rotation_));
+                        // Set Robots targert rotation
+                        .withTargetDirection(io_.target_rotation_)
+                        // Use current robot rotation
+                        .useGyroForRotation(io_.is_targeting_amp));
                 break;
             case CRAWL:
                 setControl(robot_centric
@@ -495,6 +497,10 @@ public class SwerveDrivetrain extends Subsystem {
                 notePose, 0.0, notePose.getRotation());
     }
 
+    public void rotationTargetAmp(boolean state){
+        io_.is_targeting_amp = state;
+    }
+
     /**
      * Plain-Old-Data class holding the state of the swerve drivetrain.
      * This encapsulates most data that is relevant for telemetry or
@@ -527,6 +533,8 @@ public class SwerveDrivetrain extends Subsystem {
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
         @Log.File
         public double chassis_speed_magnitude_;
+        @Log.File
+        public boolean is_targeting_amp = false;
     }
 
     @Override
