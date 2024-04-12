@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem.PickupMode;
@@ -36,8 +39,27 @@ public abstract class OI {
     static MailmanSubsystem mailman_ = MailmanSubsystem.getInstance();
     static SwerveDrivetrain swerve_drivetrain_ = SwerveDrivetrain.getInstance();
     static ClimberSubsystem climber_ = ClimberSubsystem.getInstance();
+
     static LimeLightSubsystem limelight_ = LimeLightSubsystem.getInstance();
     static Trigger crawlTrigger;
+
+    static Debouncer pickupNoteDebouncer = new Debouncer(0.5, DebounceType.kFalling);
+
+    static BooleanSupplier isTestMode = () -> DriverStation.isTest();
+    static BooleanSupplier isTargetModeSpeaker = () -> shooter_.getShootTarget() == ShootTarget.SPEAKER;
+    static BooleanSupplier isAutomaticShotMode = () -> shooter_.isAutomaticAimMode();
+    static BooleanSupplier isRobotHoldingNote = () -> pickupNoteDebouncer.calculate(shooter_.hasNote() || pickup_front_.hasNote()
+            || pickup_rear_.hasNote());
+    static BooleanSupplier isRearIntakeStagingNote = () -> pickup_rear_.hasNote() && !shooter_.hasNote()
+            && !pickup_front_.hasNote();
+    static BooleanSupplier isFrontIntakeStagingNote = () -> pickup_front_.hasNote() && !shooter_.hasNote();
+    static BooleanSupplier isMailmanReady = () -> (mailman_.getTarget() != HeightTarget.HOME);
+    static BooleanSupplier isHandingOff = () -> (shooter_.isShooterHandoffState());
+    static BooleanSupplier isClimbing = () -> (climber_.getEndgameState() >= 2);
+
+    static Trigger crawl_trigger_ = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
+    static Trigger rumble_trigger_ = new Trigger(isRobotHoldingNote);
+
 
     public static void configureBindings() {
 
@@ -54,18 +76,6 @@ public abstract class OI {
                 () -> PoseEstimator.getInstance().pauseVisionFilter())
                 .ignoringDisable(true));
 
-        BooleanSupplier isTestMode = () -> DriverStation.isTest();
-        BooleanSupplier isTargetModeSpeaker = () -> shooter_.getShootTarget() == ShootTarget.SPEAKER;
-        BooleanSupplier isAutomaticShotMode = () -> shooter_.isAutomaticAimMode();
-        BooleanSupplier isRobotHoldingNote = () -> shooter_.hasNote() || pickup_front_.hasNote()
-                || pickup_rear_.hasNote();
-        BooleanSupplier isRearIntakeStagingNote = () -> pickup_rear_.hasNote() && !shooter_.hasNote()
-                && !pickup_front_.hasNote();
-        BooleanSupplier isFrontIntakeStagingNote = () -> pickup_front_.hasNote() && !shooter_.hasNote();
-        BooleanSupplier isMailmanReady = () -> (mailman_.getTarget() != HeightTarget.HOME);
-        BooleanSupplier isHandingOff = () -> (shooter_.isShooterHandoffState());
-        BooleanSupplier isClimbing = () -> (climber_.getEndgameState() >= 2);
-
         // ------------------
         // Driver Controls
         // ------------------
@@ -76,8 +86,10 @@ public abstract class OI {
                         new ScoreMailman(),
                         new ConditionalCommand(
                                 new ConditionalCommand(
-                                        new TeleShootAtSpeaker().unless(isMailmanReady),
-                                        new TelePass().unless(isFrontIntakeStagingNote),
+                                        new TeleShootAtSpeaker()
+                                                .unless(isMailmanReady),
+                                        new TelePass().unless(
+                                                isFrontIntakeStagingNote),
                                         isTargetModeSpeaker),
                                 new ConditionalCommand(
                                         new OverrideShootAtSpeaker(),
@@ -90,29 +102,36 @@ public abstract class OI {
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> {
                     mailman_.setHeight(HeightTarget.AMP);
-                    swerve_drivetrain_.setTargetRotation(
-                            swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
-                    swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
+                    // swerve_drivetrain_.setTargetRotation(
+                    //         swerve_drivetrain_.getDriverPrespective()
+                    //                 .rotateBy(Rotation2d.fromDegrees(90)));
+                    // swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
                 },
                 () -> {
                     mailman_.setHeight(HeightTarget.HOME);
-                    swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
+                    // swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
                 }).unless(isHandingOff));
 
         // Rear Pickup
-        driver_joystick_.rightBumper().whileTrue(new TeleRearPickup().unless(isRobotHoldingNote).ignoringDisable(true));
+        driver_joystick_.rightBumper()
+                .whileTrue(new TeleRearPickup().unless(isRobotHoldingNote).ignoringDisable(true));
         driver_joystick_.rightBumper()
                 .onFalse(new TeleRearPickupIndex().withTimeout(5).onlyIf(isRearIntakeStagingNote));
 
         // Front Pickup
         driver_joystick_.leftBumper()
-                .whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote).withTimeout(2).ignoringDisable(true));
+                .whileTrue(new TeleFrontPickup().unless(isRobotHoldingNote).withTimeout(2)
+                        .ignoringDisable(true));
         // driver_joystick_.leftBumper().onFalse(new
         // TeleFrontPickupIndex().withTimeout(5).onlyIf(isFrontIntakeStagingNote));
 
         // Crawl
-        crawlTrigger = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
-        crawlTrigger.whileTrue(new RobotCentricCrawl());
+        crawl_trigger_.whileTrue(new RobotCentricCrawl());
+
+        // Rumble
+        rumble_trigger_.onTrue(Commands.startEnd(
+                () -> driver_joystick_.getHID().setRumble(RumbleType.kBothRumble, 1.0),
+                () -> driver_joystick_.getHID().setRumble(RumbleType.kBothRumble, 0)).withTimeout(1.0));
 
         // Bump Climber Setpoint Down
         driver_joystick_.a().onTrue(Commands.runOnce(
@@ -134,11 +153,11 @@ public abstract class OI {
 
         // Set Elevator to Amp Target
         operator_joystick_.y().whileTrue(Commands.runOnce(
-                () -> mailman_.setHeight(HeightTarget.AMP)));
+                () -> mailman_.setHeight(HeightTarget.AMP)).unless(isClimbing));
 
         // Set Elevator to Home Target
         operator_joystick_.a().whileTrue(Commands.runOnce(
-                () -> mailman_.setHeight(HeightTarget.HOME)));
+                () -> mailman_.setHeight(HeightTarget.HOME)).unless(isClimbing));
 
         // Handoff from Mailman to Shooter
         operator_joystick_.leftBumper().onTrue(new HandoffToShooter().withTimeout(2.0));
@@ -162,11 +181,13 @@ public abstract class OI {
 
         // Endgame Climb step increment
         operator_joystick_.start()
-                .whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState()).unless(isHandingOff));
+                .whileTrue(Commands.runOnce(() -> climber_.scheduleNextEndgameState())
+                        .unless(isHandingOff));
 
         // Endgame Climb step decrement
         operator_joystick_.back()
-                .whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState()).unless(isHandingOff));
+                .whileTrue(Commands.runOnce(() -> climber_.schedulePreviousEndgameState())
+                        .unless(isHandingOff));
 
         // Climb
         operator_joystick_.povUp().whileTrue(Commands.startEnd(
@@ -188,7 +209,8 @@ public abstract class OI {
                 () -> {
                     swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
                     pickup_rear_.setPickupMode(PickupMode.IDLE);
-                    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(2).onlyIf(isRearIntakeStagingNote));
+                    CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(2)
+                            .onlyIf(isRearIntakeStagingNote));
                 }).until(isRearIntakeStagingNote));
 
     }
@@ -230,4 +252,5 @@ public abstract class OI {
     static public boolean getOperatorLeftTriggerPulled() {
         return operator_joystick_.getLeftTriggerAxis() > 0.1;
     }
+
 }

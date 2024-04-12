@@ -20,6 +20,7 @@ public class LockState extends Command {
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
     ClimberSubsystem.getInstance().setHeight(ClimbTarget.CLIMB, 1);
     MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP);
+    MailmanSubsystem.getInstance().setRollerStop();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

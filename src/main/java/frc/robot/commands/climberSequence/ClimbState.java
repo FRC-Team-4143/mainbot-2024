@@ -10,6 +10,8 @@ import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 
 public class ClimbState extends Command {
   /** Creates a new ClimbState. */
+  private int timer;
+
   public ClimbState() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -17,6 +19,8 @@ public class ClimbState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    timer = 0;
+    MailmanSubsystem.getInstance().setRollerBump();
     MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP);
     ClimberSubsystem.getInstance().setHeight(ClimbTarget.CLIMB, 1);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB);
@@ -25,6 +29,10 @@ public class ClimbState extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    timer++;
+    if (timer == 5) {
+      MailmanSubsystem.getInstance().setRollerStop();
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -36,6 +44,6 @@ public class ClimbState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return true;
+    return (ClimberSubsystem.getInstance().atHeight());
   }
 }
