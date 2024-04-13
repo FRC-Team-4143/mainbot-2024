@@ -8,8 +8,7 @@ import frc.robot.subsystems.SwerveDrivetrain;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.lib.AutoSequenceCommand;
-import frc.robot.autos.SomeAuto;
-import frc.robot.autos.TestAuto;
+import frc.robot.autos.*;
 import frc.robot.commands.*;
 
 
@@ -39,9 +38,9 @@ public class AutoManager {
         SwerveDrivetrain.getInstance().configurePathPlanner();
 
         // Register each of the autos
-        //registerAuto(new SomeAuto());
-        registerAuto(new TestAuto());
-
+        
+        registerAuto(new SourceDEF());
+        registerAuto(new TestCross());
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 

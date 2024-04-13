@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.28012348332389,
-        "y": 2.49
+        "x": 8.28,
+        "y": 2.4371348742697485
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.044015252740264,
-        "y": 1.1000419364231777
+        "x": 6.043891769416373,
+        "y": 1.047176810692926
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "E note"
     },
     {
       "anchor": {
@@ -43,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 4 Piece",
+  "folder": "Far Pieces",
   "previewStartingState": {
     "rotation": -151.93,
     "velocity": 0

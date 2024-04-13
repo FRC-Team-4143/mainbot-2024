@@ -2,9 +2,9 @@ package frc.robot.autos;
 
 import frc.lib.AutoSequenceCommand;
 
-public class SomeAuto extends AutoSequenceCommand {
+public class SourceDEF extends AutoSequenceCommand {
 
-    public SomeAuto(){
+    public SourceDEF(){
         setName("Source - DEF");
         addToNoteAuto("Source - D");
         addBranchAuto("D - Shoot - E", "D - E");

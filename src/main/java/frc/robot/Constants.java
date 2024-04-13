@@ -68,12 +68,12 @@ public final class Constants {
     // - VelocityVoltage, if DrivetrainConstants.SupportsPro is false (default)
     // - VelocityTorqueCurrentFOC, if DrivetrainConstants.SupportsPro is true
     private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
-        .withKP(10.0).withKI(0.0).withKD(0.0) // 7 : updated to 3 RJS
-        .withKS(0.0).withKV(0.0).withKA(0.0); // 2.4 : updated to 0 RJS
+        .withKP(12.5).withKI(0.0).withKD(0.01) // 7 : updated to 3 RJS
+        .withKS(0.2).withKV(0.12).withKA(0.05); // 2.4 : updated to 0 RJS
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final double SLIP_CURRENT_AMPS = 120.0;
+    private static final double SLIP_CURRENT_AMPS = 95.0;
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot
@@ -83,7 +83,7 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double COUPLE_RATIO = 3.5;
 
-    private static final double DRIVE_GEAR_RATIO = 6.99; // L3: 6.12, L2: 5.14
+    private static final double DRIVE_GEAR_RATIO = 5.35; // L3: 6.12, L2: 5.14
     private static final double STEER_GEAR_RATIO = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
     private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
                                                                // make odom match record
@@ -190,8 +190,8 @@ public final class Constants {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);
       map.put(1.6, 0.2);
-      map.put(3.0, 0.2);
-      map.put(6.0, 0.35);
+      map.put(3.0, 0.3);
+      map.put(6.0, 0.55);
       return map;
     }
 
@@ -212,6 +212,7 @@ public final class Constants {
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
+    public static final double LAUNCH_SPEED = 1.0;
     public static final boolean ROLLER_MOTOR_INVERTED = false;
 
     // Yaw Aiming Tolerance
@@ -231,7 +232,7 @@ public final class Constants {
     public static final int ROLLER_AMP_LIMIT = 40;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
     public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3, 180, 200);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, 2, 105, 130);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, 2, 50, 150);
   }
 
   // Pickup Settings Class

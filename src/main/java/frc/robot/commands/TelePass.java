@@ -36,7 +36,7 @@ public class TelePass extends Command {
   @Override
   public void execute() {
     if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }
   }

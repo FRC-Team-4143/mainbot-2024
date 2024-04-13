@@ -3,51 +3,51 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7284778050297884,
-        "y": 4.42669621430541
+        "x": 8.28,
+        "y": 0.7696215392430785
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0166698250657547,
-        "y": 2.2367697802442676
+        "x": 5.734452238135247,
+        "y": 2.26008284324261
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "D note"
     },
     {
       "anchor": {
-        "x": 8.293678213604645,
-        "y": 0.7
+        "x": 8.28,
+        "y": 2.4371348742697485
       },
       "prevControl": {
-        "x": 7.2243606025673595,
-        "y": 0.9433798974917171
+        "x": 7.747308571540221,
+        "y": 2.269396846486002
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "E note"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7,
-      "rotationDegrees": 164.68993191823748,
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -163.41,
       "rotateFast": false
     }
   ],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "Enable Vision",
-      "waypointRelativePos": 0.4,
+      "name": "UpdateNoteRangeFlag",
+      "waypointRelativePos": 0.45,
       "command": {
-        "type": "parallel",
+        "type": "sequential",
         "data": {
           "commands": [
             {
               "type": "named",
               "data": {
-                "name": "AllowVision"
+                "name": "UpdateNoteRangeFlag"
               }
             }
           ]
@@ -63,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 165.88590023822468,
+    "rotation": -163.41,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 4 Piece",
+  "folder": "D to any",
   "previewStartingState": {
-    "rotation": 119.65910923599512,
+    "rotation": 168.79,
     "velocity": 0
   },
   "useDefaultConstraints": true

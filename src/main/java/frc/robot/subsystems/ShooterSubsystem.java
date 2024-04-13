@@ -185,6 +185,7 @@ public class ShooterSubsystem extends Subsystem {
                     io_.target_wrist_angle_ = Math.toRadians(40);
                 }
             case SPINUP:
+                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
                 if(io_.target_mode_ == ShootTarget.SPEAKER){
                     io_.target_flywheel_speed_ = 550;
                     io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
@@ -436,6 +437,13 @@ public class ShooterSubsystem extends Subsystem {
      */
     public void setRollerFeed() {
         io_.roller_speed_ = ShooterConstants.ROLLER_SPEED;
+    }
+
+    /**
+     * Turn on rollers for shooting
+     */
+    public void setRollerLaunch() {
+        io_.roller_speed_ = ShooterConstants.LAUNCH_SPEED;
     }
 
     /**

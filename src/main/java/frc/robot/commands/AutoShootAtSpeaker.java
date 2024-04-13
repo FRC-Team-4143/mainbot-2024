@@ -48,7 +48,7 @@ public class AutoShootAtSpeaker extends Command {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
       ShooterSubsystem.getInstance().setRollerFeed();
     } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { //is target lock normaly 
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
       has_shot_note_ = true;
     } else {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);

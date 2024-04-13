@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece F to shoot"
+            "pathName": "F to shoot"
           }
         },
         {
@@ -50,7 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece E to shoot"
+            "pathName": "E to shoot"
           }
         },
         {
@@ -62,6 +62,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Old",
   "choreoAuto": false
 }

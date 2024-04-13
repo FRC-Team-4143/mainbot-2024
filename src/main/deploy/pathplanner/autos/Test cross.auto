@@ -2,19 +2,25 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7319122330552369,
-      "y": 4.469725093296342
+      "x": 1.4324651726226545,
+      "y": 1.4701744788104976
     },
-    "rotation": 120.4110812671254
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Test Path"
+            "pathName": "Simple Leave"
           }
         }
       ]

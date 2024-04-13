@@ -6,13 +6,16 @@
     "3 Piece",
     "4 Piece",
     "5 Piece (4+1)",
-    "Far 4 Piece",
-    "Far 5 Piece",
-    "CGH"
+    "CGH",
+    "D to any",
+    "E to any",
+    "Far Pieces",
+    "Far 5 Piece"
   ],
   "autoFolders": [
     "ABC",
-    "ABCG"
+    "ABCG",
+    "Old"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

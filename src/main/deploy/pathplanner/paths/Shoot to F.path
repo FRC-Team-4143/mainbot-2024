@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 8.28012348332389,
-        "y": 4.1
+        "x": 8.28,
+        "y": 4.1046482092964185
       },
       "prevControl": {
-        "x": 7.555895511216576,
-        "y": 4.047301235549991
+        "x": 7.555772027892685,
+        "y": 4.05194944484641
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "F note"
     }
   ],
   "rotationTargets": [
@@ -52,7 +52,25 @@
     }
   ],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "UpdateNoteRangeFlag",
+      "waypointRelativePos": 1.6,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "UpdateNoteRangeFlag"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -65,7 +83,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 4 Piece",
+  "folder": "Far Pieces",
   "previewStartingState": {
     "rotation": 139.72,
     "velocity": 0

@@ -44,7 +44,7 @@ public class TeleShootAtSpeaker extends Command {
       ready_count_++;
     }
     if (ready_count_ >= 5) {
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }
   }

@@ -26,13 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Speaker to D"
+            "pathName": "Source to D"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece D to shoot"
+            "pathName": "D to Shoot"
           }
         },
         {
@@ -44,13 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece E"
+            "pathName": "Shoot to E"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece E to shoot"
+            "pathName": "E to shoot"
           }
         },
         {
@@ -62,13 +62,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece F"
+            "pathName": "Shoot to F"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Far 4 Piece F to shoot"
+            "pathName": "F to shoot"
           }
         },
         {
@@ -80,6 +80,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Old",
   "choreoAuto": false
 }

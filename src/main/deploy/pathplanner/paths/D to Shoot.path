@@ -4,37 +4,31 @@
     {
       "anchor": {
         "x": 8.28,
-        "y": 4.1
+        "y": 0.7696215392430785
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.841410998600013,
-        "y": 3.6022894468102944
+        "x": 7.94406395377698,
+        "y": 0.8310909339935649
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "D note"
     },
     {
       "anchor": {
-        "x": 4.101198730214863,
-        "y": 5.305008955239023
+        "x": 3.0589342776403092,
+        "y": 2.9862633191742836
       },
       "prevControl": {
-        "x": 4.838981432599097,
-        "y": 4.11050362756931
+        "x": 4.593053865137686,
+        "y": 1.6863604625925368
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Far 4 Piece F"
+      "linkedName": "Far 4 Piece to shoot point"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.45,
-      "rotationDegrees": 180.0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -45,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0,
+    "rotation": 133.95837332398997,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far 4 Piece",
+  "folder": "Far Pieces",
   "previewStartingState": {
-    "rotation": 180.0,
+    "rotation": 168.79,
     "velocity": 0
   },
   "useDefaultConstraints": true

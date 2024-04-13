@@ -1,25 +1,25 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 0.7518994781213513,
-      "y": 6.640044321458116
-    },
-    "rotation": -118.9509952074668
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "F to shoot"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "AutoShootAtSpeakerPreload"
+            "name": "AutoShootAtSpeaker"
           }
         }
       ]
     }
   },
-  "folder": "Old",
+  "folder": null,
   "choreoAuto": false
 }

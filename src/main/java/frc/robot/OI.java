@@ -198,7 +198,7 @@ public abstract class OI {
         // -------------
         // Test buttons
         // -------------
-        driver_joystick_.b().whileTrue(new SwerveProfile(4, 0, 0).onlyIf(isTestMode));
+        driver_joystick_.b().whileTrue(new SwerveProfile(3.0, 0, 0).onlyIf(isTestMode));
 
         driver_joystick_.rightStick().and(limelight_.isTrackingNote()).whileTrue(Commands.startEnd(
                 () -> {

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7518994781213513,
-      "y": 6.640044321458116
+      "x": 0.7284778050297884,
+      "y": 4.42669621430541
     },
-    "rotation": -118.9509952074668
+    "rotation": 119.25749814975845
   },
   "command": {
     "type": "sequential",
@@ -16,10 +16,16 @@
           "data": {
             "name": "AutoShootAtSpeakerPreload"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source to D"
+          }
         }
       ]
     }
   },
-  "folder": "Old",
+  "folder": null,
   "choreoAuto": false
 }

@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.707609181266864,
-        "y": 2.318745636064738
+        "x": 2.2415544831089678,
+        "y": 2.3384654461616616
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.28012348332389,
-        "y": 2.49
+        "x": 8.293678213604645,
+        "y": 0.7
       },
       "prevControl": {
-        "x": 4.6886797835134155,
-        "y": 0.572016568648523
+        "x": 7.2243606025673595,
+        "y": 0.9433798974917171
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.7,
-      "rotationDegrees": -151.37,
+      "rotationDegrees": 164.68993191823748,
       "rotateFast": false
     }
   ],
@@ -39,7 +39,7 @@
   "eventMarkers": [
     {
       "name": "Enable Vision",
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.4,
       "command": {
         "type": "parallel",
         "data": {
@@ -48,6 +48,23 @@
               "type": "named",
               "data": {
                 "name": "AllowVision"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "UpdateNoteRangeFlag",
+      "waypointRelativePos": 0.75,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "UpdateNoteRangeFlag"
               }
             }
           ]
@@ -63,7 +80,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -151.37,
+    "rotation": 165.88590023822468,
     "rotateFast": false
   },
   "reversed": false,

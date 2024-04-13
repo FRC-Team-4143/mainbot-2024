@@ -35,7 +35,7 @@ public class OverrideShootAtSpeaker extends Command {
   @Override
   public void execute() {
     if (ShooterSubsystem.getInstance().isOverrideTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
     }
   }
 

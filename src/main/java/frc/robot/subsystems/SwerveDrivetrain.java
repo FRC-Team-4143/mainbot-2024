@@ -86,7 +86,8 @@ public class SwerveDrivetrain extends Subsystem {
         AUTONOMOUS_TARGET,
         CRAWL,
         PROFILE,
-        NOTE_TARGET
+        NOTE_TARGET,
+        SPINUP
     }
 
     // Robot Hardware
@@ -264,6 +265,19 @@ public class SwerveDrivetrain extends Subsystem {
                         // Use current robot rotation
                         .useGyroForRotation(io_.is_targeting_amp));
                 break;
+            case SPINUP:
+                setControl(target_facing
+                        // Drive forward with negative Y (forward)
+                        .withVelocityX(
+                                Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
+                                        Constants.DrivetrainConstants.MAX_DRIVE_SPEED))
+                        // Drive left with negative X (left)
+                        .withVelocityY(
+                                Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
+                                        Constants.DrivetrainConstants.MAX_DRIVE_SPEED))
+                        // Set Robots targert rotation
+                        .withTargetDirection(io_.target_rotation_));
+                break;
             case CRAWL:
                 setControl(robot_centric
                         .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
@@ -303,9 +317,10 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Rotation Control/Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Rotation Control/Current Yaw", io_.robot_yaw_.getDegrees());
         SmartDashboard.putNumber("Debug/Driver Prespective", io_.drivers_station_perspective_.getDegrees());
-        SmartDashboard.putNumber("Debug/X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
-        SmartDashboard.putNumber("Debug/Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
-        SmartDashboard.putNumber("Debug/Omega Chassis Speed", io_.chassis_speeds_.omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/X", io_.chassis_speeds_.vxMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/Y", io_.chassis_speeds_.vyMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/Omega", io_.chassis_speeds_.omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/magnitude", io_.chassis_speed_magnitude_);
 
         SmartDashboard.putData("X_Controler", DrivetrainConstants.X_CONTROLLER);
         SmartDashboard.putData("Y_Controler", DrivetrainConstants.Y_CONTROLLER);
@@ -352,7 +367,7 @@ public class SwerveDrivetrain extends Subsystem {
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
-        return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
+        return new HolonomicPathFollowerConfig(new PIDConstants(10.0, 0.0, 0.1),
                 new PIDConstants(5, 0, 0),
                 5,
                 driveBaseRadius,

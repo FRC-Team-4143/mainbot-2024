@@ -28,9 +28,9 @@ public class PPShootAtSpeaker extends Command {
   @Override
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote()) {
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
     } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { 
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
       has_shot_note_ = true;
     } else {
       ShooterSubsystem.getInstance().rollerStop();

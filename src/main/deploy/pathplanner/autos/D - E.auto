@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 1.4324651726226545,
-      "y": 1.4701744788104976
-    },
-    "rotation": 0
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -14,12 +8,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Simple Leave"
+            "pathName": "D to E"
           }
         }
       ]
     }
   },
-  "folder": "Old",
+  "folder": null,
   "choreoAuto": false
 }
