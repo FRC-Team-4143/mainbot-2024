@@ -22,8 +22,7 @@ public class TeleShootAtSpeaker extends Command {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
-    addRequirements(PickupSubsystem.getMailmanInstance()); // Prevent Notes from going under shooter
-    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(PickupSubsystem.getShooterInstance());
   }
 
   // Called when the command is initially scheduled.

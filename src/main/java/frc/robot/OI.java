@@ -11,11 +11,9 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -48,18 +46,19 @@ public abstract class OI {
     static BooleanSupplier isTestMode = () -> DriverStation.isTest();
     static BooleanSupplier isTargetModeSpeaker = () -> shooter_.getShootTarget() == ShootTarget.SPEAKER;
     static BooleanSupplier isAutomaticShotMode = () -> shooter_.isAutomaticAimMode();
-    static BooleanSupplier isRobotHoldingNote = () -> pickupNoteDebouncer.calculate(shooter_.hasNote() || pickup_front_.hasNote()
-            || pickup_rear_.hasNote());
+    static BooleanSupplier isRobotHoldingNote = () -> pickupNoteDebouncer
+            .calculate(shooter_.hasNote() || pickup_front_.hasNote()
+                    || pickup_rear_.hasNote());
     static BooleanSupplier isRearIntakeStagingNote = () -> pickup_rear_.hasNote() && !shooter_.hasNote()
             && !pickup_front_.hasNote();
     static BooleanSupplier isFrontIntakeStagingNote = () -> pickup_front_.hasNote() && !shooter_.hasNote();
     static BooleanSupplier isMailmanReady = () -> (mailman_.getTarget() != HeightTarget.HOME);
     static BooleanSupplier isHandingOff = () -> (shooter_.isShooterHandoffState());
     static BooleanSupplier isClimbing = () -> (climber_.getEndgameState() >= 2);
+    static BooleanSupplier is_targeting = () -> shooter_.isTargeting();
 
     static Trigger crawl_trigger_ = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
     static Trigger rumble_trigger_ = new Trigger(isRobotHoldingNote);
-
 
     public static void configureBindings() {
 
@@ -86,8 +85,7 @@ public abstract class OI {
                         new ScoreMailman(),
                         new ConditionalCommand(
                                 new ConditionalCommand(
-                                        new TeleShootAtSpeaker()
-                                                .unless(isMailmanReady),
+                                        new TeleShootAtSpeaker(),
                                         new TelePass().unless(
                                                 isFrontIntakeStagingNote),
                                         isTargetModeSpeaker),
@@ -103,14 +101,15 @@ public abstract class OI {
                 () -> {
                     mailman_.setHeight(HeightTarget.AMP);
                     swerve_drivetrain_.rotationTargetAmp(true);
-                    swerve_drivetrain_.setTargetRotation(swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
+                    swerve_drivetrain_.setTargetRotation(
+                            swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
                     swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
                 },
                 () -> {
                     mailman_.setHeight(HeightTarget.HOME);
                     swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
                     swerve_drivetrain_.rotationTargetAmp(false);
-                }).unless(isHandingOff));
+                }).unless(isHandingOff).unless(is_targeting));
 
         // Rear Pickup
         driver_joystick_.rightBumper()

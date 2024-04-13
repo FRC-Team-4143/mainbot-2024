@@ -54,6 +54,6 @@ public class TeleFrontPickup extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return (!PickupSubsystem.getMailmanInstance().hasNote() && seen_note_);
+        return PickupSubsystem.getMailmanInstance().hasNote();
     }
 }
