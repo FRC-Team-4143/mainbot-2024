@@ -3,8 +3,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.LimeLightSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+
 import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.lib.AutoSequenceCommand;
@@ -29,6 +33,8 @@ public class AutoManager {
 
     private AutoManager() {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker());//.withTimeout(2));
+        NamedCommands.registerCommand("AutoRepeatShot", new PPShootAtSpeaker(false));
+        NamedCommands.registerCommand("StopRepeatShot", Commands.runOnce(()->ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP)));
         NamedCommands.registerCommand("AutoShootAtSpeakerPreload", new AutoShootAtSpeakerPreload().withTimeout(2));
         NamedCommands.registerCommand("AllowVision", new SetIgnoreVision(false));
         NamedCommands.registerCommand("IgnoreVision", new SetIgnoreVision(true));
