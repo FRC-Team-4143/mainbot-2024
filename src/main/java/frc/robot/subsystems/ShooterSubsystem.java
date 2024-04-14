@@ -122,27 +122,29 @@ public class ShooterSubsystem extends Subsystem {
         // Top flywheel motor configuration
         top_flywheel_motor_.setSmartCurrentLimit(40);
         top_flywheel_motor_.setInverted(true);
+        top_flywheel_motor_.enableVoltageCompensation(ShooterConstants.FLYWHEEL_VOLTAGE_COMP);
         top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
         top_flywheel_encoder_ = top_flywheel_motor_.getEncoder();
         top_flywheel_controller_.setFeedbackDevice(top_flywheel_encoder_);
         top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);        
         top_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D, 0);
-        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
+        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 0);
         top_flywheel_controller_.setP(0.0, 1);
-        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 1);
+        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 1);
         top_flywheel_motor_.burnFlash();
 
         // Bottom flywheel motor configuration
         bot_flywheel_motor_.setSmartCurrentLimit(40);
         bot_flywheel_motor_.setInverted(false);
+        bot_flywheel_motor_.enableVoltageCompensation(ShooterConstants.FLYWHEEL_VOLTAGE_COMP);
         bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
         bot_flywheel_encoder_ = bot_flywheel_motor_.getEncoder();
         bot_flywheel_controller_.setFeedbackDevice(bot_flywheel_encoder_);
         bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);
         bot_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D, 0);
-        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
+        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 0);
         bot_flywheel_controller_.setP(0.0, 1);
-        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 1);
+        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 1);
         bot_flywheel_motor_.burnFlash();
 
         // Wrist motor configuration

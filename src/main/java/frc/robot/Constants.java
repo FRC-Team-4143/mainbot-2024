@@ -182,22 +182,23 @@ public final class Constants {
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
+    public static final double FLYWHEEL_VOLTAGE_COMP = 11.5;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30;
-    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.53; // Linear Shooter Velocity (80% for loss)
     public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32 : 250 | 2626.056 : 275 | 300 : 2864.78
 
     // Flywheel PID constants
-    public static final double FLYWHEEL_CONTROLLER_P = 0.0009;   // 0.0001
-    public static final double FLYWHEEL_CONTROLLER_D = 0.000001;   // 0.0000
-    public static final double FLYWHEEL_CONTROLLER_FF = 0.000163; // 0.00016
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0004;   // 0.0001
+    public static final double FLYWHEEL_CONTROLLER_D = 0.015;   // 0.0000
+    public static final double FLYWHEEL_CONTROLLER_F = 0.000155; // 0.00016
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);
-      map.put(1.6, 0.2);
-      map.put(3.0, 0.3);
-      map.put(6.0, 0.55);
+      map.put(1.6, 0.0);
+      map.put(3.0, 0.0);
+      map.put(6.0, 0.0);
       return map;
     }
 
