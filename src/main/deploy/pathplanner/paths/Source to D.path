@@ -16,26 +16,38 @@
     },
     {
       "anchor": {
-        "x": 8.293678213604645,
-        "y": 0.7
+        "x": 8.28,
+        "y": 0.7696215392430785
       },
       "prevControl": {
-        "x": 7.2243606025673595,
-        "y": 0.9433798974917171
+        "x": 7.210682388962714,
+        "y": 1.0130014367347957
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "D note"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7,
+      "waypointRelativePos": 0.5,
       "rotationDegrees": 164.68993191823748,
       "rotateFast": false
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [
     {
       "name": "Enable Vision",
@@ -74,7 +86,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.695898344721082,
-        "y": 4.133925300660873
+        "x": 8.28012348332389,
+        "y": 7.439674879349759
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5248146901429311,
-        "y": 1.8034688280503517
+        "x": 7.194759774134935,
+        "y": 7.222602137511967
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "H note"
     },
     {
       "anchor": {
-        "x": 8.153148175055266,
-        "y": 0.8197585582047061
+        "x": 4.935229870459742,
+        "y": 6.6207186260526365
       },
       "prevControl": {
-        "x": 6.02177592372303,
-        "y": 1.4287220585853442
+        "x": 5.8331216662433345,
+        "y": 6.847658310701237
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BHG shoot point"
     }
   ],
   "rotationTargets": [],
@@ -33,20 +33,20 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 166.33,
+    "velocity": 0.0,
+    "rotation": -166.53479190518837,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "4 Piece",
+  "folder": null,
   "previewStartingState": {
-    "rotation": 155.82089285331094,
-    "velocity": 0
+    "rotation": 180.0,
+    "velocity": 0.0
   },
   "useDefaultConstraints": true
 }

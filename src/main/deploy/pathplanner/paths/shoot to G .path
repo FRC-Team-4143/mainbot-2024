@@ -1,0 +1,88 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.935229870459742,
+        "y": 6.6207186260526365
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.583009319864795,
+        "y": 6.5220491979445505
+      },
+      "isLocked": false,
+      "linkedName": "BHG shoot point"
+    },
+    {
+      "anchor": {
+        "x": 8.28,
+        "y": 5.7721615443230885
+      },
+      "prevControl": {
+        "x": 6.375803520837812,
+        "y": 6.235907856431097
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "G note"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.55,
+      "rotationDegrees": 165.46,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 1.8,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.75,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "UpdateNoteRangeFlag"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 2.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 165.46,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": -163.61045966596524,
+    "velocity": 0.0
+  },
+  "useDefaultConstraints": true
+}

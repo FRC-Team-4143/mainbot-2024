@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.PickupSubsystem;
@@ -30,6 +31,7 @@ public class FetchNote extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    SwerveDrivetrain.getInstance().applyChassisSpeeds(new ChassisSpeeds());
     SwerveDrivetrain.getInstance().setDriveMode(DriveMode.AUTONOMOUS);
     LimeLightSubsystem.getInstance().resetNoteRangeFlag();
   }

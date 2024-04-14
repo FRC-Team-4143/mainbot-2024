@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New 4 Piece - B"
+            "pathName": "Center to B"
           }
         },
         {
@@ -44,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New 4 Piece - C"
+            "pathName": "B to C"
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New 4 Piece - A"
+            "pathName": "C to A"
           }
         },
         {
@@ -68,7 +68,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New 4 Piece - D"
+            "pathName": "A to D"
           }
         }
       ]

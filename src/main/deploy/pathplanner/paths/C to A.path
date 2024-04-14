@@ -1,0 +1,88 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.9,
+        "y": 7.222602137511967
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.5410015435415498,
+        "y": 5.722826830269045
+      },
+      "isLocked": false,
+      "linkedName": "C note"
+    },
+    {
+      "anchor": {
+        "x": 2.695898344721082,
+        "y": 4.133925300660873
+      },
+      "prevControl": {
+        "x": 1.0279205173794976,
+        "y": 4.4499912076747234
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "A note"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 152.13439101301418,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.7,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.55,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "UpdateNoteRangeFlag"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 2.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 160.8491774517247,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "4 Piece",
+  "previewStartingState": {
+    "rotation": -147.01147838636544,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

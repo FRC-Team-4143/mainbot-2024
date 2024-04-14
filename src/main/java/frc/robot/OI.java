@@ -211,7 +211,7 @@ public abstract class OI {
                     pickup_rear_.setPickupMode(PickupMode.IDLE);
                     CommandScheduler.getInstance().schedule(new TeleRearPickupIndex().withTimeout(2)
                             .onlyIf(isRearIntakeStagingNote));
-                }).until(isRearIntakeStagingNote));
+                }).until(isRearIntakeStagingNote).unless(isRobotHoldingNote));
 
     }
 

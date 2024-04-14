@@ -318,9 +318,9 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Debug/Chassis Speed/Omega", io_.chassis_speeds_.omegaRadiansPerSecond);
         SmartDashboard.putNumber("Debug/Chassis Speed/magnitude", io_.chassis_speed_magnitude_);
 
-        SmartDashboard.putData("X_Controler", DrivetrainConstants.X_CONTROLLER);
-        SmartDashboard.putData("Y_Controler", DrivetrainConstants.Y_CONTROLLER);
-        SmartDashboard.putData("T_Controler", DrivetrainConstants.T_CONTROLLER);
+        // SmartDashboard.putData("X_Controler", DrivetrainConstants.X_CONTROLLER);
+        // SmartDashboard.putData("Y_Controler", DrivetrainConstants.Y_CONTROLLER);
+        // SmartDashboard.putData("T_Controler", DrivetrainConstants.T_CONTROLLER);
     }
 
     public Rotation2d getRobotRotation() {
@@ -420,6 +420,10 @@ public class SwerveDrivetrain extends Subsystem {
      */
     public void setControl(SwerveRequest request) {
         request_to_apply = request;
+    }
+
+    public void applyChassisSpeeds(ChassisSpeeds speeds) {
+        this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds));
     }
 
     /**

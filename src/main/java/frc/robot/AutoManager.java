@@ -47,6 +47,7 @@ public class AutoManager {
         
         registerAuto(new SourceDEF());
         registerAuto(new TestCross());
+        registerAuto(new CenterBHGC());
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 

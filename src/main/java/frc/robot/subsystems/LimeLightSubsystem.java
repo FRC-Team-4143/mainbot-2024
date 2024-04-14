@@ -94,17 +94,20 @@ public class LimeLightSubsystem extends Subsystem {
         return io_.near_note_flag_ && io_.can_see_note_latch_;
     }
 
-    public BooleanSupplier isTrackingNote(){
+    public BooleanSupplier isTrackingNote() {
         return isTrackingNoteSupplier;
     }
 
     @Override
     public void updateLogic(double timestamp) {
-        io_.can_see_note_ = rising_debouncer_.calculate(io_.target_valid_ == 1);
+        double measured_distance_ = calculateDist(io_.limelight_target_y_);
+        io_.can_see_note_ = rising_debouncer_.calculate(io_.target_valid_ == 1)
+                && measured_distance_ < LimelightConstants.DETECTION_DISTANCE_LIMIT;
         io_.can_see_note_latch_ = falling_debouncer_.calculate(io_.can_see_note_);
         if (io_.can_see_note_) {
-            io_.target_distance_ = calculateDist(io_.limelight_target_y_);
-            io_.note_pose_odom_ref_ = caluclateNotePose(PoseEstimator.getInstance().getOdomPose(), io_.target_distance_,
+            io_.target_distance_ = measured_distance_;
+            io_.note_pose_odom_ref_ = caluclateNotePose(PoseEstimator.getInstance().getOdomPose(),
+                    io_.target_distance_,
                     io_.limelight_target_x_);
             io_.note_pose_field_ref_ = caluclateNotePose(PoseEstimator.getInstance().getFieldPose(),
                     io_.target_distance_, io_.limelight_target_x_);

@@ -49,6 +49,7 @@ public final class Constants {
     //13.277 in back from center // 12.577 in off the ground
     public static final double NOTE_DETECT_RISING = 0.1;
     public static final double NOTE_DETECT_FALLING = 3.0;
+    public static final double DETECTION_DISTANCE_LIMIT = 1.5;
   }
 
   public class DrivetrainConstants {
@@ -163,6 +164,8 @@ public final class Constants {
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
         Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
+
+        
     public static PIDController X_CONTROLLER = new PIDController(1.65, 0, 0);
     public static PIDController Y_CONTROLLER = new PIDController(1.65, 0, 0);
     public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(5.5, 0, 1.5, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
@@ -183,8 +186,11 @@ public final class Constants {
     public static final double FLYWHEEL_TOLERANCE = 30;
     public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
     public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32 : 250 | 2626.056 : 275 | 300 : 2864.78
-    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
-    public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
+
+    // Flywheel PID constants
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0009;   // 0.0001
+    public static final double FLYWHEEL_CONTROLLER_D = 0.000001;   // 0.0000
+    public static final double FLYWHEEL_CONTROLLER_FF = 0.000163; // 0.00016
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();

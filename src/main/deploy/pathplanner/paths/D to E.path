@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.734452238135247,
-        "y": 2.26008284324261
+        "x": 5.764053066567673,
+        "y": 2.417400988648132
       },
       "isLocked": false,
       "linkedName": "D note"
@@ -20,8 +20,8 @@
         "y": 2.4371348742697485
       },
       "prevControl": {
-        "x": 7.747308571540221,
-        "y": 2.269396846486002
+        "x": 7.619038314999709,
+        "y": 2.6246067876751153
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,11 +31,23 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": -163.41,
+      "rotationDegrees": -177.5051295228353,
       "rotateFast": false
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.4,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [
     {
       "name": "UpdateNoteRangeFlag",
@@ -57,13 +69,13 @@
   ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -163.41,
+    "rotation": 167.589571394991,
     "rotateFast": false
   },
   "reversed": false,
