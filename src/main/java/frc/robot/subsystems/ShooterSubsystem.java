@@ -114,7 +114,6 @@ public class ShooterSubsystem extends Subsystem {
 
         target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
         rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
-
     }
 
     @Override
@@ -175,9 +174,9 @@ public class ShooterSubsystem extends Subsystem {
     public void updateLogic(double timestamp) {
         Pose2d robot_pose = PoseEstimator.getInstance().getFieldPose();
         io_.note_travel_time_ = calculateNoteTravelTime(robot_pose, io_.target_offset_pose);
-        io_.relative_chassis_speed_ = transformChassisVelocity();
+        io_.target_relative_chassis_speed_ = transformChassisVelocity();
         io_.target_offset_pose = io_.target_
-                .transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
+                .transformBy(calculateMovingTargetOffset(io_.target_relative_chassis_speed_, io_.note_travel_time_));
         io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
         io_.target_offset_tuned_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
@@ -285,7 +284,6 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putBoolean("Speaker Shooting Mode", io_.target_mode_ == ShootTarget.SPEAKER);
         SmartDashboard.putBoolean("Pass Shooting Mode", io_.target_mode_ == ShootTarget.PASS);
         SmartDashboard.putBoolean("Auto Aim", isAutomaticAimMode());
-
     }
 
     /**
@@ -499,14 +497,17 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     private ChassisSpeeds transformChassisVelocity() {
-        ChassisSpeeds temp_chassis_speed = ChassisSpeeds.fromRobotRelativeSpeeds(
-                SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds(),
-                SwerveDrivetrain.getInstance().getRobotRotation());
-        io_.target_transform_ = new Transform3d(io_.target_.getTranslation(), io_.target_.getRotation());
-        Translation3d temp_translation = new Translation3d(temp_chassis_speed.vxMetersPerSecond,
-                temp_chassis_speed.vyMetersPerSecond, 0.0);
-        temp_translation.rotateBy(io_.target_transform_.getRotation());
-        return new ChassisSpeeds(temp_translation.getX(), temp_translation.getY(), 0.0);
+        ChassisSpeeds field_relative = SwerveDrivetrain.getInstance().getFieldRelativeSpeeds();
+        var alliance = DriverStation.getAlliance();
+        if(alliance.isPresent()){
+            if (DriverStation.Alliance.Red == alliance.get()) {
+                return new ChassisSpeeds(field_relative.vxMetersPerSecond, field_relative.vyMetersPerSecond, field_relative.omegaRadiansPerSecond);
+            } else {
+                return new ChassisSpeeds(-field_relative.vxMetersPerSecond, field_relative.vyMetersPerSecond, field_relative.omegaRadiansPerSecond);
+            }
+        } else {
+            return new ChassisSpeeds();
+        }
     }
 
     // Calculate Methods
@@ -554,9 +555,10 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     private Transform3d calculateMovingTargetOffset(ChassisSpeeds chassis_speeds, double travel_time) {
-        double depth_offset = -chassis_speeds.vyMetersPerSecond * travel_time;
-        double horizontal_offset = -chassis_speeds.vxMetersPerSecond * travel_time;
-        return new Transform3d(new Translation3d(horizontal_offset, depth_offset, 0), new Rotation3d());
+        double depth_offset = (chassis_speeds.vyMetersPerSecond * travel_time) * ShooterConstants.Y_SHOOT_MOVE_FACTOR;
+        double horizontal_offset = (chassis_speeds.vxMetersPerSecond * travel_time) * ShooterConstants.X_SHOOT_MOVE_FACTOR;
+        double height_offset = (chassis_speeds.vxMetersPerSecond * travel_time) * ShooterConstants.Z_SHOOT_MOVE_FACTOR;
+        return new Transform3d(new Translation3d(horizontal_offset, depth_offset, height_offset), new Rotation3d());
     }
 
     public class ShooterPeriodicIo implements Logged {
@@ -587,7 +589,7 @@ public class ShooterSubsystem extends Subsystem {
         @Log.File
         public Transform3d target_transform_ = new Transform3d();
         @Log.File
-        public ChassisSpeeds relative_chassis_speed_ = new ChassisSpeeds();
+        public ChassisSpeeds target_relative_chassis_speed_ = new ChassisSpeeds();
         @Log.File
         public double note_sensor_range_ = 0.0;
         @Log.File

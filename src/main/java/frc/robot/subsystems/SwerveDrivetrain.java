@@ -43,6 +43,7 @@ import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.robot.Constants;
 import frc.robot.OI;
+import frc.robot.subsystems.SwerveDrivetrain.SwerveDriverainPeriodicIo;
 import frc.robot.Constants.DrivetrainConstants;
 
 import monologue.Logged;
@@ -225,6 +226,7 @@ public class SwerveDrivetrain extends Subsystem {
         io_.robot_yaw_ = Rotation2d.fromRadians(MathUtil.angleModulus(-pigeon_imu.getAngle() * Math.PI / 180));
 
         io_.chassis_speeds_ = kinematics.toChassisSpeeds(io_.current_module_states_);
+        io_.field_relative_chassis_speed_ = ChassisSpeeds.fromRobotRelativeSpeeds(io_.chassis_speeds_, io_.robot_yaw_);
     }
 
     @Override
@@ -267,10 +269,18 @@ public class SwerveDrivetrain extends Subsystem {
                 break;
             case SPINUP:
                 setControl(target_facing
+                        // // Drive forward with negative Y (forward)
+                        // .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        // // Drive left with negative X (left)
+                        // .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityX(
+                                Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityY(
+                                Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_));
                 break;
@@ -363,8 +373,8 @@ public class SwerveDrivetrain extends Subsystem {
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
-        return new HolonomicPathFollowerConfig(new PIDConstants(10.0, 0.0, 0.1),
-                new PIDConstants(5, 0, 0),
+        return new HolonomicPathFollowerConfig(new PIDConstants(10.0, 0.0, 0.001),
+                new PIDConstants(7.3, 0, 0.07),
                 5,
                 driveBaseRadius,
                 new ReplanningConfig(false, false),
@@ -402,6 +412,10 @@ public class SwerveDrivetrain extends Subsystem {
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds() {
         return io_.chassis_speeds_;
+    }
+
+    public ChassisSpeeds getFieldRelativeSpeeds(){
+        return io_.field_relative_chassis_speed_;
     }
 
     /**
@@ -536,6 +550,8 @@ public class SwerveDrivetrain extends Subsystem {
         public double driver_joystick_rightX_ = 0.0;
         @Log.File
         public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
+        @Log.File
+        public ChassisSpeeds field_relative_chassis_speed_ = new ChassisSpeeds();
         @Log.File
         public Rotation2d target_rotation_ = new Rotation2d();
         @Log.File

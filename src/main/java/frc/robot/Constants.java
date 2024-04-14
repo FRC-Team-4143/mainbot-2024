@@ -225,6 +225,11 @@ public final class Constants {
     // Yaw Aiming Tolerance
     public static final double YAW_TOLERANCE = Math.toRadians(5);
 
+    // Shooting While Moving Offset
+    public static double X_SHOOT_MOVE_FACTOR = 0.0;
+    public static double Y_SHOOT_MOVE_FACTOR = 1.0;
+    public static double Z_SHOOT_MOVE_FACTOR = 1.0;
+
     // Sensor Constants
     public static final int NOTE_SENSOR_ID = 1;
     public static final double SENSOR_SAMPLE_TIME = 24.0;

@@ -43,7 +43,7 @@ public class TeleShootAtSpeaker extends Command {
     } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) {
       ready_count_++;
     }
-    if (ready_count_ >= 5) {
+    if (ready_count_ >= 25) {
       ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }

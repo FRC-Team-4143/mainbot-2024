@@ -8,6 +8,7 @@ import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import frc.robot.subsystems.SwerveDrivetrain.DriveMode;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -34,7 +35,8 @@ public class AutoManager {
     private AutoManager() {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker());//.withTimeout(2));
         NamedCommands.registerCommand("AutoRepeatShot", new PPShootAtSpeaker(false));
-        NamedCommands.registerCommand("StopRepeatShot", Commands.runOnce(()->ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP)));
+        NamedCommands.registerCommand("StopRepeatShot", Commands.runOnce(()->ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP)));        
+        NamedCommands.registerCommand("OverrideOrientation", Commands.runOnce(()->SwerveDrivetrain.getInstance().setDriveMode(DriveMode.AUTONOMOUS_TARGET)));
         NamedCommands.registerCommand("AutoShootAtSpeakerPreload", new AutoShootAtSpeakerPreload().withTimeout(2));
         NamedCommands.registerCommand("AllowVision", new SetIgnoreVision(false));
         NamedCommands.registerCommand("IgnoreVision", new SetIgnoreVision(true));
