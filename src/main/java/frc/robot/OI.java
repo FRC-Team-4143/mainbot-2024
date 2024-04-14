@@ -56,6 +56,7 @@ public abstract class OI {
     static BooleanSupplier isHandingOff = () -> (shooter_.isShooterHandoffState());
     static BooleanSupplier isClimbing = () -> (climber_.getEndgameState() >= 2);
     static BooleanSupplier is_targeting = () -> shooter_.isTargeting();
+    static BooleanSupplier not_target_and_note = () -> !shooter_.isTargeting() && isRobotHoldingNote.getAsBoolean();
 
     static Trigger crawl_trigger_ = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
     static Trigger rumble_trigger_ = new Trigger(isRobotHoldingNote);
@@ -113,7 +114,7 @@ public abstract class OI {
 
         // Rear Pickup
         driver_joystick_.rightBumper()
-                .whileTrue(new TeleRearPickup().unless(isRobotHoldingNote).ignoringDisable(true));
+                .whileTrue(new TeleRearPickup().unless(not_target_and_note).ignoringDisable(true));
         driver_joystick_.rightBumper()
                 .onFalse(new TeleRearPickupIndex().withTimeout(5).onlyIf(isRearIntakeStagingNote));
 

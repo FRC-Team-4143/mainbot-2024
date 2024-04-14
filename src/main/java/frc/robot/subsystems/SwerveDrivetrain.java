@@ -260,7 +260,7 @@ public class SwerveDrivetrain extends Subsystem {
                         .withVelocityY(
                                 Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
                                         Constants.DrivetrainConstants.MAX_TARGET_SPEED))
-                        // Set Robots targert rotation
+                        // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_)
                         // Use current robot rotation
                         .useGyroForRotation(io_.is_targeting_amp));
@@ -268,14 +268,10 @@ public class SwerveDrivetrain extends Subsystem {
             case SPINUP:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(
-                                Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
-                                        Constants.DrivetrainConstants.MAX_DRIVE_SPEED))
+                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
                         // Drive left with negative X (left)
-                        .withVelocityY(
-                                Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED,
-                                        Constants.DrivetrainConstants.MAX_DRIVE_SPEED))
-                        // Set Robots targert rotation
+                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_));
                 break;
             case CRAWL:
