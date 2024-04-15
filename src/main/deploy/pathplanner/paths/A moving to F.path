@@ -3,46 +3,56 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2745940876497153,
-        "y": 3.0883530997831223
+        "x": 2.8434379945635366,
+        "y": 4.114515152107228
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.580019929270629,
-        "y": 1.5984447353510078
+        "x": 1.2745940876449533,
+        "y": 6.4628475410822555
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.28,
-        "y": 0.7696215392430785
+        "x": 5.724585295324437,
+        "y": 4.114515152107228
       },
       "prevControl": {
-        "x": 7.210682388962714,
-        "y": 1.0130014367347957
+        "x": 4.540065729417788,
+        "y": 4.468649867686493
+      },
+      "nextControl": {
+        "x": 6.6816787479672275,
+        "y": 3.828373810596333
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.250522654891466,
+        "y": 4.114515152107228
+      },
+      "prevControl": {
+        "x": 6.938219261049145,
+        "y": 3.9467771243260192
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "D note"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 164.68993191823748,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "New Constraints Zone",
-      "minWaypointRelativePos": 0.75,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0.05,
+      "maxWaypointRelativePos": 0.7,
       "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 1.5,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
       }
@@ -50,8 +60,8 @@
   ],
   "eventMarkers": [
     {
-      "name": "Enable Vision",
-      "waypointRelativePos": 0.4,
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.45,
       "command": {
         "type": "parallel",
         "data": {
@@ -59,7 +69,7 @@
             {
               "type": "named",
               "data": {
-                "name": "AllowVision"
+                "name": "AutoMovingShot"
               }
             }
           ]
@@ -67,8 +77,8 @@
       }
     },
     {
-      "name": "UpdateNoteRangeFlag",
-      "waypointRelativePos": 0.75,
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.7,
       "command": {
         "type": "sequential",
         "data": {
@@ -92,13 +102,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 165.88590023822468,
+    "rotation": 179.99999999994242,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far Pieces",
+  "folder": null,
   "previewStartingState": {
-    "rotation": 119.65910923599512,
+    "rotation": 158.19859051364818,
     "velocity": 0
   },
   "useDefaultConstraints": true

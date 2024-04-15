@@ -98,7 +98,7 @@ public class PoseEstimator extends Subsystem {
     public void updateLogic(double timestamp) {
         var drive = SwerveDrivetrain.getInstance();
         io_.odom_pose_ = odometry_.update(drive.getImuYaw(), drive.getModulePositions());
-        io_.vision_filtered_pose_ = vision_filtered_odometry_.update(drive.getImuYaw(), drive.getModulePositions());
+        io_.vision_filtered_pose_ = vision_filtered_odometry_.updateWithTime(timestamp, drive.getImuYaw(), drive.getModulePositions());
     }
 
     @Override

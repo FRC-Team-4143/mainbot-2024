@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9914421367304285,
-        "y": 6.82792442507962
+        "x": 2.9026396514331507,
+        "y": 7.202868251890351
       },
       "isLocked": false,
       "linkedName": "B note"
     },
     {
       "anchor": {
-        "x": 2.9,
-        "y": 7.222602137511967
+        "x": 2.9026396514331507,
+        "y": 6.9956624528633675
       },
       "prevControl": {
-        "x": 2.8730388230007247,
-        "y": 6.640452511674255
+        "x": 2.9052793028663015,
+        "y": 5.328149117836698
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.1,
-      "rotationDegrees": -83.59671746898648,
+      "waypointRelativePos": 0.0,
+      "rotationDegrees": -90.0,
       "rotateFast": true
     }
   ],
@@ -57,14 +57,14 @@
   ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 2.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": -89.76418534333689,
-    "rotateFast": false
+    "rotation": -90.0,
+    "rotateFast": true
   },
   "reversed": false,
   "folder": null,

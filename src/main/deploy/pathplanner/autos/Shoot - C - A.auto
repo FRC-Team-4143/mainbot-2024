@@ -6,12 +6,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "G to shoot"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "AutoShootAtSpeaker"
@@ -20,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "shoot to C"
+            "pathName": "C to A"
           }
         }
       ]

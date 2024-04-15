@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.28012348332389,
+        "x": 8.270256540513081,
         "y": 7.439674879349759
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.194759774134935,
-        "y": 7.222602137511967
+        "x": 4.481350501162542,
+        "y": 6.847658310701237
       },
       "isLocked": false,
       "linkedName": "H note"
     },
     {
       "anchor": {
-        "x": 4.935229870459742,
-        "y": 6.6207186260526365
+        "x": 4.432015787108499,
+        "y": 6.837791367890429
       },
       "prevControl": {
-        "x": 5.8331216662433345,
-        "y": 6.847658310701237
+        "x": 8.309724311756318,
+        "y": 7.439674879349759
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,10 +30,28 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.6,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "OverrideOrientation"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 2.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

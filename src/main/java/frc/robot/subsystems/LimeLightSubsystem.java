@@ -75,7 +75,7 @@ public class LimeLightSubsystem extends Subsystem {
     private Pose2d caluclateNotePose(Pose2d pose, double dist, double x) {
         Pose2d result_pose = pose.plus(LimelightConstants.LIMELIGHT_OFFSET);
         return result_pose.plus(new Transform2d(Math.cos(x) * dist,
-                Math.sin(x) * dist, Rotation2d.fromRadians(x)));
+                Math.sin(x) * dist, Rotation2d.fromDegrees(0))); //Rotation2d.fromRadians(x)));
     }
 
     public Pose2d getNotePoseOdomRef() {

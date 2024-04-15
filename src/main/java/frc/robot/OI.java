@@ -100,10 +100,9 @@ public abstract class OI {
         // Move the Elevator to Amp Position
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> {
+                    swerve_drivetrain_.setTargetRotation(swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
                     mailman_.setHeight(HeightTarget.AMP);
                     swerve_drivetrain_.rotationTargetAmp(true);
-                    swerve_drivetrain_.setTargetRotation(
-                            swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
                     swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
                 },
                 () -> {

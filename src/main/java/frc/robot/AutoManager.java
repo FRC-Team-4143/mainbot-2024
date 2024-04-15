@@ -35,6 +35,7 @@ public class AutoManager {
     private AutoManager() {
         NamedCommands.registerCommand("AutoShootAtSpeaker", new AutoShootAtSpeaker());//.withTimeout(2));
         NamedCommands.registerCommand("AutoRepeatShot", new PPShootAtSpeaker(false));
+        NamedCommands.registerCommand("AutoMovingShot", new PPShootAtSpeaker(true));
         NamedCommands.registerCommand("StopRepeatShot", Commands.runOnce(()->ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP)));        
         NamedCommands.registerCommand("OverrideOrientation", Commands.runOnce(()->SwerveDrivetrain.getInstance().setDriveMode(DriveMode.AUTONOMOUS_TARGET)));
         NamedCommands.registerCommand("AutoShootAtSpeakerPreload", new AutoShootAtSpeakerPreload().withTimeout(2));
@@ -50,6 +51,7 @@ public class AutoManager {
         registerAuto(new SourceDEF());
         registerAuto(new TestCross());
         registerAuto(new CenterBHGC());
+        registerAuto(new CenterABC());
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 

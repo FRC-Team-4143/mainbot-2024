@@ -3,35 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.432015787108499,
-        "y": 6.837791367890429
+        "x": 3.5,
+        "y": 5.55
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.217932435864873,
-        "y": 7.094331880971454
+        "x": 2.034348684081985,
+        "y": 5.7721615443230885
       },
       "isLocked": false,
-      "linkedName": "BHG shoot point"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.28,
-        "y": 5.7721615443230885
+        "x": 2.9026396514331507,
+        "y": 6.9956624528633675
       },
       "prevControl": {
-        "x": 6.484339891756708,
-        "y": 6.660186397295872
+        "x": 1.0279205173794976,
+        "y": 5.920165686485219
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "G note"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.55,
-      "rotationDegrees": 151.1719013447789,
+      "waypointRelativePos": 0.45,
+      "rotationDegrees": -140.53804415942696,
       "rotateFast": false
     }
   ],
@@ -39,7 +39,7 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.75,
+      "waypointRelativePos": 0.85,
       "command": {
         "type": "sequential",
         "data": {
@@ -56,21 +56,21 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 152.98164442190418,
+    "rotation": -137.93567344642122,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -163.61045966596524,
-    "velocity": 0.0
+    "rotation": 180.0,
+    "velocity": 1.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

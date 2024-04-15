@@ -246,7 +246,9 @@ public class ShooterSubsystem extends Subsystem {
         roller_motor_.set(io_.roller_speed_);
         setFlyWheelRPM(io_.target_flywheel_speed_);
         setWristAngle(io_.target_wrist_angle_);
-        SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
+        if(isTargeting()){
+            SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
+        }
     }
 
     @Override
@@ -313,7 +315,7 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     public boolean isTargeting() {
-        return io_.shooter_mode == ShootMode.PROFILE || io_.shooter_mode == ShootMode.TARGET;
+        return io_.shooter_mode == ShootMode.PROFILE || io_.shooter_mode == ShootMode.TARGET || io_.shooter_mode == ShootMode.SPINUP;
     }
 
     /**
