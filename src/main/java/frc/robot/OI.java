@@ -142,13 +142,25 @@ public abstract class OI {
 
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerOutput(),
-                () -> mailman_.setRollerStop()));
+                () -> {
+                        mailman_.setRollerOutput();
+                        pickup_front_.setPickupMode(PickupMode.CLEAN);
+                },
+                () -> {
+                    mailman_.setRollerStop();
+                    pickup_front_.setPickupMode(PickupMode.IDLE);
+                }));
 
         // Mailman Rollers In
         operator_joystick_.x().whileTrue(Commands.startEnd(
-                () -> mailman_.setRollerIntake(),
-                () -> mailman_.setRollerStop()));
+                () -> {
+                    mailman_.setRollerIntake();
+                    pickup_front_.setPickupMode(PickupMode.PICKUP);
+                },
+                () -> {
+                    mailman_.setRollerStop();
+                    pickup_front_.setPickupMode(PickupMode.IDLE);
+                }));
 
         // Set Elevator to Amp Target
         operator_joystick_.y().whileTrue(Commands.runOnce(

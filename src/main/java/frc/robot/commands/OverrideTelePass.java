@@ -16,6 +16,7 @@ import frc.robot.subsystems.PickupSubsystem;
 public class OverrideTelePass extends Command {
   /** Creates a new OverrideTelePass. */
   boolean shot_note_;
+  double ready_count = 0;
   public OverrideTelePass() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
@@ -31,12 +32,16 @@ public class OverrideTelePass extends Command {
     ShooterSubsystem.getInstance().setTarget(ShootTarget.PASS);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     shot_note_ = false;
+    ready_count = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()){
+      ready_count++;
+    }
+    if(ready_count >= 25){
       ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }
