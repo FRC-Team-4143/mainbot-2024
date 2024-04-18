@@ -127,7 +127,7 @@ public class PoseEstimator extends Subsystem {
         pose_publisher_.set(io_.vision_filtered_pose_);
 
         SmartDashboard.putData("Field", field_);
-        SmartDashboard.putBoolean("Is Vision Paused", io_.vision_paused);
+        SmartDashboard.putBoolean("Is Vision Paused", io_.ignore_vision);
     }
 
     public Field2d getFieldWidget() {

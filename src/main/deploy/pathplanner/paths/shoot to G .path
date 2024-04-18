@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.432015787108499,
-        "y": 6.837791367890429
+        "x": 4.432,
+        "y": 6.837
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.217932435864873,
-        "y": 7.094331880971454
+        "x": 6.217916648756375,
+        "y": 7.093540513081025
       },
       "isLocked": false,
       "linkedName": "BHG shoot point"
@@ -56,8 +56,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

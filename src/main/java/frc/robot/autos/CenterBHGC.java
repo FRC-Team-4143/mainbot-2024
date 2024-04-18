@@ -1,10 +1,6 @@
 package frc.robot.autos;
 
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
 import frc.lib.AutoSequenceCommand;
-import frc.robot.commands.AutoShootAtSpeaker;
 
 public class CenterBHGC extends AutoSequenceCommand {
 

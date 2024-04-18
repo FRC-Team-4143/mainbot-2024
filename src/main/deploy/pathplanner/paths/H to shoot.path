@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.481350501162542,
-        "y": 6.847658310701237
+        "x": 7.281943659972296,
+        "y": 7.287235874639098
       },
       "isLocked": false,
       "linkedName": "H note"
     },
     {
       "anchor": {
-        "x": 4.432015787108499,
-        "y": 6.837791367890429
+        "x": 4.432,
+        "y": 6.837
       },
       "prevControl": {
-        "x": 8.309724311756318,
-        "y": 7.439674879349759
+        "x": 4.7970926711084205,
+        "y": 6.926593853187707
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,28 +30,10 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [
-    {
-      "name": "New Event Marker",
-      "waypointRelativePos": 0.6,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "OverrideOrientation"
-              }
-            }
-          ]
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7284778050297884,
-      "y": 4.42669621430541
+      "x": 0.7319122330552369,
+      "y": 4.430257322053106
     },
     "rotation": 119.25749814975845
   },
@@ -11,6 +11,12 @@
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "IgnoreVision"
+          }
+        },
         {
           "type": "named",
           "data": {

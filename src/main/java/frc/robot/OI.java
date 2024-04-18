@@ -177,7 +177,10 @@ public abstract class OI {
         operator_joystick_.rightBumper().onTrue(new HandoffToMailman().withTimeout(2.0));
 
         // Spinup Shooter
-        operator_joystick_.leftTrigger(0.5).whileTrue(new ShooterSpinUp().unless(isFrontIntakeStagingNote));
+        operator_joystick_.leftTrigger(0.5).whileTrue(new ConditionalCommand(
+                new ShooterSpinUp(),
+                new OverrideShooterSpinUp(),
+                isAutomaticShotMode).unless(isFrontIntakeStagingNote));
 
         // Empty All Pickups
         operator_joystick_.rightTrigger(0.5).whileTrue(new CleanAllPickups());

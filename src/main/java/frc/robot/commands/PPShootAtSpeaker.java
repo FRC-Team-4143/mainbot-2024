@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
+import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 
 public class PPShootAtSpeaker extends Command {
 
@@ -23,8 +24,10 @@ public class PPShootAtSpeaker extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS_TARGET);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+
     has_shot_note_ = false;
   }
 
@@ -33,7 +36,7 @@ public class PPShootAtSpeaker extends Command {
   public void execute() {
     if (!ShooterSubsystem.getInstance().hasNote()) {
       ShooterSubsystem.getInstance().setRollerFeed();
-    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { 
+    } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) {
       ShooterSubsystem.getInstance().setRollerLaunch();
       has_shot_note_ = true;
     } else {
@@ -51,6 +54,7 @@ public class PPShootAtSpeaker extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ShooterSubsystem.getInstance().getShootMode() != ShootMode.TARGET || (stop_after_first_ && (has_shot_note_ && !ShooterSubsystem.getInstance().hasNote()));
+    return ShooterSubsystem.getInstance().getShootMode() != ShootMode.TARGET
+        || (stop_after_first_ && (has_shot_note_ && !ShooterSubsystem.getInstance().hasNote()));
   }
 }

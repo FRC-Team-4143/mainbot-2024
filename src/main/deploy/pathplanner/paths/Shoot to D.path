@@ -1,0 +1,76 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.0589342776403092,
+        "y": 2.9862633191742836
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.806959613919229,
+        "y": 1.0458959379457238
+      },
+      "isLocked": false,
+      "linkedName": "Far 4 Piece to shoot point"
+    },
+    {
+      "anchor": {
+        "x": 8.28,
+        "y": 0.7696215392430785
+      },
+      "prevControl": {
+        "x": 5.586375808333951,
+        "y": 0.7696215392430785
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "D note"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.55,
+      "rotationDegrees": 176.19249904912144,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.85,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "UpdateNoteRangeFlag"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Far Pieces",
+  "previewStartingState": {
+    "rotation": 136.0050860052542,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

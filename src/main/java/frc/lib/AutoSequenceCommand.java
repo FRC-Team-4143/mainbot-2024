@@ -70,7 +70,7 @@ public abstract class AutoSequenceCommand extends SequentialCommandGroup {
      * @return command to follow path with note correction
      */
     private Command createToNoteAuto(String auto){
-        return new SwitchCommand(new PathPlannerAuto(auto), new FetchNote().withTimeout(2), isNoteAvaibale);
+        return new SwitchCommand(new PathPlannerAuto(auto), new FetchNote().withTimeout(1.5), isNoteAvaibale);
     }
 
 

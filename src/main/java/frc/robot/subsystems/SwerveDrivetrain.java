@@ -373,7 +373,7 @@ public class SwerveDrivetrain extends Subsystem {
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
-        return new HolonomicPathFollowerConfig(new PIDConstants(10.0, 0.0, 0.001),
+        return new HolonomicPathFollowerConfig(new PIDConstants(5.0, 0.0, 0.001), // was 10
                 new PIDConstants(7.3, 0, 0.07),
                 5,
                 driveBaseRadius,
@@ -488,7 +488,7 @@ public class SwerveDrivetrain extends Subsystem {
 
     public Optional<Rotation2d> getAutoTargetRotation() {
         if (io_.drive_mode_ == DriveMode.AUTONOMOUS_TARGET) {
-            return Optional.of(io_.target_rotation_.rotateBy(Rotation2d.fromDegrees(180)));
+            return Optional.of(io_.target_rotation_.rotateBy(io_.drivers_station_perspective_));
         }
         return Optional.empty();
     }

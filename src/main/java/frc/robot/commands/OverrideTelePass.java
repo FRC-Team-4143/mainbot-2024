@@ -41,7 +41,7 @@ public class OverrideTelePass extends Command {
     if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()){
       ready_count++;
     }
-    if(ready_count >= 25){
+    if(ready_count >= 8){
       ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }

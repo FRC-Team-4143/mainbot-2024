@@ -68,6 +68,7 @@ public class AutoShootAtSpeaker extends Command {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
     ShooterSubsystem.getInstance().rollerStop();
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Returns true when the command should end.

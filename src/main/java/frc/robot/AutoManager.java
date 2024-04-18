@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.LimeLightSubsystem;
+import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -42,6 +43,7 @@ public class AutoManager {
         NamedCommands.registerCommand("AllowVision", new SetIgnoreVision(false));
         NamedCommands.registerCommand("IgnoreVision", new SetIgnoreVision(true));
         NamedCommands.registerCommand("UpdateNoteRangeFlag", LimeLightSubsystem.getInstance().updateNoteRangeFlag());
+        NamedCommands.registerCommand("RearPickupIndex", new TeleRearPickupIndex().withTimeout(1.0));
         //NamedCommands.registerCommand("AutoFrontPickupToShooter", new HandoffToShooter().withTimeout(2).andThen(new AutoEnableDefaults()));
         
         SwerveDrivetrain.getInstance().configurePathPlanner();
@@ -52,6 +54,7 @@ public class AutoManager {
         registerAuto(new TestCross());
         registerAuto(new CenterBHGC());
         registerAuto(new CenterABC());
+        registerAuto(new ShootNoMove());
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 
