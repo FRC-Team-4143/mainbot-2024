@@ -53,7 +53,7 @@ public class AutoManager {
         registerAuto(new SourceDEF());
         registerAuto(new TestCross());
         registerAuto(new CenterBHGC());
-        registerAuto(new CenterABC());
+        registerAuto(new CenterBCAF());
         registerAuto(new ShootNoMove());
         SmartDashboard.putData("Auto Mode", autoChooser);
     }

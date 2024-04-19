@@ -96,7 +96,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Far Pieces",
+  "folder": null,
   "previewStartingState": {
     "rotation": 119.65910923599512,
     "velocity": 0

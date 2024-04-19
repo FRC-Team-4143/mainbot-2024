@@ -54,7 +54,7 @@ public class PPShootAtSpeaker extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ShooterSubsystem.getInstance().getShootMode() != ShootMode.TARGET
-        || (stop_after_first_ && (has_shot_note_ && !ShooterSubsystem.getInstance().hasNote()));
+    return has_shot_note_ && (ShooterSubsystem.getInstance().getShootMode() != ShootMode.TARGET
+        || (stop_after_first_ && !ShooterSubsystem.getInstance().hasNote()));
   }
 }

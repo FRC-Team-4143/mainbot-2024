@@ -20,7 +20,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "shoot to C"
+            "pathName": "Shoot to turn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Turn to C"
           }
         }
       ]

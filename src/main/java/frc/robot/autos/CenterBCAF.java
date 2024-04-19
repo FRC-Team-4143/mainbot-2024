@@ -2,9 +2,9 @@ package frc.robot.autos;
 
 import frc.lib.AutoSequenceCommand;
 
-public class CenterABC extends AutoSequenceCommand {
+public class CenterBCAF extends AutoSequenceCommand {
 
-    public CenterABC(){
+    public CenterBCAF(){
         setName("Center - BCAF");
         addToNoteAuto("Center - B Moving - C");
         addToNoteAuto("Shoot - C - A");

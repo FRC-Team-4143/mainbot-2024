@@ -79,7 +79,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "D to any",
+  "folder": null,
   "previewStartingState": {
     "rotation": 168.79,
     "velocity": 0
