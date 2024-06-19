@@ -84,10 +84,9 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double COUPLE_RATIO = 3.5;
 
-    private static final double DRIVE_GEAR_RATIO = 5.35; // L3: 6.12, L2: 5.14
+    private static final double DRIVE_GEAR_RATIO = 5.36827799; // L3: 6.12, L2: 5.14     //4.572
     private static final double STEER_GEAR_RATIO = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
-    private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
-                                                               // make odom match record
+    private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; 
 
     private static final boolean STEER_MOTOR_REVERSED = false;
     private static final boolean INVERT_LEFT_DRIVE = false;

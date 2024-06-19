@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.701412633594499,
-        "y": 6.610851683241828
+        "x": 6.9382192610539075,
+        "y": 7.469275707782185
       },
       "isLocked": false,
       "linkedName": "H note"
@@ -20,8 +20,8 @@
         "y": 5.7721615443230885
       },
       "prevControl": {
-        "x": 6.928352318243099,
-        "y": 6.4924483695121245
+        "x": 6.583009319864795,
+        "y": 6.946327738809324
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": 151.2139078707334,
+      "rotationDegrees": 134.7273199113488,
       "rotateFast": false
     }
   ],
@@ -39,7 +39,7 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.65,
+      "waypointRelativePos": 0.7,
       "command": {
         "type": "sequential",
         "data": {
@@ -63,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 159.7710590178474,
+    "rotation": 137.34,
     "rotateFast": false
   },
   "reversed": false,

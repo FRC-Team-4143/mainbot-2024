@@ -8,7 +8,7 @@ public class CenterBHGC extends AutoSequenceCommand {
         setName("Center - BHGC");
         addToNoteAuto("Center - B Moving - H");
         addBranchAuto("H - Shoot - G", "H - G");
-        addBranchAuto("G - Shoot - C", "G - C");
+        addToNoteAuto("G - Shoot - C");
         addToNoteAuto("Shoot Note");
     }
     
