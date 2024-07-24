@@ -94,7 +94,9 @@ public class ShooterSubsystem extends Subsystem {
         RECEIVE,
         CLIMB,
         PROFILE,
-        SPINUP
+        SPINUP,
+        DEMO,
+        DEMOTARGETING
     }
 
     private ShooterPeriodicIo io_;
@@ -216,6 +218,15 @@ public class ShooterSubsystem extends Subsystem {
             case PROFILE:
                 io_.target_wrist_angle_ = Math.toRadians(35);
                 io_.target_flywheel_speed_ = 550;
+                break;
+            case DEMO:
+                io_.target_wrist_angle_ = Math.toRadians(40);
+                io_.target_flywheel_speed_ = 200;
+                break;
+            case DEMOTARGETING:
+                io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,ShooterConstants.NOTE_EXIT_VELOCITY, io_.target_offset_tuned_);
+                io_.target_flywheel_speed_ = 200;
+                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
                 break;
             case IDLE:
             default:

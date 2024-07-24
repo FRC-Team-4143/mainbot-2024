@@ -10,6 +10,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -30,6 +31,9 @@ public abstract class OI {
     // Sets up both controllers
     static CommandXboxController driver_joystick_ = new CommandXboxController(0);
     static CommandXboxController operator_joystick_ = new CommandXboxController(1);
+
+    static boolean demoMode = false;
+    static boolean demoTargeting = false;
 
     static ShooterSubsystem shooter_ = ShooterSubsystem.getInstance();
     static PickupSubsystem pickup_front_ = PickupSubsystem.getMailmanInstance();
@@ -57,6 +61,8 @@ public abstract class OI {
     static BooleanSupplier isClimbing = () -> (climber_.getEndgameState() >= 2);
     static BooleanSupplier is_targeting = () -> shooter_.isTargeting();
     static BooleanSupplier not_target_and_note = () -> !shooter_.isTargeting() && isRobotHoldingNote.getAsBoolean();
+    static BooleanSupplier is_demo = () -> demoMode;
+    static BooleanSupplier is_demoTargeting = () -> demoTargeting;
 
     static Trigger crawl_trigger_ = new Trigger(() -> driver_joystick_.getHID().getPOV() > -1);
     static Trigger rumble_trigger_ = new Trigger(isRobotHoldingNote);
@@ -75,6 +81,19 @@ public abstract class OI {
         SmartDashboard.putData("Pause Vision", Commands.runOnce(
                 () -> PoseEstimator.getInstance().pauseVisionFilter())
                 .ignoringDisable(true));
+        SmartDashboard.putData("Toggle Demo", Commands.runOnce(
+                () -> {
+                    if (DriverStation.isTest()) {
+                        demoMode = !demoMode;
+                    }
+                })
+                .ignoringDisable(true));
+        SmartDashboard.putData("Toggle Demo Targeting", Commands.runOnce(
+                () -> {
+                    demoTargeting = !demoTargeting;
+                })
+                .ignoringDisable(true));
+        SmartDashboard.putNumber("Max Drive Speed", 0.0);
 
         // ------------------
         // Driver Controls
@@ -86,29 +105,40 @@ public abstract class OI {
                         new ScoreMailman(),
                         new ConditionalCommand(
                                 new ConditionalCommand(
-                                        new TeleShootAtSpeaker(),
-                                        new TelePass().unless(
-                                                isFrontIntakeStagingNote),
-                                        isTargetModeSpeaker),
+                                    new DemoShootAtSpeaker(),
+                                    new DemoShoot(),
+                                        is_demoTargeting),
                                 new ConditionalCommand(
-                                        new OverrideShootAtSpeaker(),
-                                        new OverrideTelePass(),
-                                        isTargetModeSpeaker),
-                                isAutomaticShotMode),
+                                        new ConditionalCommand(
+                                                new TeleShootAtSpeaker(),
+                                                new TelePass().unless(
+                                                        isFrontIntakeStagingNote),
+                                                isTargetModeSpeaker),
+                                        new ConditionalCommand(
+                                                new OverrideShootAtSpeaker(),
+                                                new OverrideTelePass(),
+                                                isTargetModeSpeaker),
+                                        isAutomaticShotMode),
+                                is_demo),
                         isMailmanReady));
 
         // Move the Elevator to Amp Position
         driver_joystick_.leftTrigger(0.5).whileTrue(Commands.startEnd(
                 () -> {
-                    swerve_drivetrain_.setTargetRotation(swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
+                    if(!demoMode){
+                        swerve_drivetrain_.setTargetRotation(
+                            swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
+                        swerve_drivetrain_.rotationTargetAmp(true);
+                        swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
+                    }
                     mailman_.setHeight(HeightTarget.AMP);
-                    swerve_drivetrain_.rotationTargetAmp(true);
-                    swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
                 },
                 () -> {
+                    if(!demoMode){
+                        swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
+                        swerve_drivetrain_.rotationTargetAmp(false);
+                    }
                     mailman_.setHeight(HeightTarget.HOME);
-                    swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
-                    swerve_drivetrain_.rotationTargetAmp(false);
                 }).unless(isHandingOff).unless(is_targeting));
 
         // Rear Pickup
@@ -143,8 +173,8 @@ public abstract class OI {
         // Mailman Rollers Out
         operator_joystick_.b().whileTrue(Commands.startEnd(
                 () -> {
-                        mailman_.setRollerOutput();
-                        pickup_front_.setPickupMode(PickupMode.CLEAN);
+                    mailman_.setRollerOutput();
+                    pickup_front_.setPickupMode(PickupMode.CLEAN);
                 },
                 () -> {
                     mailman_.setRollerStop();
