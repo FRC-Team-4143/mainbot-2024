@@ -88,7 +88,8 @@ public class SwerveDrivetrain extends Subsystem {
         CRAWL,
         PROFILE,
         NOTE_TARGET,
-        SPINUP
+        SPINUP,
+        SPINUP_TARGET_ANGLE
     }
 
     // Robot Hardware
@@ -228,7 +229,7 @@ public class SwerveDrivetrain extends Subsystem {
 
         io_.chassis_speeds_ = kinematics.toChassisSpeeds(io_.current_module_states_);
         io_.field_relative_chassis_speed_ = ChassisSpeeds.fromRobotRelativeSpeeds(io_.chassis_speeds_, io_.robot_yaw_);
-        io_.max_drive_speed_ = SmartDashboard.getNumber("Max Drive Speed", 0.0);
+        io_.max_drive_speed_ = SmartDashboard.getNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
     }
 
     @Override
@@ -267,7 +268,7 @@ public class SwerveDrivetrain extends Subsystem {
                         // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_)
                         // Use current robot rotation
-                        .useGyroForRotation(io_.is_targeting_amp));
+                        .useGyroForRotation(io_.is_locked_with_gyro));
                 break;
             case SPINUP:
                 setControl(target_facing
@@ -290,6 +291,16 @@ public class SwerveDrivetrain extends Subsystem {
                 break;
             case NOTE_TARGET:
                 setControl(chassis_speed_request.withSpeeds(calculateNoteRequest()));
+                break;
+            case SPINUP_TARGET_ANGLE:
+                setControl(target_facing
+                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
+                        // Drive left with negative X (left)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
+                        // Set Robots target rotation
+                        .withTargetDirection(io_.target_rotation_)
+                        // Use current robot rotation
+                        .useGyroForRotation(true));
                 break;
             default:
                 // yes these dont do anything for auto...
@@ -523,8 +534,8 @@ public class SwerveDrivetrain extends Subsystem {
                 notePose, 0.0, notePose.getRotation());
     }
 
-    public void rotationTargetAmp(boolean state){
-        io_.is_targeting_amp = state;
+    public void rotationTargetWithGyro(boolean state){
+        io_.is_locked_with_gyro = state;
     }
 
     public void updateMaxDriveSpeed(double speed){
@@ -566,7 +577,7 @@ public class SwerveDrivetrain extends Subsystem {
         @Log.File
         public double chassis_speed_magnitude_;
         @Log.File
-        public boolean is_targeting_amp = false;
+        public boolean is_locked_with_gyro = false;
         @Log.File
         public double max_drive_speed_ = 0.0;
     }

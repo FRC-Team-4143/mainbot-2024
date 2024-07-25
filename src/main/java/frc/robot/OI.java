@@ -93,7 +93,7 @@ public abstract class OI {
                     demoTargeting = !demoTargeting;
                 })
                 .ignoringDisable(true));
-        SmartDashboard.putNumber("Max Drive Speed", 0.0);
+        SmartDashboard.putNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
 
         // ------------------
         // Driver Controls
@@ -128,7 +128,7 @@ public abstract class OI {
                     if(!demoMode){
                         swerve_drivetrain_.setTargetRotation(
                             swerve_drivetrain_.getDriverPrespective().rotateBy(Rotation2d.fromDegrees(90)));
-                        swerve_drivetrain_.rotationTargetAmp(true);
+                        swerve_drivetrain_.rotationTargetWithGyro(true);
                         swerve_drivetrain_.setDriveMode(DriveMode.TARGET);
                     }
                     mailman_.setHeight(HeightTarget.AMP);
@@ -136,7 +136,7 @@ public abstract class OI {
                 () -> {
                     if(!demoMode){
                         swerve_drivetrain_.setDriveMode(DriveMode.FIELD_CENTRIC);
-                        swerve_drivetrain_.rotationTargetAmp(false);
+                        swerve_drivetrain_.rotationTargetWithGyro(false);
                     }
                     mailman_.setHeight(HeightTarget.HOME);
                 }).unless(isHandingOff).unless(is_targeting));
@@ -208,8 +208,14 @@ public abstract class OI {
 
         // Spinup Shooter
         operator_joystick_.leftTrigger(0.5).whileTrue(new ConditionalCommand(
-                new ShooterSpinUp(),
-                new OverrideShooterSpinUp(),
+                new ConditionalCommand(
+                        new SpeakerShooterSpinUp(),
+                        new PassShooterSpinUp(), 
+                        isTargetModeSpeaker),
+                new ConditionalCommand(
+                        new OverrideSpeakerShooterSpinUp(),
+                        new OverridePassShooterSpinUp(), 
+                        isTargetModeSpeaker),
                 isAutomaticShotMode).unless(isFrontIntakeStagingNote));
 
         // Empty All Pickups

@@ -73,6 +73,9 @@ public class ShooterSubsystem extends Subsystem {
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
 
+    private final Rotation2d BLUE_PASS_ANGLE = Rotation2d.fromDegrees(180 - 210);
+    private final Rotation2d RED_PASS_ANGLE = Rotation2d.fromDegrees(210);
+
     private final Pose3d BLUE_PASS = field_layout_.getTagPose(7).get().transformBy(BLUE_PASS_TRANSFORM);
     private final Pose3d RED_PASS = field_layout_.getTagPose(4).get().transformBy(RED_PASS_TRANSFORM);
     // Speed maps
@@ -183,22 +186,15 @@ public class ShooterSubsystem extends Subsystem {
         io_.target_offset_tuned_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
         switch (io_.shooter_mode) {
-            //case TARGET:
-                // io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-                // if (io_.target_mode_ == ShootTarget.SPEAKER) {
-                //     io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
-                //             ShooterConstants.NOTE_EXIT_VELOCITY, io_.target_offset_tuned_);
-                // } else if (io_.target_mode_ == ShootTarget.PASS) {
-                //     io_.target_wrist_angle_ = Math.toRadians(40);
-                // }
             case TARGET:
             case SPINUP:
-                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
                 if (io_.target_mode_ == ShootTarget.SPEAKER) {
                     io_.target_flywheel_speed_ = 550;
+                    io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
                     io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
                             ShooterConstants.NOTE_EXIT_VELOCITY, io_.target_offset_tuned_);
                 } else if (io_.target_mode_ == ShootTarget.PASS) {
+                    io_.target_robot_yaw_ = (DriverStation.getAlliance().get() == DriverStation.Alliance.Red)? RED_PASS_ANGLE: BLUE_PASS_ANGLE;
                     io_.target_flywheel_speed_ = 325;
                     io_.target_wrist_angle_ = Math.toRadians(40);
                 }

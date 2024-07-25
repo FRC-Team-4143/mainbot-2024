@@ -9,11 +9,11 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
 import frc.robot.subsystems.SwerveDrivetrain;
 
-public class ShooterSpinUp extends Command {
+public class OverrideSpeakerShooterSpinUp extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
 
-  public ShooterSpinUp() {
+  public OverrideSpeakerShooterSpinUp() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -21,7 +21,6 @@ public class ShooterSpinUp extends Command {
   @Override
   public void initialize() {
     ShooterSubsystem.getInstance().setShootMode(ShootMode.SPINUP);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.SPINUP);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,7 +33,6 @@ public class ShooterSpinUp extends Command {
   @Override
   public void end(boolean interrupted) {
     ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.FIELD_CENTRIC);
   }
 
   // Returns true when the command should end.
