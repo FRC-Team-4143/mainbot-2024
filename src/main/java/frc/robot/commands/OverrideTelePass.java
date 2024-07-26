@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -17,6 +16,7 @@ import frc.robot.subsystems.PickupSubsystem;
 public class OverrideTelePass extends Command {
   /** Creates a new OverrideTelePass. */
   boolean shot_note_;
+  double ready_count = 0;
   public OverrideTelePass() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
@@ -32,13 +32,17 @@ public class OverrideTelePass extends Command {
     ShooterSubsystem.getInstance().setTarget(ShootTarget.PASS);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
     shot_note_ = false;
+    ready_count = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ready_count++;
+    }
+    if(ready_count >= 8){
+      ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }
   }

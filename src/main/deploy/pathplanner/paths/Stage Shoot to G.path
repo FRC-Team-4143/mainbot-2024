@@ -1,0 +1,76 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.101198730214863,
+        "y": 5.305008955239023
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.102967898243491,
+        "y": 7.923155077079385
+      },
+      "isLocked": false,
+      "linkedName": "Far 4 Piece F"
+    },
+    {
+      "anchor": {
+        "x": 8.28,
+        "y": 5.7721615443230885
+      },
+      "prevControl": {
+        "x": 7.875578828080734,
+        "y": 6.008968171782498
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "G note"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.65,
+      "rotationDegrees": 152.67,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "UpdateNoteRangeFlag",
+      "waypointRelativePos": 0.65,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "UpdateNoteRangeFlag"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 152.67,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

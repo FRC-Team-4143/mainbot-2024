@@ -15,6 +15,7 @@ import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 public class TelePass extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
+  double ready_count = 0;
   public TelePass() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
@@ -28,15 +29,19 @@ public class TelePass extends Command {
   public void initialize() {
     MailmanSubsystem.getInstance().setHeight(HeightTarget.HOME);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
-    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
+    SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.SPINUP_TARGET_ANGLE);
     shot_note_ = false;
+    ready_count = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ready_count++;
+    }
+    if(ready_count >= 25){
+      ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }
   }

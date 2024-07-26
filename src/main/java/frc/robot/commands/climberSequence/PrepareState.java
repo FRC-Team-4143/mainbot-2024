@@ -17,6 +17,7 @@ public class PrepareState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    
     MailmanSubsystem.getInstance().setHeight(HeightTarget.TRAP);
     ClimberSubsystem.getInstance().setHeight(ClimbTarget.MAX, 0);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.CLIMB);
@@ -30,7 +31,6 @@ public class PrepareState extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
   }
 
   // Returns true when the command should end.

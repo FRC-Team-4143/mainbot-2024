@@ -18,6 +18,7 @@ public class AutoShootAtSpeaker extends Command {
 
   boolean has_shot_note_ = false;
   int timeout = 0;
+  int counter = 0;
 
   /** Creates a new AutoShootAtSpeaker. */
   public AutoShootAtSpeaker() {
@@ -34,6 +35,7 @@ public class AutoShootAtSpeaker extends Command {
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.TARGET);
     has_shot_note_ = false;
     timeout = 0;
+    counter = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -47,12 +49,16 @@ public class AutoShootAtSpeaker extends Command {
     if (!ShooterSubsystem.getInstance().hasNote()) {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
       ShooterSubsystem.getInstance().setRollerFeed();
-    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { //is target lock normaly 
-      ShooterSubsystem.getInstance().setRollerFeed();
-      has_shot_note_ = true;
+    } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) { //is target lock normaly
+      counter++; 
     } else {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
       ShooterSubsystem.getInstance().rollerStop();
+    }
+
+    if(counter > 12){
+      ShooterSubsystem.getInstance().setRollerLaunch();
+      has_shot_note_ = true;
     }
   }
 
@@ -62,6 +68,7 @@ public class AutoShootAtSpeaker extends Command {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
     ShooterSubsystem.getInstance().rollerStop();
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Returns true when the command should end.

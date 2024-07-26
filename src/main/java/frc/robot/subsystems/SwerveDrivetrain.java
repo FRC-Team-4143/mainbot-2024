@@ -6,7 +6,6 @@
  */
 package frc.robot.subsystems;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -30,7 +29,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.MathUtil;
-
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -44,6 +43,7 @@ import frc.lib.swerve.*;
 import frc.lib.swerve.SwerveRequest.SwerveControlRequestParameters;
 import frc.robot.Constants;
 import frc.robot.OI;
+import frc.robot.subsystems.SwerveDrivetrain.SwerveDriverainPeriodicIo;
 import frc.robot.Constants.DrivetrainConstants;
 
 import monologue.Logged;
@@ -72,7 +72,8 @@ public class SwerveDrivetrain extends Subsystem {
     public static SwerveDrivetrain getInstance() {
         if (instance == null) {
             instance = new SwerveDrivetrain(DrivetrainConstants.FL_MODULE_CONSTANTS,
-                    DrivetrainConstants.FR_MODULE_CONSTANTS, DrivetrainConstants.BL_MODULE_CONSTANTS, DrivetrainConstants.BR_MODULE_CONSTANTS);
+                    DrivetrainConstants.FR_MODULE_CONSTANTS, DrivetrainConstants.BL_MODULE_CONSTANTS,
+                    DrivetrainConstants.BR_MODULE_CONSTANTS);
         }
         return instance;
     }
@@ -86,11 +87,10 @@ public class SwerveDrivetrain extends Subsystem {
         AUTONOMOUS_TARGET,
         CRAWL,
         PROFILE,
+        NOTE_TARGET,
+        SPINUP,
+        SPINUP_TARGET_ANGLE
     }
-
-    private SwerveRequest.FieldCentric field_centric;
-    private SwerveRequest.RobotCentric robot_centric;
-    private SwerveRequest.FieldCentricFacingAngle target_facing;
 
     // Robot Hardware
     private final Pigeon2 pigeon_imu;
@@ -104,7 +104,11 @@ public class SwerveDrivetrain extends Subsystem {
     private final Translation2d[] module_locations;
 
     // Drive requests
-    private SwerveRequest.ApplyChassisSpeeds auto_request;
+    private SwerveRequest.ApplyChassisSpeeds auto_request, chassis_speed_request;
+    private SwerveRequest.FieldCentric field_centric;
+    private SwerveRequest.RobotCentric robot_centric;
+    private SwerveRequest.FieldCentricFacingAngle target_facing;
+
     private SwerveRequest request_to_apply;
     private SwerveControlRequestParameters request_parameters;
 
@@ -119,6 +123,7 @@ public class SwerveDrivetrain extends Subsystem {
     private StructArrayPublisher<SwerveModuleState> current_state_pub, requested_state_pub;
     private ProtobufPublisher<Pose2d> pp_pose_pub_;
 
+    private HolonomicDriveController note_drive_controller_;
 
     /**
      * Constructs a SwerveDrivetrain using the specified constants.
@@ -127,12 +132,13 @@ public class SwerveDrivetrain extends Subsystem {
      * the devices themselves. If they need the devices, they can access them
      * through getters in the classes.
      *
-     * @param modules             Constants for each specific module
+     * @param modules Constants for each specific module
      */
     public SwerveDrivetrain(SwerveModuleConstants... modules) {
 
         // make new io instance
         io_ = new SwerveDriverainPeriodicIo();
+        io_.max_drive_speed_ = Constants.DrivetrainConstants.MAX_DRIVE_SPEED;
 
         // Setup the Pigeon IMU
         pigeon_imu = new Pigeon2(DrivetrainConstants.PIGEON2_ID, DrivetrainConstants.MODULE_CANBUS_NAME[0]);
@@ -175,6 +181,8 @@ public class SwerveDrivetrain extends Subsystem {
                 .withRotationalDeadband(Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE * 0.01);
         auto_request = new SwerveRequest.ApplyChassisSpeeds()
                 .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+        chassis_speed_request = new SwerveRequest.ApplyChassisSpeeds()
+                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
         request_parameters = new SwerveControlRequestParameters();
         request_to_apply = new SwerveRequest.Idle();
 
@@ -185,6 +193,12 @@ public class SwerveDrivetrain extends Subsystem {
                 .getStructArrayTopic("module_states/current", SwerveModuleState.struct).publish();
         pp_pose_pub_ = NetworkTableInstance.getDefault()
                 .getProtobufTopic("pp_target_pose", Pose2d.proto).publish();
+
+        note_drive_controller_ = new HolonomicDriveController(DrivetrainConstants.X_CONTROLLER,
+                DrivetrainConstants.Y_CONTROLLER,
+                DrivetrainConstants.T_CONTROLLER);
+
+        
     }
 
     @Override
@@ -214,6 +228,8 @@ public class SwerveDrivetrain extends Subsystem {
         io_.robot_yaw_ = Rotation2d.fromRadians(MathUtil.angleModulus(-pigeon_imu.getAngle() * Math.PI / 180));
 
         io_.chassis_speeds_ = kinematics.toChassisSpeeds(io_.current_module_states_);
+        io_.field_relative_chassis_speed_ = ChassisSpeeds.fromRobotRelativeSpeeds(io_.chassis_speeds_, io_.robot_yaw_);
+        io_.max_drive_speed_ = SmartDashboard.getNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
     }
 
     @Override
@@ -222,9 +238,9 @@ public class SwerveDrivetrain extends Subsystem {
             case ROBOT_CENTRIC:
                 setControl(robot_centric
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
                         // Drive counterclockwise with negative X (left)
                         .withRotationalRate(
                                 -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
@@ -232,9 +248,9 @@ public class SwerveDrivetrain extends Subsystem {
             case FIELD_CENTRIC:
                 setControl(field_centric
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
                         // Drive counterclockwise with negative X (left)
                         .withRotationalRate(
                                 -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
@@ -242,17 +258,49 @@ public class SwerveDrivetrain extends Subsystem {
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(Util.clamp(-io_.driver_joystick_leftY_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
+                        .withVelocityX(
+                                Util.clamp(-io_.driver_joystick_leftY_ * io_.max_drive_speed_,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
-                        .withVelocityY(Util.clamp(-io_.driver_joystick_leftX_ * Constants.DrivetrainConstants.MAX_DRIVE_SPEED, Constants.DrivetrainConstants.MAX_TARGET_SPEED))
-                        //
+                        .withVelocityY(
+                                Util.clamp(-io_.driver_joystick_leftX_ * io_.max_drive_speed_,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
+                        // Set Robots target rotation
+                        .withTargetDirection(io_.target_rotation_)
+                        // Use current robot rotation
+                        .useGyroForRotation(io_.is_locked_with_gyro));
+                break;
+            case SPINUP:
+                setControl(target_facing
+                        .withVelocityX(
+                                Util.clamp(-io_.driver_joystick_leftY_ * io_.max_drive_speed_,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
+                        // Drive left with negative X (left)
+                        .withVelocityY(
+                                Util.clamp(-io_.driver_joystick_leftX_ * io_.max_drive_speed_,
+                                        Constants.DrivetrainConstants.MAX_TARGET_SPEED))
+                        // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_));
                 break;
             case CRAWL:
                 setControl(robot_centric
                         .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
                         .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
-                        .withRotationalRate(-io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                        .withRotationalRate(
+                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                break;
+            case NOTE_TARGET:
+                setControl(chassis_speed_request.withSpeeds(calculateNoteRequest()));
+                break;
+            case SPINUP_TARGET_ANGLE:
+                setControl(target_facing
+                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
+                        // Drive left with negative X (left)
+                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
+                        // Set Robots target rotation
+                        .withTargetDirection(io_.target_rotation_)
+                        // Use current robot rotation
+                        .useGyroForRotation(true));
                 break;
             default:
                 // yes these dont do anything for auto...
@@ -260,7 +308,7 @@ public class SwerveDrivetrain extends Subsystem {
         }
 
         /* And now that we've got the new odometry, update the controls */
-        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_);        
+        request_parameters.currentPose = new Pose2d(0, 0, io_.robot_yaw_);
         request_parameters.kinematics = kinematics;
         request_parameters.swervePositions = module_locations;
         request_parameters.updatePeriod = timestamp - request_parameters.timestamp;
@@ -283,13 +331,18 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Rotation Control/Target Rotation", io_.target_rotation_.getDegrees());
         SmartDashboard.putNumber("Rotation Control/Current Yaw", io_.robot_yaw_.getDegrees());
         SmartDashboard.putNumber("Debug/Driver Prespective", io_.drivers_station_perspective_.getDegrees());
-        SmartDashboard.putNumber("Debug/X Chassis Speed", io_.chassis_speeds_.vxMetersPerSecond);
-        SmartDashboard.putNumber("Debug/Y Chassis Speed", io_.chassis_speeds_.vyMetersPerSecond);
-        SmartDashboard.putNumber("Debug/Omega Chassis Speed", io_.chassis_speeds_.omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/X", io_.chassis_speeds_.vxMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/Y", io_.chassis_speeds_.vyMetersPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/Omega", io_.chassis_speeds_.omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Debug/Chassis Speed/magnitude", io_.chassis_speed_magnitude_);
+
+        // SmartDashboard.putData("X_Controler", DrivetrainConstants.X_CONTROLLER);
+        // SmartDashboard.putData("Y_Controler", DrivetrainConstants.Y_CONTROLLER);
+        // SmartDashboard.putData("T_Controler", DrivetrainConstants.T_CONTROLLER);
     }
 
-    public Rotation2d getRobotRotation(){
-       return io_.robot_yaw_;
+    public Rotation2d getRobotRotation() {
+        return io_.robot_yaw_;
     }
 
     /**
@@ -297,11 +350,11 @@ public class SwerveDrivetrain extends Subsystem {
      */
     public void configurePathPlanner() {
         AutoBuilder.configureHolonomic(
-                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+                PoseEstimator.getInstance()::getFieldPose, // Supplier of current robot pose
                 PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
                 this::getCurrentRobotChassisSpeeds,
                 (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds
-               getHolonomicFollowerConfig(),
+                getHolonomicFollowerConfig(),
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red
                     // alliance
@@ -314,7 +367,7 @@ public class SwerveDrivetrain extends Subsystem {
                     return false;
                 },
                 this); // Subsystem for requirements
-                PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
+        PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
 
         // Logging callback for target robot pose
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
@@ -323,25 +376,28 @@ public class SwerveDrivetrain extends Subsystem {
         });
     }
 
-    public HolonomicPathFollowerConfig getHolonomicFollowerConfig(){
+    public HolonomicPathFollowerConfig getHolonomicFollowerConfig() {
         double driveBaseRadius = 0;
         for (var moduleLocation : module_locations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
-        return new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                        new PIDConstants(5, 0, 0),
-                        5,
-                        driveBaseRadius,
-                        new ReplanningConfig(false, false), 
-                        0.01);
+        return new HolonomicPathFollowerConfig(new PIDConstants(5.0, 0.0, 0.001), // was 10
+                new PIDConstants(7.3, 0, 0.07),
+                5,
+                driveBaseRadius,
+                new ReplanningConfig(false, false),
+                0.01);
     }
 
     public Command followPathCommand(String pathName) {
         return new FollowPathHolonomic(
                 PathPlannerPath.fromPathFile(pathName),
-                PoseEstimator.getInstance()::getRobotPose, // Supplier of current robot pose
+                PoseEstimator.getInstance()::getFieldPose, // Supplier of current robot pose
                 this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of
+                                                                                                        // ChassisSpeeds
+                                                                                                        // to drive the
+                                                                                                        // robot
                 this.getHolonomicFollowerConfig(),
 
                 () -> {
@@ -366,6 +422,10 @@ public class SwerveDrivetrain extends Subsystem {
         return io_.chassis_speeds_;
     }
 
+    public ChassisSpeeds getFieldRelativeSpeeds(){
+        return io_.field_relative_chassis_speed_;
+    }
+
     /**
      * Takes the current orientation of the robot and makes it X forward for
      * field-relative maneuvers.
@@ -382,6 +442,10 @@ public class SwerveDrivetrain extends Subsystem {
      */
     public void setControl(SwerveRequest request) {
         request_to_apply = request;
+    }
+
+    public void applyChassisSpeeds(ChassisSpeeds speeds) {
+        this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds));
     }
 
     /**
@@ -431,8 +495,8 @@ public class SwerveDrivetrain extends Subsystem {
     }
 
     public Optional<Rotation2d> getAutoTargetRotation() {
-        if(io_.drive_mode_ == DriveMode.AUTONOMOUS_TARGET) {
-            return Optional.of(io_.target_rotation_.rotateBy(Rotation2d.fromDegrees(180)));
+        if (io_.drive_mode_ == DriveMode.AUTONOMOUS_TARGET) {
+            return Optional.of(io_.target_rotation_.rotateBy(io_.drivers_station_perspective_));
         }
         return Optional.empty();
     }
@@ -447,20 +511,35 @@ public class SwerveDrivetrain extends Subsystem {
         io_.drive_mode_ = mode;
     }
 
-    public DriveMode getDriveMode(){
+    public DriveMode getDriveMode() {
         return io_.drive_mode_;
     }
 
-    public void setDriverPrespective(Rotation2d prespective){
+    public void setDriverPrespective(Rotation2d prespective) {
         io_.drivers_station_perspective_ = prespective;
     }
 
-    public Rotation2d getDriverPrespective(){
+    public Rotation2d getDriverPrespective() {
         return io_.drivers_station_perspective_;
     }
 
     public double calculateChassisSpeedMagnitude(ChassisSpeeds chassis) {
-        return Math.sqrt((chassis.vxMetersPerSecond*chassis.vxMetersPerSecond) + (chassis.vyMetersPerSecond*chassis.vyMetersPerSecond));
+        return Math.sqrt((chassis.vxMetersPerSecond * chassis.vxMetersPerSecond)
+                + (chassis.vyMetersPerSecond * chassis.vyMetersPerSecond));
+    }
+
+    public ChassisSpeeds calculateNoteRequest() {
+        Pose2d notePose = LimeLightSubsystem.getInstance().getNotePoseOdomRef();
+        return note_drive_controller_.calculate(PoseEstimator.getInstance().getOdomPose(),
+                notePose, 0.0, notePose.getRotation());
+    }
+
+    public void rotationTargetWithGyro(boolean state){
+        io_.is_locked_with_gyro = state;
+    }
+
+    public void updateMaxDriveSpeed(double speed){
+        io_.max_drive_speed_ = speed;
     }
 
     /**
@@ -484,6 +563,8 @@ public class SwerveDrivetrain extends Subsystem {
         @Log.File
         public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
         @Log.File
+        public ChassisSpeeds field_relative_chassis_speed_ = new ChassisSpeeds();
+        @Log.File
         public Rotation2d target_rotation_ = new Rotation2d();
         @Log.File
         public DriveMode drive_mode_ = DriveMode.FIELD_CENTRIC;
@@ -495,10 +576,14 @@ public class SwerveDrivetrain extends Subsystem {
         public Rotation2d drivers_station_perspective_ = new Rotation2d();
         @Log.File
         public double chassis_speed_magnitude_;
+        @Log.File
+        public boolean is_locked_with_gyro = false;
+        @Log.File
+        public double max_drive_speed_ = 0.0;
     }
 
     @Override
     public Logged getLoggingObject() {
-      return io_;
+        return io_;
     }
 }

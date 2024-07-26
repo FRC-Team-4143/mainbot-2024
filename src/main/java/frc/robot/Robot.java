@@ -16,7 +16,6 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.commands.AutoEnableDefaults;
 import frc.robot.commands.climberSequence.PresetState;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.PickupSubsystem;
 import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -84,6 +83,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.reset();
         SwerveDrivetrain.getInstance().setDriveMode(DriveMode.FIELD_CENTRIC);
 
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
