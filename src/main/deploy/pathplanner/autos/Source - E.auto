@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7319122330552369,
+      "y": 4.430257322053106
+    },
+    "rotation": 119.25749814975845
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShootAtSpeakerPreload"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source to E"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

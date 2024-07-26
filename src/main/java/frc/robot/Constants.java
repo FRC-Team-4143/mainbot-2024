@@ -4,9 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 
@@ -36,6 +41,17 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class LimelightConstants {
+    public static final double MOUNT_ANGLE = Math.toRadians(18.0); 
+    public static final double NOTE_HEIGHT_METERS = 0.02; 
+    public static final double LENS_HEIGHT_OFF_GROUND_METERS = 0.381; // 0.319 V1 Mount // 0.381 v2 Mount
+    public static final Transform2d LIMELIGHT_OFFSET = new Transform2d(-0.337, 0.0, Rotation2d.fromDegrees(0)); 
+    //13.277 in back from center // 12.577 in off the ground
+    public static final double NOTE_DETECT_RISING = 0.1;
+    public static final double NOTE_DETECT_FALLING = 3.0;
+    public static final double DETECTION_DISTANCE_LIMIT = 1.5;
+  }
+
   public class DrivetrainConstants {
 
     // Can bus names for each of the swerve modules
@@ -53,12 +69,12 @@ public final class Constants {
     // - VelocityVoltage, if DrivetrainConstants.SupportsPro is false (default)
     // - VelocityTorqueCurrentFOC, if DrivetrainConstants.SupportsPro is true
     private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
-        .withKP(10.0).withKI(0.0).withKD(0.0) // 7 : updated to 3 RJS
-        .withKS(0.0).withKV(0.0).withKA(0.0); // 2.4 : updated to 0 RJS
+        .withKP(12.5).withKI(0.0).withKD(0.01) // 7 : updated to 3 RJS
+        .withKS(0.2).withKV(0.12).withKA(0.05); // 2.4 : updated to 0 RJS
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final double SLIP_CURRENT_AMPS = 80.0;
+    private static final double SLIP_CURRENT_AMPS = 95.0;
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot
@@ -68,10 +84,9 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double COUPLE_RATIO = 3.5;
 
-    private static final double DRIVE_GEAR_RATIO = 6.12; // L3: 6.12, L2: 5.14
+    private static final double DRIVE_GEAR_RATIO = 5.36827799; // L3: 6.12, L2: 5.14     //4.572
     private static final double STEER_GEAR_RATIO = 12.8; // Mk4i: (150.0/7.0), Mk4: 12.8
-    private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; // Estimated at first, then fudge-factored to
-                                                               // make odom match record
+    private static final double WHEEL_RADIUS_INCH = 1.88; // 1.6090288; // 1.59997; 
 
     private static final boolean STEER_MOTOR_REVERSED = false;
     private static final boolean INVERT_LEFT_DRIVE = false;
@@ -148,6 +163,11 @@ public final class Constants {
     public static final SwerveModuleConstants BR_MODULE_CONSTANTS = ConstantCreator.createModuleConstants(
         BRS_MOTOR_ID, BRD_MOTOR_ID, BRS_ENCODER_ID, BRS_ENCODER_OFFSET, Units.inchesToMeters(BR_X_POS_INCH),
         Units.inchesToMeters(BR_Y_POS_INCH), INVERT_RIGHT_DRIVE);
+
+        
+    public static PIDController X_CONTROLLER = new PIDController(1.65, 0, 0);
+    public static PIDController Y_CONTROLLER = new PIDController(1.65, 0, 0);
+    public static ProfiledPIDController T_CONTROLLER = new ProfiledPIDController(5.5, 0, 1.5, new TrapezoidProfile.Constraints(2*Math.PI, Math.PI));
   }
 
   // IDs Range from 10 - 19
@@ -161,19 +181,23 @@ public final class Constants {
     // Flywheel constants
     public static final int TOP_FLYWHEEL_MOTOR_ID = 10;
     public static final int BOT_FLYWHEEL_MOTOR_ID = 11;
+    public static final double FLYWHEEL_VOLTAGE_COMP = 11.5;
     public static final double FLYWHEEL_IDLE_VOLTAGE = 0.0;
     public static final double FLYWHEEL_TOLERANCE = 30;
-    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.8; // Linear Shooter Velocity (80% for loss)
+    public static final double NOTE_EXIT_VELOCITY = (4.0 * 25.4 * Math.PI / 1000.0) * (5252.11 / 60.0) * 0.53; // Linear Shooter Velocity (80% for loss)
     public static final double NOTE_EXIT_VELOCITY_PASSING = (4.0 * 25.4 * Math.PI / 1000.0) * (2626.056 / 60.0) * 0.8; // 2387.32 : 250 | 2626.056 : 275 | 300 : 2864.78
-    public static final double FLYWHEEL_CONTROLLER_P = 0.0001;
-    public static final double FLYWHEEL_CONTROLLER_FF = 0.00016;
+
+    // Flywheel PID constants
+    public static final double FLYWHEEL_CONTROLLER_P = 0.0004;   // 0.0001
+    public static final double FLYWHEEL_CONTROLLER_D = 0.015;   // 0.0000
+    public static final double FLYWHEEL_CONTROLLER_F = 0.000155; // 0.00016
 
     public static final InterpolatingDoubleTreeMap DISTANCE_TO_TARGET_OFFSET_MAP() {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);
-      map.put(1.6, 0.2);
-      map.put(3.0, 0.2);
-      map.put(6.0, 0.35);
+      map.put(1.6, 0.0);
+      map.put(3.0, 0.0);
+      map.put(6.0, 0.0);
       return map;
     }
 
@@ -194,10 +218,16 @@ public final class Constants {
     // Roller constants
     public static final int ROLLER_MOTOR_ID = 13;
     public static final double ROLLER_SPEED = 0.40;
+    public static final double LAUNCH_SPEED = 1.0;
     public static final boolean ROLLER_MOTOR_INVERTED = false;
 
     // Yaw Aiming Tolerance
     public static final double YAW_TOLERANCE = Math.toRadians(5);
+
+    // Shooting While Moving Offset
+    public static final double X_SHOOT_MOVE_FACTOR = 0.0;
+    public static final double Y_SHOOT_MOVE_FACTOR = 0.95;
+    public static final double Z_SHOOT_MOVE_FACTOR = 1.0;
 
     // Sensor Constants
     public static final int NOTE_SENSOR_ID = 1;
@@ -213,7 +243,7 @@ public final class Constants {
     public static final int ROLLER_AMP_LIMIT = 40;
     public static final double SENSOR_SAMPLE_TIME = 50.0;
     public static final PickupSettings SHOOTER_PICKUP = new Constants().new PickupSettings(20, false, 3, 180, 200);
-    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, 2, 105, 130);
+    public static final PickupSettings MAILMAN_PICKUP = new Constants().new PickupSettings(21, true, 2, 50, 150);
   }
 
   // Pickup Settings Class
@@ -236,9 +266,9 @@ public final class Constants {
   // IDs Range from 30 - 39
   public static class MailmanConstants {
     // Preset Elevator Heights
-    public static final double AMP_HEIGHT = 63;
+    public static final double AMP_HEIGHT = 77;
     public static final double HOME_HEIGHT = 0;
-    public static final double TRAP_HEIGHT = 120;
+    public static final double TRAP_HEIGHT = 124;
 
     // Elevator Constants
     public static final int ELEVATOR_MOTOR_ID = 31;
@@ -250,8 +280,9 @@ public final class Constants {
 
     // Dropper Motor Constants
     public static final int DROPPER_MOTOR_ID = 0; // PWM Channel
-    public static final double DROPPER_IN_SPEED = 0.5;
+    public static final double DROPPER_IN_SPEED = 1.0;
     public static final double DROPPER_OUT_SPEED = -1.0;
+    public static final double DROPPER_BUMP_SPEED = 0.6;
   }
 
   // IDs range from 40 - 49

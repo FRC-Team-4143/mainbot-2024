@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.28,
+        "y": 2.4371348742697485
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.043891769416373,
+        "y": 1.047176810692926
+      },
+      "isLocked": false,
+      "linkedName": "E note"
+    },
+    {
+      "anchor": {
+        "x": 2.8598500563620233,
+        "y": 2.915998299899595
+      },
+      "prevControl": {
+        "x": 4.341467936749108,
+        "y": 1.2223044889412518
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Far 4 Piece to shoot point"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.15,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "RearPickupIndex"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 140.06361685303003,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": -151.93,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

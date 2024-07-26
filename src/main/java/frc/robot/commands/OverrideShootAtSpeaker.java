@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.MailmanSubsystem.HeightTarget;
 import frc.robot.subsystems.PickupSubsystem;
@@ -16,6 +15,7 @@ import frc.robot.subsystems.ShooterSubsystem.ShootTarget;
 public class OverrideShootAtSpeaker extends Command {
   /** Creates a new ShootAtTarget. */
   boolean shot_note_;
+  double ready_count = 0;
   public OverrideShootAtSpeaker() {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
@@ -30,13 +30,17 @@ public class OverrideShootAtSpeaker extends Command {
     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
     ShooterSubsystem.getInstance().setShootMode(ShootMode.PROFILE);
     shot_note_ = false;
+    ready_count = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (ShooterSubsystem.getInstance().isOverrideTargetLocked()){
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ready_count++;
+    }
+    if(ready_count >= 25){
+      ShooterSubsystem.getInstance().setRollerLaunch();
     }
   }
 

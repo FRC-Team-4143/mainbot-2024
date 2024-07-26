@@ -22,7 +22,7 @@ public class AutoEnableDefaults extends Command {
   public void initialize() {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     ShooterSubsystem.getInstance().setTarget(ShootTarget.SPEAKER);
-    ShooterSubsystem.getInstance().setShootMode(ShootMode.TARGET);
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

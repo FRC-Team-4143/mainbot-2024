@@ -40,7 +40,7 @@ public class AutoShootAtSpeakerPreload extends Command {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
       ShooterSubsystem.getInstance().setRollerFeed();
     } else if(ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isOverrideTargetLocked()) { //is target lock normaly 
-      ShooterSubsystem.getInstance().setRollerFeed();
+      ShooterSubsystem.getInstance().setRollerLaunch();
       has_shot_note_ = true;
     } else {
       PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.IDLE);
@@ -54,6 +54,7 @@ public class AutoShootAtSpeakerPreload extends Command {
     PickupSubsystem.getShooterInstance().setPickupMode(PickupMode.PICKUP);
     SwerveDrivetrain.getInstance().setDriveMode(SwerveDrivetrain.DriveMode.AUTONOMOUS);
     ShooterSubsystem.getInstance().rollerStop();
+    ShooterSubsystem.getInstance().setShootMode(ShootMode.IDLE);
   }
 
   // Returns true when the command should end.

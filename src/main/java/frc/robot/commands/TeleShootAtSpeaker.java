@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.OI;
 import frc.robot.subsystems.MailmanSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShootMode;
@@ -23,8 +22,7 @@ public class TeleShootAtSpeaker extends Command {
     addRequirements(ShooterSubsystem.getInstance());
     addRequirements(SwerveDrivetrain.getInstance());
     addRequirements(MailmanSubsystem.getInstance());
-    addRequirements(PickupSubsystem.getMailmanInstance()); // Prevent Notes from going under shooter
-    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(PickupSubsystem.getShooterInstance());
   }
 
   // Called when the command is initially scheduled.
@@ -45,8 +43,8 @@ public class TeleShootAtSpeaker extends Command {
     } else if (ShooterSubsystem.getInstance().hasNote() && ShooterSubsystem.getInstance().isTargetLocked()) {
       ready_count_++;
     }
-    if (ready_count_ >= 5) {
-      ShooterSubsystem.getInstance().setRollerFeed();
+    if (ready_count_ >= 25) {
+      ShooterSubsystem.getInstance().setRollerLaunch();
       shot_note_ = true;
     }
   }

@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.270256540513081,
+        "y": 7.439674879349759
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.281943659972296,
+        "y": 7.287235874639098
+      },
+      "isLocked": false,
+      "linkedName": "H note"
+    },
+    {
+      "anchor": {
+        "x": 4.432,
+        "y": 6.837
+      },
+      "prevControl": {
+        "x": 4.7970926711084205,
+        "y": 6.926593853187707
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "BHG shoot point"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.25,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "RearPickupIndex"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": -166.53479190518837,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0.0
+  },
+  "useDefaultConstraints": true
+}

@@ -85,7 +85,7 @@ public class Telemetry {
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
     public void telemeterize() {
         /* Telemeterize the pose */
-        Pose2d pose = poseEstimator.getRobotPose();
+        Pose2d pose = poseEstimator.getFieldPose();
         fieldTypePub.set("Field2d");
         fieldPub.set(new double[] {
                 pose.getX(),

@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.Util;
 import frc.lib.subsystem.Subsystem;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.ShooterSpinUp;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -31,8 +30,6 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-
-import java.util.function.BooleanSupplier;
 
 import com.playingwithfusion.TimeOfFlight;
 
@@ -76,6 +73,9 @@ public class ShooterSubsystem extends Subsystem {
     private final Pose3d BLUE_SPEAKER = field_layout_.getTagPose(7).get().transformBy(SPEAKER_TRANSFORM);
     private final Pose3d RED_SPEAKER = field_layout_.getTagPose(4).get().transformBy(SPEAKER_TRANSFORM);
 
+    private final Rotation2d BLUE_PASS_ANGLE = Rotation2d.fromDegrees(180 - 210);
+    private final Rotation2d RED_PASS_ANGLE = Rotation2d.fromDegrees(210);
+
     private final Pose3d BLUE_PASS = field_layout_.getTagPose(7).get().transformBy(BLUE_PASS_TRANSFORM);
     private final Pose3d RED_PASS = field_layout_.getTagPose(4).get().transformBy(RED_PASS_TRANSFORM);
     // Speed maps
@@ -97,13 +97,15 @@ public class ShooterSubsystem extends Subsystem {
         RECEIVE,
         CLIMB,
         PROFILE,
-        SPINUP
+        SPINUP,
+        DEMO,
+        DEMOTARGETING
     }
 
     private ShooterPeriodicIo io_;
 
     Debouncer rearNoteDebouncer = new Debouncer(0.25, DebounceType.kFalling);
-    
+
     public ShooterSubsystem() {
         io_ = new ShooterPeriodicIo();
         top_flywheel_motor_ = new CANSparkFlex(ShooterConstants.TOP_FLYWHEEL_MOTOR_ID,
@@ -117,7 +119,6 @@ public class ShooterSubsystem extends Subsystem {
 
         target_pub = NetworkTableInstance.getDefault().getStructTopic("tag_pose", Pose3d.struct).publish();
         rot_pub = NetworkTableInstance.getDefault().getStructTopic("rot_pose", Pose2d.struct).publish();
-        
     }
 
     @Override
@@ -125,25 +126,29 @@ public class ShooterSubsystem extends Subsystem {
         // Top flywheel motor configuration
         top_flywheel_motor_.setSmartCurrentLimit(40);
         top_flywheel_motor_.setInverted(true);
+        top_flywheel_motor_.enableVoltageCompensation(ShooterConstants.FLYWHEEL_VOLTAGE_COMP);
         top_flywheel_controller_ = top_flywheel_motor_.getPIDController();
         top_flywheel_encoder_ = top_flywheel_motor_.getEncoder();
         top_flywheel_controller_.setFeedbackDevice(top_flywheel_encoder_);
-        top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);
-        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
-        top_flywheel_controller_.setP(0.0001, 1);
-        top_flywheel_controller_.setFF(0, 1);
+        top_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);        
+        top_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D, 0);
+        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 0);
+        top_flywheel_controller_.setP(0.0, 1);
+        top_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 1);
         top_flywheel_motor_.burnFlash();
 
         // Bottom flywheel motor configuration
         bot_flywheel_motor_.setSmartCurrentLimit(40);
         bot_flywheel_motor_.setInverted(false);
+        bot_flywheel_motor_.enableVoltageCompensation(ShooterConstants.FLYWHEEL_VOLTAGE_COMP);
         bot_flywheel_controller_ = bot_flywheel_motor_.getPIDController();
         bot_flywheel_encoder_ = bot_flywheel_motor_.getEncoder();
         bot_flywheel_controller_.setFeedbackDevice(bot_flywheel_encoder_);
         bot_flywheel_controller_.setP(ShooterConstants.FLYWHEEL_CONTROLLER_P, 0);
-        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_FF, 0);
-        bot_flywheel_controller_.setP(0.0001, 1);
-        bot_flywheel_controller_.setFF(0, 1);
+        bot_flywheel_controller_.setD(ShooterConstants.FLYWHEEL_CONTROLLER_D, 0);
+        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 0);
+        bot_flywheel_controller_.setP(0.0, 1);
+        bot_flywheel_controller_.setFF(ShooterConstants.FLYWHEEL_CONTROLLER_F, 1);
         bot_flywheel_motor_.burnFlash();
 
         // Wrist motor configuration
@@ -172,26 +177,26 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void updateLogic(double timestamp) {
-        Pose2d robot_pose = PoseEstimator.getInstance().getRobotPose();
+        Pose2d robot_pose = PoseEstimator.getInstance().getFieldPose();
         io_.note_travel_time_ = calculateNoteTravelTime(robot_pose, io_.target_offset_pose);
-        io_.relative_chassis_speed_ = transformChassisVelocity();
-        io_.target_offset_pose = io_.target_.transformBy(calculateMovingTargetOffset(io_.relative_chassis_speed_, io_.note_travel_time_));
+        io_.target_relative_chassis_speed_ = transformChassisVelocity();
+        io_.target_offset_pose = io_.target_
+                .transformBy(calculateMovingTargetOffset(io_.target_relative_chassis_speed_, io_.note_travel_time_));
         io_.target_distance_ = calculateLinearDist(robot_pose, io_.target_offset_pose);
         io_.target_offset_tuned_ = dist_to_angle_offset_lookup_.get(io_.target_distance_);
 
         switch (io_.shooter_mode) {
             case TARGET:
-                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
-                if(io_.target_mode_ == ShootTarget.SPEAKER){
-                    io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose, ShooterConstants.NOTE_EXIT_VELOCITY,io_.target_offset_tuned_);
-                } else if(io_.target_mode_ == ShootTarget.PASS){
-                    io_.target_wrist_angle_ = Math.toRadians(40);
-                }
             case SPINUP:
-                if(io_.target_mode_ == ShootTarget.SPEAKER){
+                if (io_.target_mode_ == ShootTarget.SPEAKER) {
                     io_.target_flywheel_speed_ = 550;
-                } else if(io_.target_mode_ == ShootTarget.PASS){
+                    io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+                    io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,
+                            ShooterConstants.NOTE_EXIT_VELOCITY, io_.target_offset_tuned_);
+                } else if (io_.target_mode_ == ShootTarget.PASS) {
+                    io_.target_robot_yaw_ = (DriverStation.getAlliance().get() == DriverStation.Alliance.Red)? RED_PASS_ANGLE: BLUE_PASS_ANGLE;
                     io_.target_flywheel_speed_ = 325;
+                    io_.target_wrist_angle_ = Math.toRadians(40);
                 }
                 break;
             case TRANSFER:
@@ -210,12 +215,21 @@ public class ShooterSubsystem extends Subsystem {
                 io_.target_wrist_angle_ = Math.toRadians(35);
                 io_.target_flywheel_speed_ = 550;
                 break;
+            case DEMO:
+                io_.target_wrist_angle_ = Math.toRadians(40);
+                io_.target_flywheel_speed_ = 200;
+                break;
+            case DEMOTARGETING:
+                io_.target_wrist_angle_ = calculateWristAngle(robot_pose, io_.target_offset_pose,ShooterConstants.NOTE_EXIT_VELOCITY, io_.target_offset_tuned_);
+                io_.target_flywheel_speed_ = 200;
+                io_.target_robot_yaw_ = calculateTargetYaw(robot_pose, io_.target_offset_pose);
+                break;
             case IDLE:
             default:
-                if(isNoteBehindFlywheels()) {
-                    if(io_.target_mode_ == ShootTarget.SPEAKER){
+                if (isNoteBehindFlywheels()) {
+                    if (io_.target_mode_ == ShootTarget.SPEAKER) {
                         io_.target_flywheel_speed_ = 550;
-                    } else if(io_.target_mode_ == ShootTarget.PASS){
+                    } else if (io_.target_mode_ == ShootTarget.PASS) {
                         io_.target_flywheel_speed_ = 325;
                     }
                 } else {
@@ -224,7 +238,7 @@ public class ShooterSubsystem extends Subsystem {
                 io_.target_wrist_angle_ = ShooterConstants.WRIST_HOME_ANGLE;
                 break;
         }
-    
+
         if (io_.has_note_ && io_.note_sensor_range_ > ShooterConstants.NO_NOTE_RANGE) {
             io_.has_note_ = false;
         } else if (io_.has_note_ == false && io_.note_sensor_range_ < ShooterConstants.HAS_NOTE_RANGE) {
@@ -239,7 +253,7 @@ public class ShooterSubsystem extends Subsystem {
         roller_motor_.set(io_.roller_speed_);
         setFlyWheelRPM(io_.target_flywheel_speed_);
         setWristAngle(io_.target_wrist_angle_);
-        if (io_.shooter_mode == ShootMode.TARGET) {
+        if(isTargeting()){
             SwerveDrivetrain.getInstance().setTargetRotation(io_.target_robot_yaw_);
         }
     }
@@ -247,10 +261,10 @@ public class ShooterSubsystem extends Subsystem {
     @Override
     public void outputTelemetry(double timestamp) {
         target_pub.set(io_.target_offset_pose);
-        rot_pub.set(new Pose2d(PoseEstimator.getInstance().getRobotPose().getTranslation(), io_.target_robot_yaw_));
+        rot_pub.set(new Pose2d(PoseEstimator.getInstance().getFieldPose().getTranslation(), io_.target_robot_yaw_));
 
-        SmartDashboard.putBoolean("Shooter TOF/Has Note", io_.has_note_);
-        SmartDashboard.putNumber("Shooter TOF/Range", io_.note_sensor_range_);
+        SmartDashboard.putBoolean("TOF/Shooter/Has Note", io_.has_note_);
+        SmartDashboard.putNumber("TOF/Shooter/Range", io_.note_sensor_range_);
 
         // Target Locked Tests
         SmartDashboard.putBoolean("Target Locked Check/Target Locked", this.isTargetLocked());
@@ -260,23 +274,25 @@ public class ShooterSubsystem extends Subsystem {
         SmartDashboard.putBoolean("Target Locked Check/Orientation Locked", this.orientationLocked());
 
         SmartDashboard.putNumber("Shooter Control/Target/Flywheel Speed", io_.target_flywheel_speed_); // * 9.549);
-        SmartDashboard.putNumber("Shooter Control/Current/Top Flywheel Speed", io_.current_top_flywheel_speed_); // * 9.549);
-        SmartDashboard.putNumber("Shooter Control/Current/Bot Flywheel Speed", io_.current_bot_flywheel_speed_); // * 9.549);
+        SmartDashboard.putNumber("Shooter Control/Current/Top Flywheel Speed", io_.current_top_flywheel_speed_); // *
+                                                                                                                 // 9.549);
+        SmartDashboard.putNumber("Shooter Control/Current/Bot Flywheel Speed", io_.current_bot_flywheel_speed_); // *
+                                                                                                                 // 9.549);
 
         SmartDashboard.putNumber("Shooter Control/Target/Wrist Angle", io_.target_wrist_angle_); // * 180 / 3.14159);
         SmartDashboard.putNumber("Shooter Control/Current/Wrist Angle", io_.current_wrist_angle_); // * 180 / 3.14159);
 
-        SmartDashboard.putNumber("Shooter Control/Target/Robot Yaw", io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()).getRadians());
+        SmartDashboard.putNumber("Shooter Control/Target/Robot Yaw",
+                io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()).getRadians());
         SmartDashboard.putNumber("Shooter Control/Current/Robot Yaw",
-                PoseEstimator.getInstance().getRobotPose().getRotation().getRadians());
-        
+                PoseEstimator.getInstance().getFieldPose().getRotation().getRadians());
+
         SmartDashboard.putNumber("Distance to Target", io_.target_distance_);
         SmartDashboard.putNumber("Debug/Wrist Encoder Value", wrist_encoder_.getPosition());
 
         SmartDashboard.putBoolean("Speaker Shooting Mode", io_.target_mode_ == ShootTarget.SPEAKER);
         SmartDashboard.putBoolean("Pass Shooting Mode", io_.target_mode_ == ShootTarget.PASS);
         SmartDashboard.putBoolean("Auto Aim", isAutomaticAimMode());
-
     }
 
     /**
@@ -297,12 +313,16 @@ public class ShooterSubsystem extends Subsystem {
      * 
      * @return target mode [SPEAKER, PASS]
      */
-    public ShootTarget getShootTarget(){
+    public ShootTarget getShootTarget() {
         return io_.target_mode_;
     }
 
     public boolean isShooterHandoffState() {
-        return (io_.shooter_mode == ShootMode.RECEIVE || io_.shooter_mode ==  ShootMode.TRANSFER);
+        return (io_.shooter_mode == ShootMode.RECEIVE || io_.shooter_mode == ShootMode.TRANSFER);
+    }
+
+    public boolean isTargeting() {
+        return io_.shooter_mode == ShootMode.PROFILE || io_.shooter_mode == ShootMode.TARGET || io_.shooter_mode == ShootMode.SPINUP;
     }
 
     /**
@@ -328,7 +348,8 @@ public class ShooterSubsystem extends Subsystem {
             return false;
         }
 
-        return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked() && orientationLocked() && (getShootMode() == ShootMode.TARGET);
+        return wristLocked() && upperFlywheelLocked() && lowerFlywheelLocked() && orientationLocked()
+                && (getShootMode() == ShootMode.TARGET);
     }
 
     /**
@@ -367,7 +388,7 @@ public class ShooterSubsystem extends Subsystem {
 
     public boolean orientationLocked() {
         return Util.epislonEquals(io_.target_robot_yaw_.rotateBy(SwerveDrivetrain.getInstance().getDriverPrespective()),
-                PoseEstimator.getInstance().getRobotPose().getRotation(),
+                PoseEstimator.getInstance().getFieldPose().getRotation(),
                 ShooterConstants.YAW_TOLERANCE);
     }
 
@@ -405,26 +426,26 @@ public class ShooterSubsystem extends Subsystem {
         io_.shooter_mode = mode;
     }
 
-    public ShootMode getShootMode(){
+    public ShootMode getShootMode() {
         return io_.last_shoot_mode_;
     }
 
     /**
      * Toggles the Target mode between SPEAKER and PASS
      */
-    public void toggleShootTarget(){
-     io_.target_mode_ = (io_.target_mode_ == ShootTarget.SPEAKER)? ShootTarget.PASS : ShootTarget.SPEAKER;
-     setTarget(io_.target_mode_);
+    public void toggleShootTarget() {
+        io_.target_mode_ = (io_.target_mode_ == ShootTarget.SPEAKER) ? ShootTarget.PASS : ShootTarget.SPEAKER;
+        setTarget(io_.target_mode_);
     }
 
-    public boolean isAutomaticAimMode(){
+    public boolean isAutomaticAimMode() {
         return io_.auto_aim_mode_;
     }
 
     /**
      * Toggles the Auto Aiming Mode
      */
-    public void toggleAutomaticAimMode(){
+    public void toggleAutomaticAimMode() {
         io_.auto_aim_mode_ = !io_.auto_aim_mode_;
     }
 
@@ -433,6 +454,13 @@ public class ShooterSubsystem extends Subsystem {
      */
     public void setRollerFeed() {
         io_.roller_speed_ = ShooterConstants.ROLLER_SPEED;
+    }
+
+    /**
+     * Turn on rollers for shooting
+     */
+    public void setRollerLaunch() {
+        io_.roller_speed_ = ShooterConstants.LAUNCH_SPEED;
     }
 
     /**
@@ -478,12 +506,17 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     private ChassisSpeeds transformChassisVelocity() {
-        ChassisSpeeds temp_chassis_speed = SwerveDrivetrain.getInstance().getCurrentRobotChassisSpeeds();
-        io_.target_transform_ = new Transform3d(io_.target_.getTranslation(), io_.target_.getRotation());
-        Translation3d temp_translation = new Translation3d(temp_chassis_speed.vxMetersPerSecond,
-                temp_chassis_speed.vyMetersPerSecond, 0.0);
-        temp_translation.rotateBy(io_.target_transform_.getRotation());
-        return new ChassisSpeeds(temp_translation.getX(), temp_translation.getY(), 0.0);
+        ChassisSpeeds field_relative = SwerveDrivetrain.getInstance().getFieldRelativeSpeeds();
+        var alliance = DriverStation.getAlliance();
+        if(alliance.isPresent()){
+            if (DriverStation.Alliance.Red == alliance.get()) {
+                return new ChassisSpeeds(field_relative.vxMetersPerSecond, field_relative.vyMetersPerSecond, field_relative.omegaRadiansPerSecond);
+            } else {
+                return new ChassisSpeeds(-field_relative.vxMetersPerSecond, field_relative.vyMetersPerSecond, field_relative.omegaRadiansPerSecond);
+            }
+        } else {
+            return new ChassisSpeeds();
+        }
     }
 
     // Calculate Methods
@@ -525,33 +558,16 @@ public class ShooterSubsystem extends Subsystem {
         return result;
     }
 
-    // private double calculateWristAnglePass(Pose2d robot_pose, Pose3d target_pose,
-    // double velocity) {
-    // Pose3d shooter_pose = (new
-    // Pose3d(robot_pose)).transformBy(ShooterConstants.SHOOTER_OFFSET);
-
-    // double z = Math.abs(shooter_pose.getZ() - target_pose.getZ()) +
-    // io_.target_offset_lookup_;
-    // double d = calculateLinearDist(robot_pose, target_pose);
-    // double G = 9.81;
-    // double root = Math.pow(velocity, 4) - G * (G * d * d + 2 * velocity *
-    // velocity * z);
-    // double result = Math.atan2((velocity * velocity) + Math.sqrt(root), G * d);
-    // if (result > 1.5707 || result < 0 || Double.isNaN(result)) {
-    // return ShooterConstants.WRIST_HOME_ANGLE;
-    // }
-    // return result;
-    // }
-
     private Rotation2d calculateTargetYaw(Pose2d robot_pose, Pose3d target_pose) {
         Pose2d pose_difference = robot_pose.relativeTo(target_pose.toPose2d());
         return pose_difference.getTranslation().getAngle().rotateBy(Rotation2d.fromDegrees(180));
     }
 
     private Transform3d calculateMovingTargetOffset(ChassisSpeeds chassis_speeds, double travel_time) {
-        double depth_offset = -chassis_speeds.vyMetersPerSecond * travel_time;
-        double horizontal_offset = -chassis_speeds.vxMetersPerSecond * travel_time;
-        return new Transform3d(new Translation3d(horizontal_offset, depth_offset, 0), new Rotation3d());
+        double depth_offset = (chassis_speeds.vyMetersPerSecond * travel_time) * ShooterConstants.Y_SHOOT_MOVE_FACTOR;
+        double horizontal_offset = (chassis_speeds.vxMetersPerSecond * travel_time) * ShooterConstants.X_SHOOT_MOVE_FACTOR;
+        double height_offset = (chassis_speeds.vxMetersPerSecond * travel_time) * ShooterConstants.Z_SHOOT_MOVE_FACTOR;
+        return new Transform3d(new Translation3d(horizontal_offset, depth_offset, height_offset), new Rotation3d());
     }
 
     public class ShooterPeriodicIo implements Logged {
@@ -582,7 +598,7 @@ public class ShooterSubsystem extends Subsystem {
         @Log.File
         public Transform3d target_transform_ = new Transform3d();
         @Log.File
-        public ChassisSpeeds relative_chassis_speed_ = new ChassisSpeeds();
+        public ChassisSpeeds target_relative_chassis_speed_ = new ChassisSpeeds();
         @Log.File
         public double note_sensor_range_ = 0.0;
         @Log.File
@@ -594,7 +610,7 @@ public class ShooterSubsystem extends Subsystem {
         @Log.File
         public ShootTarget target_mode_ = ShootTarget.SPEAKER;
         @Log.File
-        public boolean auto_aim_mode_= true; 
+        public boolean auto_aim_mode_ = true;
     }
 
     @Override
