@@ -9,17 +9,10 @@ package frc.robot.subsystems;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.PathPlannerLogging;
-import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,6 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -198,7 +192,6 @@ public class SwerveDrivetrain extends Subsystem {
                 DrivetrainConstants.Y_CONTROLLER,
                 DrivetrainConstants.T_CONTROLLER);
 
-        
     }
 
     @Override
@@ -229,7 +222,8 @@ public class SwerveDrivetrain extends Subsystem {
 
         io_.chassis_speeds_ = kinematics.toChassisSpeeds(io_.current_module_states_);
         io_.field_relative_chassis_speed_ = ChassisSpeeds.fromRobotRelativeSpeeds(io_.chassis_speeds_, io_.robot_yaw_);
-        io_.max_drive_speed_ = SmartDashboard.getNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
+        io_.max_drive_speed_ = SmartDashboard.getNumber("Max Drive Speed",
+                Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
     }
 
     @Override
@@ -345,73 +339,24 @@ public class SwerveDrivetrain extends Subsystem {
         return io_.robot_yaw_;
     }
 
-    /**
-     * Configures the PathPlanner AutoBuilder
-     */
-    public void configurePathPlanner() {
-        AutoBuilder.configureHolonomic(
-                PoseEstimator.getInstance()::getFieldPose, // Supplier of current robot pose
-                PoseEstimator.getInstance()::setRobotOdometry, // Consumer for seeding pose against auto
-                this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(auto_request.withSpeeds(speeds)), // Consumer of ChassisSpeeds
-                getHolonomicFollowerConfig(),
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                    var alliance = DriverStation.getAlliance();
+    public Command followPathCommand(ChoreoTrajectory traj) {
+        return Choreo.choreoSwerveCommand(
+            traj,
+            PoseEstimator.getInstance()::getFieldPose,
+            new PIDController(0.001, 0, 0), 
+            new PIDController(0.001, 0, 0), 
+            new PIDController(0.001, 0, 0), 
+            (ChassisSpeeds speeds) -> 
+                this.setControl(auto_request.withSpeeds(speeds)),
+            () -> {
+                Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
                         return alliance.get() == DriverStation.Alliance.Red;
                     }
                     return false;
-                },
-                this); // Subsystem for requirements
-        PPHolonomicDriveController.setRotationTargetOverride(this::getAutoTargetRotation);
-
-        // Logging callback for target robot pose
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-            // Do whatever you want with the pose here
-            pp_pose_pub_.set(pose);
-        });
-    }
-
-    public HolonomicPathFollowerConfig getHolonomicFollowerConfig() {
-        double driveBaseRadius = 0;
-        for (var moduleLocation : module_locations) {
-            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-        }
-        return new HolonomicPathFollowerConfig(new PIDConstants(5.0, 0.0, 0.001), // was 10
-                new PIDConstants(7.3, 0, 0.07),
-                5,
-                driveBaseRadius,
-                new ReplanningConfig(false, false),
-                0.01);
-    }
-
-    public Command followPathCommand(String pathName) {
-        return new FollowPathHolonomic(
-                PathPlannerPath.fromPathFile(pathName),
-                PoseEstimator.getInstance()::getFieldPose, // Supplier of current robot pose
-                this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(new SwerveRequest.ApplyChassisSpeeds().withSpeeds(speeds)), // Consumer of
-                                                                                                        // ChassisSpeeds
-                                                                                                        // to drive the
-                                                                                                        // robot
-                this.getHolonomicFollowerConfig(),
-
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this); // Subsystem for requirements
+            },
+            this 
+        );
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -422,7 +367,7 @@ public class SwerveDrivetrain extends Subsystem {
         return io_.chassis_speeds_;
     }
 
-    public ChassisSpeeds getFieldRelativeSpeeds(){
+    public ChassisSpeeds getFieldRelativeSpeeds() {
         return io_.field_relative_chassis_speed_;
     }
 
@@ -534,11 +479,11 @@ public class SwerveDrivetrain extends Subsystem {
                 notePose, 0.0, notePose.getRotation());
     }
 
-    public void rotationTargetWithGyro(boolean state){
+    public void rotationTargetWithGyro(boolean state) {
         io_.is_locked_with_gyro = state;
     }
 
-    public void updateMaxDriveSpeed(double speed){
+    public void updateMaxDriveSpeed(double speed) {
         io_.max_drive_speed_ = speed;
     }
 
