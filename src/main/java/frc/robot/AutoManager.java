@@ -32,7 +32,8 @@ public class AutoManager {
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     private AutoManager() {
-        
+        autoChooser.addOption("Straight Back", SwerveDrivetrain.getInstance().followPathCommand(Choreo.getTrajectory("TestTraj")));
+        autoChooser.addOption("Note H", SwerveDrivetrain.getInstance().followPathCommand(Choreo.getTrajectory("TestTraj")));
     }
 
     public SendableChooser<Command> getAutoChooser(){
@@ -40,7 +41,7 @@ public class AutoManager {
     }
 
     public Command getAutonomousCommand() {
-        return SwerveDrivetrain.getInstance().followPathCommand(Choreo.getTrajectory("test3"));
+        return autoChooser.getSelected();
     }
 
 }
