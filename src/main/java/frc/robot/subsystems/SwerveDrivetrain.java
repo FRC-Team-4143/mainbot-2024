@@ -198,6 +198,11 @@ public class SwerveDrivetrain extends Subsystem {
                 DrivetrainConstants.Y_CONTROLLER,
                 DrivetrainConstants.T_CONTROLLER);
 
+        // Driver Training Settings        
+        SmartDashboard.putNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
+        SmartDashboard.putNumber("Joystick Axis Scalar", Constants.DrivetrainConstants.AXIS_SCALAR);
+
+
         
     }
 
@@ -221,49 +226,56 @@ public class SwerveDrivetrain extends Subsystem {
             io_.current_module_states_[i] = swerve_modules[i].getCurrentState();
             io_.requested_module_states_[i] = swerve_modules[i].getTargetState();
         }
-        io_.driver_joystick_leftX_ = OI.getDriverJoystickLeftX();
-        io_.driver_joystick_leftY_ = OI.getDriverJoystickLeftY();
-        io_.driver_joystick_rightX_ = OI.getDriverJoystickRightX();
+        io_.driver_joystick_leftX_raw_ = OI.getDriverJoystickLeftX();
+        io_.driver_joystick_leftY_raw_ = OI.getDriverJoystickLeftY();
+        io_.driver_joystick_rightX_raw_ = OI.getDriverJoystickRightX();
 
         io_.robot_yaw_ = Rotation2d.fromRadians(MathUtil.angleModulus(-pigeon_imu.getAngle() * Math.PI / 180));
 
         io_.chassis_speeds_ = kinematics.toChassisSpeeds(io_.current_module_states_);
         io_.field_relative_chassis_speed_ = ChassisSpeeds.fromRobotRelativeSpeeds(io_.chassis_speeds_, io_.robot_yaw_);
         io_.max_drive_speed_ = SmartDashboard.getNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
+        io_.driver_joystick_scalar_ = SmartDashboard.getNumber("Joystick Axis Scalar", Constants.DrivetrainConstants.AXIS_SCALAR);
     }
 
     @Override
     public void updateLogic(double timestamp) {
+        // Joystick Scaling
+        io_.driver_joystick_leftX_scaled_ = scaledJoystickAxis(io_.driver_joystick_leftX_raw_);
+        io_.driver_joystick_leftY_scaled_ = scaledJoystickAxis(io_.driver_joystick_leftY_raw_);
+        io_.driver_joystick_rightX_scaled_ = scaledJoystickAxis(io_.driver_joystick_rightX_raw_);
+
+        // Driver Mode Control
         switch (io_.drive_mode_) {
             case ROBOT_CENTRIC:
                 setControl(robot_centric
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
+                        .withVelocityX(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
+                        .withVelocityY(-io_.driver_joystick_leftX_scaled_ * io_.max_drive_speed_)
                         // Drive counterclockwise with negative X (left)
                         .withRotationalRate(
-                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                                -io_.driver_joystick_rightX_scaled_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case FIELD_CENTRIC:
                 setControl(field_centric
                         // Drive forward with negative Y (forward)
-                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
+                        .withVelocityX(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
+                        .withVelocityY(-io_.driver_joystick_leftX_scaled_ * io_.max_drive_speed_)
                         // Drive counterclockwise with negative X (left)
                         .withRotationalRate(
-                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                                -io_.driver_joystick_rightX_scaled_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case TARGET:
                 setControl(target_facing
                         // Drive forward with negative Y (forward)
                         .withVelocityX(
-                                Util.clamp(-io_.driver_joystick_leftY_ * io_.max_drive_speed_,
+                                Util.clamp(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_,
                                         Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
                         .withVelocityY(
-                                Util.clamp(-io_.driver_joystick_leftX_ * io_.max_drive_speed_,
+                                Util.clamp(-io_.driver_joystick_leftX_scaled_ * io_.max_drive_speed_,
                                         Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_)
@@ -273,11 +285,11 @@ public class SwerveDrivetrain extends Subsystem {
             case SPINUP:
                 setControl(target_facing
                         .withVelocityX(
-                                Util.clamp(-io_.driver_joystick_leftY_ * io_.max_drive_speed_,
+                                Util.clamp(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_,
                                         Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Drive left with negative X (left)
                         .withVelocityY(
-                                Util.clamp(-io_.driver_joystick_leftX_ * io_.max_drive_speed_,
+                                Util.clamp(-io_.driver_joystick_leftX_scaled_ * io_.max_drive_speed_,
                                         Constants.DrivetrainConstants.MAX_TARGET_SPEED))
                         // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_));
@@ -287,16 +299,16 @@ public class SwerveDrivetrain extends Subsystem {
                         .withVelocityX(io_.driver_POVy * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
                         .withVelocityY(-io_.driver_POVx * Constants.DrivetrainConstants.CRAWL_DRIVE_SPEED)
                         .withRotationalRate(
-                                -io_.driver_joystick_rightX_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
+                                -io_.driver_joystick_rightX_scaled_ * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case NOTE_TARGET:
                 setControl(chassis_speed_request.withSpeeds(calculateNoteRequest()));
                 break;
             case SPINUP_TARGET_ANGLE:
                 setControl(target_facing
-                        .withVelocityX(-io_.driver_joystick_leftY_ * io_.max_drive_speed_)
+                        .withVelocityX(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_)
                         // Drive left with negative X (left)
-                        .withVelocityY(-io_.driver_joystick_leftX_ * io_.max_drive_speed_)
+                        .withVelocityY(-io_.driver_joystick_leftX_scaled_ * io_.max_drive_speed_)
                         // Set Robots target rotation
                         .withTargetDirection(io_.target_rotation_)
                         // Use current robot rotation
@@ -538,8 +550,8 @@ public class SwerveDrivetrain extends Subsystem {
         io_.is_locked_with_gyro = state;
     }
 
-    public void updateMaxDriveSpeed(double speed){
-        io_.max_drive_speed_ = speed;
+    public double scaledJoystickAxis(double value){
+        return Math.copySign(Math.pow(value, io_.driver_joystick_scalar_), value);
     }
 
     /**
@@ -555,11 +567,19 @@ public class SwerveDrivetrain extends Subsystem {
         @Log.File
         public Rotation2d robot_yaw_ = new Rotation2d();
         @Log.File
-        public double driver_joystick_leftX_ = 0.0;
+        public double driver_joystick_leftX_raw_ = 0.0;
         @Log.File
-        public double driver_joystick_leftY_ = 0.0;
+        public double driver_joystick_leftY_raw_ = 0.0;
         @Log.File
-        public double driver_joystick_rightX_ = 0.0;
+        public double driver_joystick_rightX_raw_ = 0.0;
+        @Log.File
+        public double driver_joystick_leftX_scaled_ = 0.0;
+        @Log.File
+        public double driver_joystick_leftY_scaled_ = 0.0;
+        @Log.File
+        public double driver_joystick_rightX_scaled_ = 0.0;
+        @Log.File
+        public double driver_joystick_scalar_ = Constants.DrivetrainConstants.AXIS_SCALAR;
         @Log.File
         public ChassisSpeeds chassis_speeds_ = new ChassisSpeeds();
         @Log.File
@@ -579,7 +599,7 @@ public class SwerveDrivetrain extends Subsystem {
         @Log.File
         public boolean is_locked_with_gyro = false;
         @Log.File
-        public double max_drive_speed_ = 0.0;
+        public double max_drive_speed_ = Constants.DrivetrainConstants.MAX_DRIVE_SPEED;
     }
 
     @Override

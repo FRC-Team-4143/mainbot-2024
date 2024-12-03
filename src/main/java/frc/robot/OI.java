@@ -10,7 +10,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -93,7 +92,6 @@ public abstract class OI {
                     demoTargeting = !demoTargeting;
                 })
                 .ignoringDisable(true));
-        SmartDashboard.putNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
 
         // ------------------
         // Driver Controls
@@ -266,24 +264,15 @@ public abstract class OI {
     }
 
     static public double getDriverJoystickLeftX() {
-        double val = driver_joystick_.getLeftX();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
+        return driver_joystick_.getLeftX();
     }
 
     static public double getDriverJoystickLeftY() {
-        double val = driver_joystick_.getLeftY();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
+        return driver_joystick_.getLeftY();
     }
 
     static public double getDriverJoystickRightX() {
-        double val = driver_joystick_.getRightX();
-        double output = val * val;
-        output = Math.copySign(output, val);
-        return output;
+        return driver_joystick_.getRightX();
     }
 
     static public boolean getDriverJoystickRightY() {

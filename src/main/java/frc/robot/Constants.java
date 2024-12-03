@@ -99,6 +99,7 @@ public final class Constants {
     public static final double MAX_DRIVE_ANGULAR_RATE = Math.PI * 2; // Rotation per second max angular velocity
     public static final double CRAWL_DRIVE_SPEED = 0.4;
     public static final double MAX_TARGET_SPEED = 1;
+    public static final double AXIS_SCALAR = 1.0;
 
     private static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()
         .withDriveMotorGearRatio(DRIVE_GEAR_RATIO)
