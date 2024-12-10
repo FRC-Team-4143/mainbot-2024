@@ -275,9 +275,10 @@ public abstract class OI {
         return driver_joystick_.getRightX();
     }
 
-    static public boolean getDriverJoystickRightY() {
-        double val = driver_joystick_.getRightY();
-        return Util.epislonEquals(val, 0, 0.1);
+    static public double getDriverJoystickRightY() {
+        // double val = driver_joystick_.getRightY();
+        // return Util.epislonEquals(val, 0, 0.1);
+        return driver_joystick_.getRightY();
     }
 
     static public double getDriverJoystickPOVangle() {
