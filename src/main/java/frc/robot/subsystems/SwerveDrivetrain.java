@@ -238,7 +238,7 @@ public class SwerveDrivetrain extends Subsystem {
         io_.driver_joystick_scalar_ = SmartDashboard.getNumber("Joystick Axis Scalar",
                 Constants.DrivetrainConstants.AXIS_SCALAR);
 
-        io_.target_turning = SmartDashboard.getBoolean("Target Turning", true);
+        io_.target_turning = SmartDashboard.getBoolean("Target Turning", false);
     }
 
     @Override
