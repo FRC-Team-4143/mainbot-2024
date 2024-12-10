@@ -237,6 +237,8 @@ public class SwerveDrivetrain extends Subsystem {
                 Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
         io_.driver_joystick_scalar_ = SmartDashboard.getNumber("Joystick Axis Scalar",
                 Constants.DrivetrainConstants.AXIS_SCALAR);
+
+        io_.target_turning = SmartDashboard.getBoolean("Target Turning", true);
     }
 
     @Override
@@ -261,7 +263,7 @@ public class SwerveDrivetrain extends Subsystem {
                                         * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 break;
             case FIELD_CENTRIC:
-                if (io_.target_turing == false) {
+                if (io_.target_turning == false) {
                     setControl(field_centric
                             // Drive forward with negative Y (forward)
                             .withVelocityX(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_)
@@ -272,9 +274,7 @@ public class SwerveDrivetrain extends Subsystem {
                                     -io_.driver_joystick_rightX_scaled_
                                             * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 } else {
-                    io_.target_rotation_ = new Rotation2d(-io_.driver_joystick_rightX_scaled_
-                    * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE, -io_.driver_joystick_rightY_scaled_
-                    * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE);
+                    io_.target_rotation_ = new Rotation2d(-io_.driver_joystick_rightX_raw_, -io_.driver_joystick_rightY_raw_);
                     setControl(target_facing
                             // Drive forward with negative Y (forward)
                             .withVelocityX(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_)
@@ -623,7 +623,7 @@ public class SwerveDrivetrain extends Subsystem {
         @Log.File
         public double max_drive_speed_ = Constants.DrivetrainConstants.MAX_DRIVE_SPEED;
         @Log.File
-        public boolean target_turing = true;
+        public boolean target_turning = false;
     }
 
     @Override
