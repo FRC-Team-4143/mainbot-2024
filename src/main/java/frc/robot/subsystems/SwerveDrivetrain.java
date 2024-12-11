@@ -275,7 +275,9 @@ public class SwerveDrivetrain extends Subsystem {
                                             * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 } else {
                     Translation2d translation = new Translation2d(-io_.driver_joystick_rightX_raw_, -io_.driver_joystick_rightY_raw_);
-                    io_.target_rotation_ = translation.getAngle();
+                    if (translation.getDistance(new Translation2d(0,0)) >= 0.5) {
+                        io_.target_rotation_ = translation.getAngle();
+                    } 
                     setControl(target_facing
                             // Drive forward with negative Y (forward)
                             .withVelocityX(-io_.driver_joystick_leftY_scaled_ * io_.max_drive_speed_)
