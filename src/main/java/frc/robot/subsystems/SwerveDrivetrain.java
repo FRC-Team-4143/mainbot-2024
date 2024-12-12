@@ -201,6 +201,7 @@ public class SwerveDrivetrain extends Subsystem {
         // Driver Training Settings
         SmartDashboard.putNumber("Max Drive Speed", Constants.DrivetrainConstants.MAX_DRIVE_SPEED);
         SmartDashboard.putNumber("Joystick Axis Scalar", Constants.DrivetrainConstants.AXIS_SCALAR);
+        SmartDashboard.putBoolean("Target Turning", false);
 
     }
 
@@ -274,8 +275,8 @@ public class SwerveDrivetrain extends Subsystem {
                                     -io_.driver_joystick_rightX_scaled_
                                             * Constants.DrivetrainConstants.MAX_DRIVE_ANGULAR_RATE));
                 } else {
-                    Translation2d translation = new Translation2d(-io_.driver_joystick_rightX_raw_, -io_.driver_joystick_rightY_raw_);
-                    if (translation.getDistance(new Translation2d(0,0)) >= 0.5) {
+                    Translation2d translation = new Translation2d(-io_.driver_joystick_rightY_raw_, -io_.driver_joystick_rightX_raw_);
+                    if (translation.getDistance(new Translation2d(0,0)) >= 0.25) {
                         io_.target_rotation_ = translation.getAngle();
                     } 
                     setControl(target_facing
@@ -368,6 +369,7 @@ public class SwerveDrivetrain extends Subsystem {
         SmartDashboard.putNumber("Debug/Chassis Speed/Y", io_.chassis_speeds_.vyMetersPerSecond);
         SmartDashboard.putNumber("Debug/Chassis Speed/Omega", io_.chassis_speeds_.omegaRadiansPerSecond);
         SmartDashboard.putNumber("Debug/Chassis Speed/magnitude", io_.chassis_speed_magnitude_);
+        SmartDashboard.putNumber("Target Degress", io_.target_rotation_.getDegrees());
 
         // SmartDashboard.putData("X_Controler", DrivetrainConstants.X_CONTROLLER);
         // SmartDashboard.putData("Y_Controler", DrivetrainConstants.Y_CONTROLLER);
